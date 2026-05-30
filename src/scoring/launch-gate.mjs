@@ -1,6 +1,7 @@
 import { LAUNCH_GATES } from '../model/launch-gate.mjs';
 import { productReadiness } from './product-readiness.mjs';
 import { mediaScore, MEDIA_MIN } from './media-score.mjs';
+import { checkMediaHard } from '../imagery/quality.mjs';
 import { now } from '../lib/clock.mjs';
 
 /** Pure predicates keyed by each gate's `check`. */
@@ -11,7 +12,14 @@ const CHECKS = {
   pricedAboveFloor: (p) =>
     (p.pricing?.listMinor || 0) > 0 && (p.pricing?.listMinor || 0) >= (p.pricing?.floorMinor || 0),
   hasSupplier: (p) => !!p.supplierId,
-  mediaOk: (p) => mediaScore(p.media || []) >= MEDIA_MIN,
+  // Role coverage (mediaScore) PLUS: any measured asset must pass the hard
+  // quality gate. Unmeasured assets need only role coverage (backward-compatible),
+  // so measuring imagery can only ever make the bar stricter, never looser.
+  mediaOk: (p) => {
+    if (mediaScore(p.media || []) < MEDIA_MIN) return false;
+    const measured = (p.media || []).filter((m) => m.approved && m.metrics);
+    return measured.every((m) => checkMediaHard(m).passed);
+  },
   readinessOk: (p) => productReadiness(p) >= 70,
   // The human gate, encoded as a required launch gate.
   humanApproved: (p, ctx) =>

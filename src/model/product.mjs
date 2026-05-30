@@ -32,6 +32,9 @@ export function createMediaRef(input = {}) {
     width: input.width,
     height: input.height,
     provenance: input.provenance || MediaProvenance.PLACEHOLDER,
+    // Measured quality metrics (R4) — set by the imagery agent / enhancement MCP;
+    // consulted by the hard media gate. Undefined = unmeasured.
+    metrics: input.metrics,
     // Imagery is NOT approved until a human approves it — only approved media counts toward the gate.
     approved: input.approved === true,
   };
