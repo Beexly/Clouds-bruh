@@ -45,6 +45,17 @@ export const BRAND = Object.freeze({
     ],
   }),
 
+  // Commercial policy — the "deadly sins" of online business, encoded so the
+  // machine cannot drift into them (from docs/research/07 history of winners
+  // and failures). These are enforced in scoring/launch gates and copy.
+  policy: Object.freeze({
+    minMarginPct: 50, // never publish below this contribution margin (Sin 1: unit economics)
+    requirePositiveMargin: true, // a non-positive-margin product can never publish
+    fullPriceOnly: true, // no discounting / padded MSRPs (Sin 4: brand-equity erosion)
+    pricesWholeMajorUnits: true, // luxury: no charm .99 endings
+    noAutomatedPaidAcquisition: true, // growth is earned (brand + taste flywheel), never rented (Sin 3)
+  }),
+
   // Dark luxury / punk-gothic palette. Mirrored by public/styles/tokens.css.
   palette: Object.freeze({
     void: '#0A0A0D', // page base — near-black

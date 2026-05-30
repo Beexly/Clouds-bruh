@@ -64,17 +64,37 @@ reveal: opacity+translateY(16→0) slow ease-entrance, stagger 60ms · honor pre
 Each phase: dependency-free, tests green, committed, pushed; nothing auto-publishes or auto-spends.
 
 - **R1 — Trend engine** ✅ shipped (`src/trends/*`).
-- **R2 — Data model evolution** (A): variant `attributes`, category tree, `tenant_id` seam (flagged, single-tenant default). Migrate seed + tests.
-- **R3 — Conversion storefront** (C + D): facet/sort/paginate projection contract, recommendations, reviews model, design-token + motion level-up, PDP "feel" art direction.
-- **R4 — Imagery quality system** (E): shot list + hard media gate + quality score; wire into the imagery agent + launch gate.
-- **R5 — Autonomy safety** (G): policy gate, budgets, hash-chained log + `verify-log`, fail-closed audit.
-- **R6 — Checkout/settlement** (B): hosted-checkout artifact + idempotent webhook-driven order-of-record + reconcile.
-- **R7 — Content/personality agent** (F): `styleGuide` + content candidate pipeline into the queue.
-- **R8 — Security/compliance** (H): threat-model doc, multi-tenancy hardening, SBOM, SOC2/PCI/GDPR roadmap doc + the controls that are code (redaction, read-only ops, idempotency).
+- **R2 — Data model evolution** ✅ shipped: variant `attributes`, category tree, `tenant_id` seam.
+- **R3 — Conversion storefront** ✅ shipped: facet/sort/paginate, recommendations, verified reviews, design-token + motion level-up, PDP "feel."
+- **R4 — Imagery quality system** ✅ shipped: shot list + hard media gate + 0–100 score + enhancement-MCP seam.
+- **R5 — CX, size accuracy, copy gate & deadly-sin hardening** ✅ shipped (see Round 2 below).
+- **R6 — Autonomy safety** (G): policy gate, budgets, hash-chained log + `verify-log`, fail-closed audit.
+- **R7 — Checkout/settlement** (B): hosted-checkout artifact + idempotent webhook-driven order-of-record + reconcile.
+- **R8 — Content/personality agent** (F): `styleGuide` + content candidate pipeline into the queue.
+- **R9 — Security/compliance** (H): threat-model doc, multi-tenancy hardening, SBOM, SOC2/PCI/GDPR roadmap.
 
-Sequencing rationale: model first (everything depends on it), then the visible conversion surface, then the quality/safety systems that gate going live, then settlement, then brand-personality content, then the sellability wrapper.
+---
+
+## Round 2 — "Eclipse Frontier" research (findings 07–12)
+
+A second, deeper research round on retention, sales, marketplace history, the psychology of wording/format, the analytics "why," customer-service + size accuracy, and genuinely first-of-its-kind ideas. Six new workstreams:
+
+- **07 History & moats** — billion-dollar winners vs. failed companies across ALL online business. Verdict: survivors respected unit economics + built a real moat; corpses bought growth they couldn't fund. The **"7 deadly sins → Eclipse guardrail"** map; our moats = brand + counter-positioning vs dark-pattern retail + a proprietary autonomous-curation taste flywheel + trust-as-infrastructure. **Shipped:** hardened Sins 1 (positive-margin gate) & 4 (full-price/no-charm policy in `brand.mjs`).
+- **08 Retention & LTV** — retention is the growth engine (5%→25–95% profit); the second-purchase inflection (27%→54%); RFM + cohort + predicted-LTV from the event log; lifecycle flows that PROPOSE into the human queue; luxury "Inner Circle" (access, not points). → builds the retention engine (a later batch).
+- **09 Wording & format psychology** — specificity-as-trust; luxury rounded pricing (no charm .99); the F-pattern scanning law. **Shipped:** `src/scoring/copy-gate.mjs` — a deterministic copy scorer/gate (voice, specificity, reading ease, banned hype, honesty hard-fails, price rule), wired as the `copy_on_voice` launch gate.
+- **10 CX & size accuracy** — fit is the #1 returns cause; service is the #1 retention lever; "escalate, don't guess." **Shipped:** `src/fit/*` — size/fit data model (integer mm), deterministic size recommender, and a returns-reason intelligence loop that proposes fit-profile flips and penalizes suppliers (human-gated). Proactive CX triggers queued for a later batch.
+- **11 Analytics "why" engine** — a metric *tree*, not a dashboard; **North Star = return-adjusted gross profit (trailing-90d)**; an event taxonomy; low-traffic Bayesian/sequential experimentation; anomaly+root-cause via the existing `trends/features.mjs`. → builds the why-engine (a later batch).
+- **12 First-of-its-kind** — the strategic bet: **"show the machine and publish the truth — make that the luxury,"** uncopyable by rivals with hidden margins/dark patterns. 15 analyzed ideas (Glass Atelier, Receipts Mode, Provenance Passport, the Gate-as-publication, accountable agent cast, `eclipse.txt` honesty manifest); the **Stay-Ahead doctrine** (continuous-R&D + trends loop); and **"The Eclipse Standard"** — one report object `{subjectType, passed, score, hardGates[], softDimensions[], blockers[], evidence}` consolidating every gate (launch/imagery/trend-fit/copy) into one publish guard and the data substrate for the transparency features.
+
+### Round-2 build queue (post-R5)
+- **R6 Eclipse Standard** — unify launch + imagery + copy + trend-fit gates into one report object; golden-test fixtures. *(quality consistency — the founder's "stay consistent" ask)*
+- **R7 Retention engine** — RFM + cohort + predicted-LTV + lapse detection + lifecycle-flow proposals + Inner Circle.
+- **R8 Why-engine** — event taxonomy + funnel/segmentation/cohort + anomaly root-cause + North Star in the ops console.
+- **R9 Proactive CX** — order-lifecycle service triggers + CSAT/NPS capture + size guide on PDP.
+- **Frontier (staged)** — Receipts Mode + Provenance Passport + Glass Atelier (renderers over data we already log).
 
 ---
 
 ## Source index
-`01` e-commerce/SaaS templates · `02` autonomy & security · `03` imagery & content · `04` design systems (80 brands) · `05` marketplace/psychology/trends · `06` design studios & sellable-platform security. Full per-project takeaways, tables, and citations live in each file.
+Round 1: `01` e-commerce/SaaS · `02` autonomy & security · `03` imagery & content · `04` design (80 brands) · `05` marketplace/psychology/trends · `06` studios & sellable security.
+Round 2: `07` history & moats · `08` retention & LTV · `09` wording/format psychology · `10` CX & size accuracy · `11` analytics why-engine · `12` first-of-its-kind. Full takeaways + citations in each file.
