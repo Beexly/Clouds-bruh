@@ -13,6 +13,10 @@ import { claudeSeo } from './seo';
 import { apify } from './apify';
 import { dbGpt } from './db-gpt';
 import { voc } from './voc';
+import {
+  datasetQuery, productDraft, contentDraft, schemaWrite,
+  imageTemplates, imageWrite, brandAudit, ledgerTool,
+} from './stubs';
 
 export const TOOLS: Record<string, Tool> = {
   medusa_admin_read: medusaAdminRead,
@@ -21,13 +25,17 @@ export const TOOLS: Record<string, Tool> = {
   price_scraper: priceScraper,
   higgsfield,
   claude_seo: claudeSeo,
-  apify,                 // Apify MCP — thousands of scrapers (data radar upgrade)
-  nl_analytics: dbGpt,   // DB-GPT — NL analytics over the commerce DB
-  voc_reviews: voc,      // Voice-of-Customer review analysis
-  // Stub the rest as thin wrappers over Medusa Admin / module services:
-  // dataset_query, product_draft, content_draft, schema_write, image_templates, image_write,
-  // brand_audit, supplier_api, order_lookup, reply_draft, recommendation_read/admin,
-  // experiment_admin, signal_query, invoice_generate, pdf_render, calendar_write, ledger.
+  apify,
+  nl_analytics: dbGpt,
+  voc_reviews: voc,
+  dataset_query: datasetQuery,
+  product_draft: productDraft,
+  content_draft: contentDraft,
+  schema_write: schemaWrite,
+  image_templates: imageTemplates,
+  image_write: imageWrite,
+  brand_audit: brandAudit,
+  ledger: ledgerTool,
 };
 
 /** Resolve an agent's allowed tools into Claude tool-use definitions. */

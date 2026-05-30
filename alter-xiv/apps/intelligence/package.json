@@ -11,7 +11,9 @@
     "@alterxiv/shared": "workspace:*",
     "@anthropic-ai/claude-agent-sdk": "latest",
     "@anthropic-ai/sdk": "latest",
-    "ioredis": "^5.4.0"
+    "ioredis": "^5.4.0",
+    "node-cron": "^4.2.1",
+    "pg": "^8.13.0"
   },
   "devDependencies": {
     "@types/node": "^25.9.1",

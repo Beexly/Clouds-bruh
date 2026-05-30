@@ -87,6 +87,12 @@ importers:
       ioredis:
         specifier: ^5.4.0
         version: 5.11.0
+      node-cron:
+        specifier: ^4.2.1
+        version: 4.2.1
+      pg:
+        specifier: ^8.13.0
+        version: 8.21.0
     devDependencies:
       '@types/node':
         specifier: ^25.9.1
@@ -4874,6 +4880,10 @@ packages:
   node-cache@5.1.2:
     resolution: {integrity: sha512-t1QzWwnk4sjLWaQAS8CHgOJ+RAfmHpxFWmc36IWTiWHQfs0w5JDMBS1b1ZxQteo0vVVuWJvIUKHDkkeK7vIGCg==}
     engines: {node: '>= 8.0.0'}
+
+  node-cron@4.2.1:
+    resolution: {integrity: sha512-lgimEHPE/QDgFlywTd8yTR61ptugX3Qer29efeyWw2rv259HtGBNn1vZVmp8lB9uo9wC0t/AT4iGqXxia+CJFg==}
+    engines: {node: '>=6.0.0'}
 
   node-fetch@2.7.0:
     resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}
@@ -11629,6 +11639,8 @@ snapshots:
   node-cache@5.1.2:
     dependencies:
       clone: 2.1.2
+
+  node-cron@4.2.1: {}
 
   node-fetch@2.7.0:
     dependencies:
