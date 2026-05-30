@@ -10,6 +10,9 @@ import { BRAND } from '../brand.mjs';
 
 const money = (m) => '$' + Math.round((m || 0) / 100).toLocaleString('en-US');
 
+/** Escape characters that would break a Markdown table cell or body. */
+const mdCell = (s) => String(s ?? '').replace(/\|/g, '\\|').replace(/[\r\n]+/g, ' ');
+
 export function labelsFor(candidate) {
   return ['eclipse:candidate', `kind:${candidate.kind}`, `status:${candidate.status}`];
 }
@@ -21,7 +24,7 @@ export function issueTitleFor(candidate) {
 export function issueBodyFor(candidate) {
   const c = candidate;
   const links =
-    (c.sourceLinks || []).map((l) => `- [${l.label}](${l.url}) _(${l.kind})_`).join('\n') || '_none_';
+    (c.sourceLinks || []).map((l) => `- [${mdCell(l.label)}](${l.url}) _(${mdCell(l.kind)})_`).join('\n') || '_none_';
   const imagery =
     (c.imagery || [])
       .map((m) => `- \`${m.role}\`: ${m.url} ${m.approved ? '(approved)' : '(pending approval)'}`)
@@ -29,13 +32,13 @@ export function issueBodyFor(candidate) {
   const gate = c.gate?.passed ? '✅ gate pass' : `⛔ gate blocked — ${(c.gate?.blockers || []).join(', ')}`;
 
   return [
-    c.summary ? `> ${c.summary}` : '',
+    c.summary ? `> ${mdCell(c.summary)}` : '',
     '',
     '| field | value |',
     '|---|---|',
     `| candidate | \`${c.id}\` |`,
-    `| kind | ${c.kind} |`,
-    `| status | ${c.status} |`,
+    `| kind | ${mdCell(c.kind)} |`,
+    `| status | ${mdCell(c.status)} |`,
     `| suggested price | ${money(c.costs?.suggestedListMinor)} |`,
     `| unit cost | ${money(c.costs?.unitCostMinor)} |`,
     `| margin | ${c.costs?.marginPct || 0}% |`,
@@ -74,10 +77,16 @@ export const LABEL_TRANSITIONS = Object.freeze({
   'needs-changes': QueueStatus.NEEDS_CHANGES,
 });
 
+/**
+ * Map an issue's labels to a queue transition. When labels conflict, the most
+ * conservative action wins (reject > needs-changes > approve) — safe-by-default:
+ * a candidate is never approved just because an "approve" label sits alongside
+ * a "reject" or "needs-changes".
+ */
 export function transitionForLabels(labels = []) {
-  for (const l of labels) {
-    const key = String(l).toLowerCase();
-    if (LABEL_TRANSITIONS[key]) return LABEL_TRANSITIONS[key];
-  }
+  const keys = new Set(labels.map((l) => String(l).toLowerCase()));
+  if (keys.has('reject') || keys.has('rejected')) return QueueStatus.REJECTED;
+  if (keys.has('needs-changes')) return QueueStatus.NEEDS_CHANGES;
+  if (keys.has('approve') || keys.has('approved')) return QueueStatus.APPROVED;
   return null;
 }

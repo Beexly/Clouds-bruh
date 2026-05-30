@@ -26,3 +26,22 @@ test('labels map back to queue transitions', () => {
   assert.equal(transitionForLabels(['reject']), 'rejected');
   assert.equal(transitionForLabels(['unrelated']), null);
 });
+
+test('conflicting labels resolve to the most conservative action', () => {
+  // reject beats everything; needs-changes beats approve — never auto-approve on conflict
+  assert.equal(transitionForLabels(['approve', 'reject']), 'rejected');
+  assert.equal(transitionForLabels(['approve', 'needs-changes']), 'needs_changes');
+  assert.equal(transitionForLabels(['needs-changes', 'reject']), 'rejected');
+});
+
+test('markdown-breaking characters in candidate fields are escaped', () => {
+  const c = createCandidate({
+    title: 'Pipe | Test',
+    summary: 'Line one\nline two | with pipe',
+    sourceLinks: [{ label: 'a | b', url: 'https://example.com/x', kind: 'trend' }],
+    gate: { passed: true, blockers: [] },
+  });
+  const body = issuePayloadFor(c).body;
+  assert.ok(!body.includes('two | with'), 'raw pipe should be escaped in summary');
+  assert.ok(!/\n.*line two/.test(body.split('### Source')[0].split('\n').filter((l) => l.startsWith('>'))[0] || ''), 'summary newline collapsed');
+});
