@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Eclipse · Product</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles/tokens.css" />
+    <link rel="stylesheet" href="styles/base.css" />
+    <link rel="stylesheet" href="styles/components.css" />
+  </head>
+  <body>
+    <header class="nav">
+      <div class="nav__brand">
+        <a href="/"><span class="wordmark">Eclipse</span></a>
+        <span class="nav__net">Galaxy Network</span>
+      </div>
+      <nav class="nav__links">
+        <a href="/#house">House</a>
+        <a href="/#vault">Vault</a>
+        <a href="/ops/">Ops</a>
+        <button id="cart-toggle" class="nav__cart" aria-label="Open cart">Bag (<span id="cart-count">0</span>)</button>
+      </nav>
+    </header>
+
+    <main>
+      <a class="pdp__back" href="/">← Back to the collection</a>
+      <div id="pdp" class="pdp"></div>
+    </main>
+
+    <aside class="cart-drawer" id="cart-drawer" aria-label="Cart">
+      <div class="cart-drawer__head">
+        <span class="wordmark">Bag</span>
+        <button id="cart-close" class="cart-drawer__close" aria-label="Close cart">×</button>
+      </div>
+      <div id="cart-body" class="cart-drawer__body"></div>
+    </aside>
+
+    <footer class="foot">
+      <span class="wordmark">Eclipse</span> — a Galaxy Network house · For those who already know
+    </footer>
+
+    <script src="app.js"></script>
+    <script src="product.js"></script>
+  </body>
+</html>

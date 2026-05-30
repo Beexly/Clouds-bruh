@@ -21,6 +21,7 @@
         <a href="#house">House</a>
         <a href="#vault">Vault</a>
         <a href="/ops/">Ops</a>
+        <button id="cart-toggle" class="nav__cart" aria-label="Open cart">Bag (<span id="cart-count">0</span>)</button>
       </nav>
     </header>
 
@@ -29,6 +30,16 @@
         <p class="hero__eyebrow" id="tagline">Step into the dark.</p>
         <h1 class="hero__title">Eclipse</h1>
         <p class="hero__sub" id="positioning"></p>
+      </section>
+
+      <section class="toolbar">
+        <input id="search" class="toolbar__search" type="search" placeholder="Search the collection…" aria-label="Search" />
+        <select id="catfilter" class="toolbar__select" aria-label="Filter by category"></select>
+        <select id="sortby" class="toolbar__select" aria-label="Sort">
+          <option value="">Sort: featured</option>
+          <option value="price-asc">Price: low to high</option>
+          <option value="price-desc">Price: high to low</option>
+        </select>
       </section>
 
       <section class="rail" id="house">
@@ -55,6 +66,14 @@
         </div>
       </section>
     </main>
+
+    <aside class="cart-drawer" id="cart-drawer" aria-label="Cart">
+      <div class="cart-drawer__head">
+        <span class="wordmark">Bag</span>
+        <button id="cart-close" class="cart-drawer__close" aria-label="Close cart">×</button>
+      </div>
+      <div id="cart-body" class="cart-drawer__body"></div>
+    </aside>
 
     <footer class="foot">
       <span class="wordmark">Eclipse</span> — a Galaxy Network house · For those who already know
