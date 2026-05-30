@@ -103,8 +103,8 @@ export interface AgentRun {
 
 export interface Audit {
   id: string;
-  type: 'catalog' | 'brand' | 'conversion' | 'seo' | 'margin' | 'integrity';
-  severity: 'info' | 'warn' | 'critical';
+  type: 'catalog' | 'brand' | 'conversion' | 'seo' | 'margin' | 'integrity' | 'voc';
+  severity: 'info' | 'warn' | 'error' | 'critical';
   finding: string;
   recommendation: string;
   falsifiable_check: string;     // "how would we know this failed?"

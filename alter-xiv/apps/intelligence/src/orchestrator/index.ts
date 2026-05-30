@@ -3,6 +3,8 @@ import cron from 'node-cron';
 import { AGENTS } from '../agents';
 import { runAgent } from './run-agent';
 import { runIntrospection } from '../introspection';
+import { learnFrom } from '../learning/loop';
+import type { SignalEvent } from '@alterxiv/shared';
 
 const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
 const redisReader = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
@@ -39,6 +41,19 @@ async function consumeRedisStream() {
             runAgent(agentName, 'event', { event_type: type, ...obj })
               .catch((e: Error) => console.error(`[orchestrator] ${agentName} error:`, e.message?.slice(0, 80)));
           }
+
+          // Learning Loop: apply reward for every SIGNAL event with known reward weight
+          learnFrom({
+            id: msgId,
+            visitor_id: obj.visitor_id ?? '',
+            session_id: obj.session_id ?? '',
+            type: type as SignalEvent['type'],
+            entity_id: obj.entity_id,
+            value: obj.value ? parseFloat(obj.value) : undefined,
+            context: { chapter: obj.chapter as any },
+            ts: obj.ts ?? new Date().toISOString(),
+          }).catch(() => {});
+
           await redisReader.xack(STREAM, GROUP, msgId).catch(() => {});
         }
       }
@@ -70,6 +85,13 @@ async function boot() {
 
   // 2. Introspection on 30-minute cadence
   setInterval(() => runIntrospection().catch(console.error), 1000 * 60 * 30);
+
+  // 2b. Nightly consolidation: embedding refresh + bandit analysis at 2am (via cron)
+  cron.schedule('0 2 * * *', () => {
+    const { nightlyConsolidation } = require('../learning/loop');
+    nightlyConsolidation().catch(console.error);
+    console.log('[orchestrator] Nightly consolidation triggered');
+  });
 
   // 3. Start Redis stream consumer in background
   consumeRedisStream().catch((e: Error) => {

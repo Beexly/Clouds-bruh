@@ -15,6 +15,7 @@ function pool(): Pool {
  * falsifiable "how would we know this failed?" check for Garrett.
  */
 const CHECKS: Array<{ type: Audit['type']; run: () => Promise<Audit[]> }> = [
+  // ── Catalog: missing thumbnails ───────────────────────────────────────────
   {
     type: 'catalog',
     run: async () => {
@@ -38,10 +39,35 @@ const CHECKS: Array<{ type: Audit['type']; run: () => Promise<Audit[]> }> = [
       }));
     },
   },
+
+  // ── Catalog: missing descriptions ─────────────────────────────────────────
+  {
+    type: 'catalog',
+    run: async () => {
+      const { rows } = await pool().query(`
+        SELECT id, title, description FROM product
+        WHERE deleted_at IS NULL
+          AND (description IS NULL OR length(description) < 50)
+        LIMIT 8
+      `).catch(() => ({ rows: [] }));
+      return rows.map(r => ({
+        id: crypto.randomUUID(),
+        type: 'catalog' as const,
+        severity: 'info' as const,
+        finding: `Product "${r.title}" has no meaningful description (${(r.description || '').length} chars).`,
+        recommendation: 'Trigger Scribe to write brand-voice copy for this product.',
+        falsifiable_check: 'Check: product.description length > 80.',
+        auto_corrected: false,
+        entity_ref: r.id,
+        created_at: new Date().toISOString(),
+      }));
+    },
+  },
+
+  // ── Integrity: products with no variants ──────────────────────────────────
   {
     type: 'integrity',
     run: async () => {
-      // Check for products with no variants
       const { rows } = await pool().query(`
         SELECT p.id, p.title FROM product p
         LEFT JOIN product_variant pv ON pv.product_id = p.id AND pv.deleted_at IS NULL
@@ -61,10 +87,36 @@ const CHECKS: Array<{ type: Audit['type']; run: () => Promise<Audit[]> }> = [
       }));
     },
   },
+
+  // ── Integrity: variants with no prices ────────────────────────────────────
+  {
+    type: 'integrity',
+    run: async () => {
+      const { rows } = await pool().query(`
+        SELECT pv.id, p.title FROM product_variant pv
+        JOIN product p ON p.id = pv.product_id AND p.deleted_at IS NULL
+        LEFT JOIN product_variant_price_set pvps ON pvps.variant_id = pv.id
+        WHERE pv.deleted_at IS NULL AND pvps.price_set_id IS NULL
+        LIMIT 5
+      `).catch(() => ({ rows: [] }));
+      return rows.map(r => ({
+        id: crypto.randomUUID(),
+        type: 'integrity' as const,
+        severity: 'error' as const,
+        finding: `Variant ${r.id} for "${r.title}" has no price set — cannot purchase.`,
+        recommendation: 'Run setup-prices.ts to link variant to pricing module.',
+        falsifiable_check: 'Check: product_variant_price_set row exists for variant_id.',
+        auto_corrected: false,
+        entity_ref: r.id,
+        created_at: new Date().toISOString(),
+      }));
+    },
+  },
+
+  // ── Conversion: chapters with no recent engagement ─────────────────────────
   {
     type: 'conversion',
     run: async () => {
-      // Check for chapters with no recent signal events (dead zones)
       const { rows } = await pool().query(`
         SELECT chapter FROM (VALUES ('stillness'),('armor'),('signal'),('altar'),('relentless')) AS chapters(chapter)
         WHERE chapter NOT IN (
@@ -87,24 +139,143 @@ const CHECKS: Array<{ type: Audit['type']; run: () => Promise<Audit[]> }> = [
       }));
     },
   },
+
+  // ── Conversion: high-performing products not in any live drop ─────────────
+  {
+    type: 'conversion',
+    run: async () => {
+      const { rows } = await pool().query(`
+        SELECT p.id, p.title, COUNT(se.id) as signal_count
+        FROM product p
+        JOIN signal_event se ON se.entity_id = p.id AND se.ts > now() - interval '30 days'
+        WHERE p.deleted_at IS NULL
+          AND NOT EXISTS (
+            SELECT 1 FROM drop d
+            WHERE d.status = 'live'
+              AND d.product_ids::jsonb ? p.id
+          )
+        GROUP BY p.id, p.title
+        HAVING COUNT(se.id) > 5
+        ORDER BY signal_count DESC
+        LIMIT 5
+      `).catch(() => ({ rows: [] }));
+      return rows.map(r => ({
+        id: crypto.randomUUID(),
+        type: 'conversion' as const,
+        severity: 'info' as const,
+        finding: `Product "${r.title}" has ${r.signal_count} signals but isn't featured in a live drop.`,
+        recommendation: 'Curator: consider adding this product to the next drop or THE BROADCAST hero.',
+        falsifiable_check: 'Check: product appears in a live drop product_ids.',
+        auto_corrected: false,
+        entity_ref: r.id,
+        created_at: new Date().toISOString(),
+      }));
+    },
+  },
+
+  // ── Margin: drops approaching sell-out ────────────────────────────────────
+  {
+    type: 'margin',
+    run: async () => {
+      const { rows } = await pool().query(`
+        SELECT id, name, units_remaining, units_total
+        FROM drop
+        WHERE status = 'live'
+          AND units_total > 0
+          AND (units_remaining::float / units_total::float) < 0.15
+        LIMIT 5
+      `).catch(() => ({ rows: [] }));
+      return rows.map(r => ({
+        id: crypto.randomUUID(),
+        type: 'margin' as const,
+        severity: 'warn' as const,
+        finding: `Drop "${r.name}" is ${Math.round((r.units_remaining / r.units_total) * 100)}% remaining (${r.units_remaining}/${r.units_total} units).`,
+        recommendation: 'Herald: prepare scarcity messaging. Sourcer: notify supplier to confirm next shipment.',
+        falsifiable_check: 'Check: drop.units_remaining > 0 (not sold out).',
+        auto_corrected: false,
+        entity_ref: r.id,
+        created_at: new Date().toISOString(),
+      }));
+    },
+  },
+
+  // ── SEO: products with generic/keyword-stuffed titles ─────────────────────
+  {
+    type: 'seo',
+    run: async () => {
+      const { rows } = await pool().query(`
+        SELECT id, title FROM product
+        WHERE deleted_at IS NULL
+          AND (
+            length(title) > 150
+            OR title ILIKE '%pack%'
+            OR title ILIKE '%set of%'
+            OR title ILIKE '%compatible with%'
+          )
+        LIMIT 5
+      `).catch(() => ({ rows: [] }));
+      return rows.map(r => ({
+        id: crypto.randomUUID(),
+        type: 'seo' as const,
+        severity: 'info' as const,
+        finding: `Product title "${r.title.slice(0, 80)}..." may not align with brand voice (possibly keyword-stuffed).`,
+        recommendation: 'Scribe: rewrite title for editorial luxury voice. Keep < 80 chars, brand-forward.',
+        falsifiable_check: 'Check: product title length < 100 and passes brand audit.',
+        auto_corrected: false,
+        entity_ref: r.id,
+        created_at: new Date().toISOString(),
+      }));
+    },
+  },
+
+  // ── VOC: visitors with high_intent but no purchase in 7 days ─────────────
+  {
+    type: 'voc',
+    run: async () => {
+      const { rows } = await pool().query(`
+        SELECT visitor_id, segment, affinity FROM visitor_profile
+        WHERE segment = 'high_intent'
+          AND last_seen > now() - interval '7 days'
+          AND visitor_id NOT IN (
+            SELECT DISTINCT metadata->>'visitor_id' FROM "order"
+            WHERE created_at > now() - interval '7 days'
+          )
+        LIMIT 5
+      `).catch(() => ({ rows: [] }));
+      return rows.map(r => ({
+        id: crypto.randomUUID(),
+        type: 'voc' as const,
+        severity: 'info' as const,
+        finding: `Visitor ${r.visitor_id} is high_intent (active in 7 days) but hasn't purchased.`,
+        recommendation: 'Herald: consider a targeted re-engagement message if opted-in. Oracle: boost for_you rail.',
+        falsifiable_check: 'Check: visitor_id appears in order.metadata->visitor_id.',
+        auto_corrected: false,
+        entity_ref: r.visitor_id,
+        created_at: new Date().toISOString(),
+      }));
+    },
+  },
 ];
 
 export async function runIntrospection() {
   console.log('[introspection] Running self-audit checks...');
   let total = 0;
+  let errors = 0;
   for (const check of CHECKS) {
     try {
       const findings = await check.run();
       for (const f of findings) {
         await Ledger.audit(f);
         if (!f.auto_corrected) {
-          console.log(`[introspection] ${f.severity.toUpperCase()}: ${f.finding}`);
+          console.log(`[introspection] ${f.severity.toUpperCase()}/${f.type}: ${f.finding.slice(0, 100)}`);
         }
       }
       total += findings.length;
     } catch (e: any) {
+      errors++;
       console.warn(`[introspection] Check ${check.type} failed:`, e.message?.slice(0, 60));
     }
   }
-  console.log(`[introspection] Self-audit complete: ${total} findings.`);
+  console.log(`[introspection] Self-audit complete: ${total} findings, ${errors} check errors.`);
+  return { total, errors };
 }
