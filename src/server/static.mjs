@@ -15,6 +15,8 @@ import { queryCatalog, parseQuery } from '../storefront/query.mjs';
 import { recommendationsFor, mostCoveted } from '../storefront/recommend.mjs';
 import { submitReview, loadReviews, ratingSummary } from '../storefront/reviews.mjs';
 import { loadOrders } from '../orders/store.mjs';
+import { loadCatalog } from '../catalog/store.mjs';
+import { evaluateStandard } from '../standard/eclipse-standard.mjs';
 
 /** Units sold per product id from realized (non-intake/cancelled/refunded) orders. */
 async function unitsByProduct(paths) {
@@ -114,6 +116,24 @@ const server = createServer(async (req, res) => {
     if (url.pathname === '/api/reviews.json') {
       const id = url.searchParams.get('productId');
       return sendJson(res, ratingSummary(await loadReviews(paths), id));
+    }
+    // The Eclipse Standard report for one catalog product (publish guard +
+    // the data substrate for "Receipts Mode" transparency). Reads the full
+    // catalog product (incl. internal fields) — ops/transparency surface.
+    if (url.pathname === '/api/standard.json') {
+      const catalog = await loadCatalog(paths);
+      const product = catalog.products.find(
+        (p) => p.slug === url.searchParams.get('slug') || p.id === url.searchParams.get('id')
+      );
+      if (!product) return sendJson(res, { error: 'Not found' }, 404);
+      return sendJson(res, {
+        product: evaluateStandard('product', product, { humanApproved: !!product.approvedAt }),
+        copy: evaluateStandard('copy', {
+          title: product.title, subtitle: product.subtitle, description: product.description,
+          bulletBenefits: product.bulletBenefits, priceMinor: product.pricing?.listMinor,
+        }),
+        imagery: evaluateStandard('imagery', product.media || []),
+      });
     }
 
     // — Command APIs —
