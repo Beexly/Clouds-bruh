@@ -1,46 +1,230 @@
 /**
- * Seed the catalog from the Bright Data samples, mapped to the Alter XIV product schema.
- * Lets you design + test The Broadcast before real inventory lands.
- * Run: pnpm seed  (from apps/backend)
+ * Alter XIV catalog seed — real Medusa v2 exec script.
+ * Run: pnpm seed  (from alter-xiv root, delegates to apps/backend medusa exec)
+ *
+ * Reads Bright Data sample CSVs, maps products to the 5 chapters,
+ * creates Medusa categories + products, then seeds 2 live drops.
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import type { Product, Chapter } from '@alterxiv/shared';
+import { parse } from 'csv-parse/sync';
+import type { ExecArgs } from '@medusajs/framework/types';
+import { Modules } from '@medusajs/framework/utils';
+import type { Chapter } from '@alterxiv/shared';
 
 const DATA = join(__dirname, '../packages/data');
-const CHAPTERS: Chapter[] = ['stillness', 'armor', 'signal', 'altar', 'relentless'];
 
-function parseCsv(file: string): Record<string, string>[] {
-  const lines = readFileSync(join(DATA, file), 'utf8').split('\n').filter(Boolean);
-  const headers = lines[0].split(',');
-  return lines.slice(1).map((l) => {
-    const cells = l.split(','); // NOTE: swap for a real CSV parser (quoted commas) at build time
-    return Object.fromEntries(headers.map((h, i) => [h, cells[i] ?? '']));
-  });
+// Chapter detection: keyword → chapter
+const CHAPTER_KEYWORDS: Record<Chapter, string[]> = {
+  stillness:  ['meditat', 'calm', 'quiet', 'peace', 'candle', 'incense', 'journal', 'yoga', 'linen', 'retreat'],
+  armor:      ['jacket', 'vest', 'coat', 'hoodie', 'protect', 'layer', 'puffer', 'outerwear', 'safety', 'reflective'],
+  signal:     ['tech', 'wireless', 'bluetooth', 'earbu', 'headphone', 'speaker', 'cable', 'charger', 'phone', 'gadget', 'watch'],
+  altar:      ['crystal', 'stone', 'ritual', 'decor', 'spiritual', 'aroma', 'diffuser', 'sage', 'altar', 'blessing', 'prayer'],
+  relentless: ['running', 'athletic', 'sneaker', 'training', 'gym', 'performance', 'sport', 'shoe', 'workout', 'fitness'],
+};
+
+function detectChapter(text: string): Chapter {
+  const lower = text.toLowerCase();
+  for (const [chapter, keywords] of Object.entries(CHAPTER_KEYWORDS)) {
+    if (keywords.some((kw) => lower.includes(kw))) return chapter as Chapter;
+  }
+  return 'relentless'; // default
 }
 
-function toProduct(row: Record<string, string>, i: number): Partial<Product> {
+function parseCsv(file: string): Record<string, string>[] {
+  const content = readFileSync(join(DATA, file), 'utf8');
+  return parse(content, {
+    columns: true,
+    skip_empty_lines: true,
+    relax_quotes: true,
+    relax_column_count: true,
+  }) as Record<string, string>[];
+}
+
+function amazonToProduct(row: Record<string, string>) {
+  const title = row.title?.replace(/[""]/g, '') || 'Untitled';
+  const chapter = detectChapter(title + ' ' + (row.categories || ''));
+  const finalPrice = parseFloat(row.final_price?.replace(/[^0-9.]/g, '') || '0');
   return {
-    sku: row.sku || row.asin || `AXIV-${i}`,
-    gtin: row.gtin, upc: row.upc, model_number: row.model_number,
-    brand: 'Alter XIV',
-    title: row.title || row.product_name || 'Untitled',
-    description: row.description || '',
-    chapter: CHAPTERS[i % CHAPTERS.length],
-    price: { initial: Number(row.initial_price) || 0, final: Number(row.final_price || row.final_price) || 0, currency: row.currency || 'USD' },
-    media: { main_image: row.main_image || row.image_url || '', image_urls: [], image_count: Number(row.images_count || row.image_count) || 0 },
-    social: { rating: Number(row.rating) || undefined, reviews_count: Number(row.reviews_count || row.review_count) || undefined },
-    ai: { image_audit_status: 'pending', copy_audit_status: 'pending', trained_algorithmic_media: false },
+    title: title.slice(0, 200),
+    description: (row.description?.replace(/[""]/g, '') || '').slice(0, 2000),
+    handle: `amazon-${(row.asin || title).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').slice(0, 60)}`,
+    status: 'published' as const,
+    metadata: {
+      chapter,
+      sku: row.asin,
+      source: 'amazon',
+      rating: row.rating ? parseFloat(row.rating) : undefined,
+      reviews_count: row.reviews_count ? parseInt(row.reviews_count) : undefined,
+      main_image: row.image_url || '',
+      brand: row.brand || 'Alter XIV',
+      scripture_ref: undefined as string | undefined,
+    },
+    variants: [{
+      title: 'Standard',
+      prices: [{ amount: Math.round(finalPrice * 100), currency_code: 'usd' }],
+      inventory_quantity: 50,
+      manage_inventory: true,
+    }],
+    images: row.image_url ? [{ url: row.image_url }] : [],
   };
 }
 
-async function main() {
-  const rows = [
-    ...parseCsv('shein-products.sample.csv'),
-    ...parseCsv('amazon-products.sample.csv'),
-  ];
-  const products = rows.map(toProduct);
-  console.log(`Prepared ${products.length} seed products across ${CHAPTERS.length} chapters.`);
-  // TODO: insert via Medusa product module + assign to chapters/drops; queue ORACLE embedding build.
+function sheinToProduct(row: Record<string, string>) {
+  const title = row.product_name?.replace(/[""]/g, '') || 'Untitled';
+  const chapter = detectChapter(title + ' ' + (row.category_tree || '') + ' ' + (row.root_category || ''));
+  const finalPrice = parseFloat(row.final_price?.replace(/[^0-9.]/g, '') || '0');
+  const mainImage = row.main_image?.replace(/[""]/g, '') || '';
+  return {
+    title: title.slice(0, 200),
+    description: (row.description?.replace(/[""]/g, '') || '').slice(0, 2000),
+    handle: `shein-${(row.product_id || row.model_number || title).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '').slice(0, 60)}`,
+    status: 'published' as const,
+    metadata: {
+      chapter,
+      sku: row.product_id || row.model_number || '',
+      source: 'shein',
+      rating: row.rating ? parseFloat(row.rating) : undefined,
+      reviews_count: row.reviews_count ? parseInt(row.reviews_count) : undefined,
+      main_image: mainImage,
+      brand: 'Alter XIV',
+      scripture_ref: undefined as string | undefined,
+    },
+    variants: [{
+      title: 'Standard',
+      prices: [{ amount: Math.round(finalPrice * 100), currency_code: 'usd' }],
+      inventory_quantity: 30,
+      manage_inventory: true,
+    }],
+    images: mainImage ? [{ url: mainImage }] : [],
+  };
 }
-main().catch(console.error);
+
+export default async function ({ container }: ExecArgs) {
+  console.log('[seed] Starting Alter XIV catalog seed...');
+
+  const productModule = container.resolve(Modules.PRODUCT);
+
+  // ── 1. Create chapter categories ──────────────────────────────────────────
+  console.log('[seed] Creating chapter categories...');
+  const chapterDefs: { name: string; handle: string; description: string; metadata: Record<string, string> }[] = [
+    { name: 'Stillness', handle: 'stillness', description: 'The calm before. Garments for contemplation and sacred rest.', metadata: { chapter: 'stillness', scripture: 'Psalm 46:10 — Be still and know' } },
+    { name: 'Armor', handle: 'armor', description: 'Put on the full armor. Built for those who carry weight.', metadata: { chapter: 'armor', scripture: 'Ephesians 6:11' } },
+    { name: 'Signal', handle: 'signal', description: 'Tuned to frequency. Technology as devotion.', metadata: { chapter: 'signal', scripture: 'Romans 10:17 — Faith comes by hearing' } },
+    { name: 'Altar', handle: 'altar', description: 'Sacred objects. The space where intention becomes action.', metadata: { chapter: 'altar', scripture: 'Exodus 14:14 — The Lord will fight for you' } },
+    { name: 'Relentless', handle: 'relentless', description: 'The grind is worship. Performance for the devoted.', metadata: { chapter: 'relentless', scripture: 'Philippians 4:13' } },
+  ];
+
+  const allExisting = await productModule.listProductCategories({}, { select: ['id', 'handle'] }).catch(() => []) as any[];
+  const existingHandles = new Set(allExisting.map((c: any) => c.handle));
+  let categories: any[] = [...allExisting];
+
+  for (const def of chapterDefs) {
+    if (existingHandles.has(def.handle)) continue;
+    const created = await productModule.createProductCategories([def]);
+    const arr = Array.isArray(created) ? created : [created];
+    categories = [...categories, ...arr];
+    console.log(`[seed] Created category: ${def.name}`);
+  }
+  if (categories.length === chapterDefs.length) {
+    console.log('[seed] All 5 chapter categories ready.');
+  }
+
+  const categoryByChapter = Object.fromEntries(
+    categories.map((c: any) => [c.handle, c.id])
+  ) as Record<Chapter, string>;
+
+  // ── 2. Parse CSVs ─────────────────────────────────────────────────────────
+  console.log('[seed] Parsing CSV files...');
+  const amazonRows = parseCsv('amazon-products.sample.csv');
+  const sheinRows = parseCsv('shein-products.sample.csv');
+
+  const amazonProducts = amazonRows.slice(0, 40).map(amazonToProduct);
+  const sheinProducts = sheinRows.slice(0, 40).map(sheinToProduct);
+  const allProducts = [...amazonProducts, ...sheinProducts];
+
+  console.log(`[seed] Prepared ${allProducts.length} products (${amazonProducts.length} Amazon + ${sheinProducts.length} Shein).`);
+
+  // ── 3. Check existing products (idempotent by handle) ────────────────────
+  const existingHandlesList = (await productModule.listProducts(
+    { handle: allProducts.map((p) => p.handle) },
+    { select: ['handle'] }
+  ).catch(() => [])) as { handle: string }[];
+  const existingProductHandles = new Set(existingHandlesList.map((p) => p.handle));
+
+  const toInsert = allProducts.filter((p) => !existingProductHandles.has(p.handle));
+  console.log(`[seed] Inserting ${toInsert.length} new products (${allProducts.length - toInsert.length} already exist)...`);
+
+  // Insert in batches of 20 to avoid overwhelming Medusa
+  const BATCH = 20;
+  const insertedIds: string[] = [];
+  for (let i = 0; i < toInsert.length; i += BATCH) {
+    const batch = toInsert.slice(i, i + BATCH);
+    const created = await productModule.createProducts(batch as any[]);
+    const createdArr = Array.isArray(created) ? created : [created];
+    insertedIds.push(...createdArr.map((p: any) => p.id));
+
+    // Assign each product to its chapter category
+    for (const product of createdArr) {
+      const chapter = (product.metadata as any)?.chapter as Chapter | undefined;
+      if (chapter && categoryByChapter[chapter]) {
+        await productModule.updateProducts(product.id, {
+          categories: [{ id: categoryByChapter[chapter] }],
+        } as any).catch((e: Error) => console.warn(`[seed] Category assign failed for ${product.id}: ${e.message.slice(0, 80)}`));
+      }
+    }
+    console.log(`[seed] Batch ${Math.floor(i / BATCH) + 1}: inserted ${createdArr.length} products.`);
+  }
+  console.log(`[seed] ✅ Products seeded. ${insertedIds.length} new, ${allProducts.length - toInsert.length} pre-existing.`);
+
+  // ── 4. Seed 2 drops ───────────────────────────────────────────────────────
+  const dropsService = container.resolve('drops') as any;
+  const existingDrops = await dropsService.listDrops({}).catch(() => []);
+  if ((existingDrops as any[]).length > 0) {
+    console.log(`[seed] Drops already seeded (${(existingDrops as any[]).length} found), skipping.`);
+  } else {
+    // Assign roughly equal product IDs to each drop
+    const armorIds = insertedIds.slice(0, Math.min(10, insertedIds.length));
+    const relentlessIds = insertedIds.slice(10, Math.min(20, insertedIds.length));
+
+    const now = new Date();
+    const in7Days = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const in14Days = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+    const in21Days = new Date(now.getTime() + 21 * 24 * 60 * 60 * 1000);
+
+    await dropsService.createDrops([
+      {
+        name: 'THE IRON GATE — DROP I',
+        series: 'Season Zero',
+        chapter: 'armor',
+        status: 'live',
+        starts_at: now,
+        ends_at: in7Days,
+        units_total: 144,
+        units_remaining: 144,
+        product_ids: armorIds,
+      },
+      {
+        name: 'UNBROKEN — DROP II',
+        series: 'Season Zero',
+        chapter: 'relentless',
+        status: 'scheduled',
+        starts_at: in14Days,
+        ends_at: in21Days,
+        units_total: 72,
+        units_remaining: 72,
+        product_ids: relentlessIds,
+      },
+    ]);
+    console.log('[seed] ✅ 2 drops created (THE IRON GATE live, UNBROKEN scheduled).');
+  }
+
+  // ── 5. Report ─────────────────────────────────────────────────────────────
+  const totalProducts = await productModule.listProducts({}, { select: ['id'] }).catch(() => []);
+  const drops = await dropsService.listDrops({}).catch(() => []);
+  console.log(`\n[seed] ══════════════════════════════════`);
+  console.log(`[seed] Catalog: ${(totalProducts as any[]).length} products across 5 chapters`);
+  console.log(`[seed] Drops:   ${(drops as any[]).length} drops (${(drops as any[]).filter((d: any) => d.status === 'live').length} live)`);
+  console.log(`[seed] ══════════════════════════════════`);
+  console.log('[seed] Phase 1 done. Products queryable via Medusa.');
+}

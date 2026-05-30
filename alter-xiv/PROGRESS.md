@@ -1,16 +1,16 @@
 # ALTER XIV — BUILD PROGRESS
-**Overall:** 10%  ·  **Phase:** 1/10 — Data Foundation  ·  **Updated:** 2026-05-30
+**Overall:** 20%  ·  **Phase:** 2/10 — SIGNAL + MIND  ·  **Updated:** 2026-05-30
 
 ## Status
-- ✅ Done: Phase 0 complete
-- 🔄 In progress: Phase 1 — Data Foundation (types, seed script, catalog)
+- ✅ Done: Phase 0, Phase 1 complete
+- 🔄 In progress: Phase 2 — SIGNAL + MIND
 - ⛔ Blocked: 0  ·  🙋 Needs Garrett: 0
 
 ## Phases
 | # | Phase | Status | Notes |
 |---|-------|--------|-------|
 | 0 | Green Boot | ✅ | pnpm build 4/4 ✅ · Postgres+pgvector · Redis · Medusa 9000 ✅ · Next.js 3000 ✅ · Intelligence ✅ |
-| 1 | Data Foundation | ☐ | |
+| 1 | Data Foundation | ✅ | 80 products (40 Amazon + 40 Shein) · 5 chapters · 2 drops seeded · store API live |
 | 2 | SIGNAL + MIND | ☐ | |
 | 3 | ORACLE | ☐ | |
 | 4 | The Broadcast | ☐ | |

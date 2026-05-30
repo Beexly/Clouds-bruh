@@ -12,3 +12,13 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
   await mind.observe(event);          // real-time personalization
   res.status(202).json({ ok: true });
 }
+
+// GET /store/signal?visitor_id=:id  — retrieve current visitor profile (for debug + storefront personalization).
+export async function GET(req: MedusaRequest, res: MedusaResponse) {
+  const visitorId = req.query.visitor_id as string;
+  if (!visitorId) return res.status(400).json({ error: 'visitor_id required' });
+  const mind = req.scope.resolve(PERSONALIZATION_MODULE) as any;
+  const profiles = await mind.listVisitorProfiles({ visitor_id: visitorId }, { take: 1 }).catch(() => []);
+  const profile = profiles[0] ?? null;
+  res.json({ profile });
+}
