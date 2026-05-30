@@ -90,7 +90,7 @@ async function rewardBandit(event: SignalEvent, reward: number): Promise<void> {
   }
 }
 
-function inferBlock(event: SignalEvent): string | null {
+export function inferBlock(event: SignalEvent): string | null {
   const type = event.type;
   if (type === 'purchase' || type === 'add_to_cart') return 'for_you';
   if (type === 'product_view') return 'trending_in_chapter';

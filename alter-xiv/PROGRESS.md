@@ -1,10 +1,10 @@
 # ALTER XIV — BUILD PROGRESS
-**Overall:** 80%  ·  **Phase:** 8/10 — Analyst / BI  ·  **Updated:** 2026-05-30
+**Overall:** 90%  ·  **Phase:** 9/10 — Hardening  ·  **Updated:** 2026-05-30
 
 ## Status
-- ✅ Done: Phase 0–7 complete
-- ✅ Done: Phase 8 — Analyst / BI complete
-- 🔄 In progress: Phase 9 — Hardening
+- ✅ Done: Phase 0–8 complete
+- ✅ Done: Phase 9 — Hardening complete
+- 🔄 In progress: Phase 10 — Launch-Ready
 - ⛔ Blocked: 0  ·  🙋 Needs Garrett: STRIPE_API_KEY (optional — pp_system_default works)
 
 ## Phases
@@ -19,7 +19,7 @@
 | 6 | Commerce Completeness | ✅ | pp_system_default test-mode payments · place-drop-order compensatable workflow · shipping options · order.placed subscriber · 80 variants priced · full checkout verified |
 | 7 | INTROSPECTION + Learning | ✅ | 8 audit checks (catalog×2, integrity×2, conversion×2, margin, seo, voc) · Learning Loop: learnFrom→bandit reward+embedding queue · nightlyConsolidation → OracleKeeper cron · 12 findings/run verified |
 | 8 | Analyst / BI | ✅ | GET /store/analyst?q=... · 6 predefined BI queries · keyword match · grounded read-only SQL · chart + insight |
-| 9 | Hardening | ☐ | |
+| 9 | Hardening | ✅ | 30 Vitest unit tests green · 10/10 API regression · SEO generateMetadata + JSON-LD on product pages · robots.ts · sitemap.ts · not-found.tsx · /store/drops route |
 | 10 | Launch-Ready | ☐ | |
 
 ## Blocked / Needs Garrett

@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import type { Metadata } from 'next';
 import { AddToCartButton } from '../../../components/AddToCartButton';
 import { PageSignal } from '../../../components/PageSignal';
 import { ProductRail } from '../../../components/ProductRail';
@@ -37,6 +38,26 @@ async function fetchRecs(productId: string) {
   } catch { return []; }
 }
 
+export async function generateMetadata({ params }: { params: Promise<{ handle: string }> }): Promise<Metadata> {
+  const { handle } = await params;
+  const product = await fetchProduct(handle);
+  if (!product) return { title: 'Product Not Found — ALTER XIV' };
+  const chapter = product.metadata?.chapter ?? '';
+  const price = product.variants?.[0]?.prices?.[0]?.amount;
+  const priceStr = price != null ? `$${(price / 100).toFixed(2)}` : '';
+  const desc = [product.description?.slice(0, 120), chapter, priceStr].filter(Boolean).join(' · ');
+  return {
+    title: `${product.title} — ALTER XIV`,
+    description: desc,
+    openGraph: {
+      title: product.title,
+      description: desc,
+      images: product.thumbnail ? [{ url: product.thumbnail }] : [],
+      type: 'website',
+    },
+  };
+}
+
 export default async function ProductPage({ params }: { params: Promise<{ handle: string }> }) {
   const { handle } = await params;
   const [product, recs] = await Promise.all([fetchProduct(handle), fetchRecs('')]);
@@ -49,8 +70,25 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
   const variantId = product.variants?.[0]?.id;
   const scripture = product.metadata?.scripture_ref;
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.title,
+    description: product.description,
+    image: mainImg || undefined,
+    ...(price != null && {
+      offers: {
+        '@type': 'Offer',
+        price: (price / 100).toFixed(2),
+        priceCurrency: 'USD',
+        availability: 'https://schema.org/InStock',
+      },
+    }),
+  };
+
   return (
     <main className="min-h-screen bg-black">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <PageSignal type="product_view" context={{ chapter, entity_id: product.id }} />
 
       <div className="mx-auto max-w-7xl px-6 py-12">
