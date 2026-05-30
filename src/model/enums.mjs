@@ -42,6 +42,7 @@ export const CandidateKind = Object.freeze({
   PRICE_CHANGE: 'price_change',
   SUPPLIER: 'supplier',
   MEDIA: 'media',
+  TREND: 'trend',
 });
 
 export const OrderStatus = Object.freeze({

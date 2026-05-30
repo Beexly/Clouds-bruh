@@ -21,6 +21,20 @@ export const AGENTS = Object.freeze([
     },
   }),
   createAgent({
+    id: 'agent.trends',
+    role: 'trends',
+    name: 'Trends',
+    description: 'Detects on-brand trend opportunities and proposes them into the review queue.',
+    inputs: ['search signals', 'social signals', 'marketplace velocity', 'internal demand gaps'],
+    outputs: ['trend candidates'],
+    cadence: { kind: 'interval', everyMinutes: 720 },
+    governance: {
+      autonomous: ['detect_trends', 'write_trend_candidate'],
+      gated: ['approve_sourcing_from_trend', 'publish_product'],
+      forbidden: ['fabricate_demand', 'create_product_directly'],
+    },
+  }),
+  createAgent({
     id: 'agent.catalog',
     role: 'catalog',
     name: 'Catalog',
