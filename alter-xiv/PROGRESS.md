@@ -1,10 +1,10 @@
 # ALTER XIV — BUILD PROGRESS
-**Overall:** 30%  ·  **Phase:** 3/10 — ORACLE  ·  **Updated:** 2026-05-30
+**Overall:** 40%  ·  **Phase:** 4/10 — The Broadcast  ·  **Updated:** 2026-05-30
 
 ## Status
 - ✅ Done: Phase 0, Phase 1 complete
-- ✅ Done: Phase 0, Phase 1, Phase 2 complete
-- 🔄 In progress: Phase 3 — ORACLE (recs + broadcast live)
+- ✅ Done: Phase 0, Phase 1, Phase 2, Phase 3 complete
+- 🔄 In progress: Phase 4 — The Broadcast (storefront)
 - ⛔ Blocked: 0  ·  🙋 Needs Garrett: 0
 
 ## Phases
@@ -13,7 +13,8 @@
 | 0 | Green Boot | ✅ | pnpm build 4/4 ✅ · Postgres+pgvector · Redis · Medusa 9000 ✅ · Next.js 3000 ✅ · Intelligence ✅ |
 | 1 | Data Foundation | ✅ | 80 products (40 Amazon + 40 Shein) · 5 chapters · 2 drops seeded · store API live |
 | 2 | SIGNAL + MIND | ✅ | /store/signal live · Redis stream · affinity decay · high_intent segment · identify merge |
-| 3 | ORACLE | 🔄 | pgvector embeddings (80 products) · for_you/trending/because_you_viewed/complete_the_set · Thompson bandit broadcast |
+| 3 | ORACLE | ✅ | pgvector embeddings (80 products) · for_you/trending/because_you_viewed/complete_the_set · Thompson bandit broadcast |
+| 4 | The Broadcast | 🔄 | Home + rec rails · product detail · cart · checkout (test-mode) · SIGNAL on every interaction |
 | 2 | SIGNAL + MIND | ☐ | |
 | 3 | ORACLE | ☐ | |
 | 4 | The Broadcast | ☐ | |

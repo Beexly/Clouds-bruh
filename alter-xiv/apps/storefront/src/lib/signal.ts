@@ -1,23 +1,40 @@
 'use client';
-import type { SignalEvent, EventType } from '@alterxiv/shared';
+import type { EventType } from '@alterxiv/shared';
 
-const API = process.env.NEXT_PUBLIC_MEDUSA_URL || 'http://localhost:9000';
+const BASE = process.env.NEXT_PUBLIC_MEDUSA_URL || 'http://localhost:9000';
+const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
 
-function visitorId(): string {
+export function visitorId(): string {
   if (typeof window === 'undefined') return 'ssr';
-  let id = window.localStorage.getItem('axiv_vid');
-  if (!id) { id = crypto.randomUUID(); window.localStorage.setItem('axiv_vid', id); }
+  let id = localStorage.getItem('axiv_vid');
+  if (!id) { id = crypto.randomUUID(); localStorage.setItem('axiv_vid', id); }
   return id;
 }
 
-/** Fire a SIGNAL event. Call on EVERY meaningful interaction — this is how the system learns. */
-export function signal(type: EventType, entity_id?: string, value?: string | number, context: any = {}) {
-  const event: Partial<SignalEvent> = {
-    visitor_id: visitorId(),
-    session_id: sessionStorage.getItem('axiv_sid') || 'sess',
-    type, entity_id, value, context: { channel: 'web', ...context }, ts: new Date().toISOString(),
-  };
-  navigator.sendBeacon?.(`${API}/store/signal`, JSON.stringify(event)) ||
-    fetch(`${API}/store/signal`, { method: 'POST', body: JSON.stringify(event), keepalive: true });
+export function sessionId(): string {
+  if (typeof window === 'undefined') return 'ssr';
+  let id = sessionStorage.getItem('axiv_sid');
+  if (!id) { id = crypto.randomUUID(); sessionStorage.setItem('axiv_sid', id); }
+  return id;
 }
-export { visitorId };
+
+/** Fire a SIGNAL event. Call on every meaningful interaction — this is how the system learns. */
+export function signal(type: EventType, entity_id?: string, value?: string | number, context: any = {}) {
+  if (typeof window === 'undefined') return;
+  const body = JSON.stringify({
+    id: crypto.randomUUID(),
+    visitor_id: visitorId(),
+    session_id: sessionId(),
+    type,
+    entity_id: entity_id ?? null,
+    value: value != null ? String(value) : null,
+    context: { channel: 'web' as const, ...context },
+    ts: new Date().toISOString(),
+  });
+  fetch(`${BASE}/store/signal`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-publishable-api-key': PK },
+    body,
+    keepalive: true,
+  }).catch(() => {});
+}
