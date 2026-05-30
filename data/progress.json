@@ -1,0 +1,41 @@
+{
+  "lanes": [
+    {
+      "id": "sourcing",
+      "label": "Sourcing",
+      "totalUnits": 12,
+      "doneUnits": 6,
+      "pct": 50
+    },
+    {
+      "id": "review",
+      "label": "Review Queue",
+      "totalUnits": 6,
+      "doneUnits": 2,
+      "pct": 33
+    },
+    {
+      "id": "catalog",
+      "label": "Catalog",
+      "totalUnits": 12,
+      "doneUnits": 6,
+      "pct": 50
+    },
+    {
+      "id": "imagery",
+      "label": "Imagery",
+      "totalUnits": 12,
+      "doneUnits": 2,
+      "pct": 17
+    },
+    {
+      "id": "launch",
+      "label": "Launch",
+      "totalUnits": 12,
+      "doneUnits": 2,
+      "pct": 17
+    }
+  ],
+  "overallPct": 33,
+  "updatedAt": "2026-05-30T02:24:17.825Z"
+}

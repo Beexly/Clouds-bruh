@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Eclipse · Galaxy Network</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles/tokens.css" />
+    <link rel="stylesheet" href="styles/base.css" />
+    <link rel="stylesheet" href="styles/components.css" />
+  </head>
+  <body>
+    <header class="nav">
+      <div class="nav__brand">
+        <span class="wordmark">Eclipse</span>
+        <span class="nav__net">Galaxy Network</span>
+      </div>
+      <nav class="nav__links">
+        <a href="#house">House</a>
+        <a href="#vault">Vault</a>
+        <a href="/ops/">Ops</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <p class="hero__eyebrow" id="tagline">Step into the dark.</p>
+        <h1 class="hero__title">Eclipse</h1>
+        <p class="hero__sub" id="positioning"></p>
+      </section>
+
+      <section class="rail" id="house">
+        <div class="rail__head">
+          <h2>The House</h2>
+          <span class="rail__note">Signature · Permanent</span>
+        </div>
+        <div class="grid" id="house-grid"></div>
+        <div class="empty" id="house-empty" hidden>
+          <strong>The House is being prepared.</strong>
+          Signature pieces are in review. Nothing is shown until it is approved and in stock.
+        </div>
+      </section>
+
+      <section class="rail" id="vault">
+        <div class="rail__head">
+          <h2>The Vault</h2>
+          <span class="rail__note">Curated · Autonomously sourced</span>
+        </div>
+        <div class="grid" id="vault-grid"></div>
+        <div class="empty" id="vault-empty" hidden>
+          <strong>The Vault opens soon.</strong>
+          Agents are sourcing. Every piece passes a human review before it appears here.
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot">
+      <span class="wordmark">Eclipse</span> — a Galaxy Network house · For those who already know
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>

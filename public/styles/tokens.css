@@ -1,0 +1,33 @@
+/* Eclipse design tokens — dark luxury × punk/gothic. Mirrors src/brand.mjs palette. */
+:root {
+  --void: #0a0a0d;
+  --surface: #14141a;
+  --surface-hi: #1e1e27;
+  --ink: #f4f4f6;
+  --muted: #9a9aa5;
+  --line: #2a2a33;
+  --corona: #e9c46a; /* eclipse-ring gold */
+  --plasma: #6c4bf4; /* cosmic violet */
+  --oxblood: #7a1e2b; /* punk accent */
+  --signal: #3fb6a8;
+
+  --font-display: 'Cormorant Garamond', 'Times New Roman', serif;
+  --font-body: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+
+  --step-0: 0.95rem;
+  --step-1: 1.15rem;
+  --step-2: 1.6rem;
+  --step-3: 2.4rem;
+  --step-4: clamp(3rem, 9vw, 6.5rem);
+
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.75rem;
+  --space-4: 3rem;
+  --space-5: 5rem;
+
+  --radius: 2px;
+  --line-thin: 1px solid var(--line);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}

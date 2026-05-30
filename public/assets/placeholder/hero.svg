@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000" role="img" aria-label="Eclipse placeholder">
+  <rect width="800" height="1000" fill="#14141a"/>
+  <circle cx="400" cy="440" r="150" fill="#0a0a0d"/>
+  <circle cx="400" cy="440" r="150" fill="none" stroke="#e9c46a" stroke-width="2" opacity="0.85"/>
+  <circle cx="400" cy="440" r="170" fill="none" stroke="#e9c46a" stroke-width="0.5" opacity="0.4"/>
+  <text x="400" y="760" fill="#9a9aa5" font-family="Georgia, serif" font-size="34" letter-spacing="14" text-anchor="middle">ECLIPSE</text>
+  <text x="400" y="800" fill="#5a5a64" font-family="system-ui, sans-serif" font-size="16" letter-spacing="6" text-anchor="middle">HERO · PLACEHOLDER</text>
+</svg>

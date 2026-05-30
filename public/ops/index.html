@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Eclipse Ops · Galaxy Network</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../styles/tokens.css" />
+    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="ops.css" />
+  </head>
+  <body>
+    <header class="ops-nav">
+      <div class="nav__brand">
+        <span class="wordmark">Eclipse</span>
+        <span class="nav__net">Ops · Galaxy Network</span>
+      </div>
+      <a class="ops-nav__back" href="/">View storefront →</a>
+    </header>
+
+    <main class="ops">
+      <section class="ledger">
+        <div class="ledger__overall">
+          <span class="ledger__pct" id="overall">—</span>
+          <span class="ledger__label">Overall readiness</span>
+        </div>
+        <div class="ledger__lanes" id="lanes"></div>
+      </section>
+
+      <section class="ops-block">
+        <h2 class="ops-h2">Autonomy roster</h2>
+        <p class="ops-note">Agents propose and prepare. You approve and publish. Nothing goes live without you.</p>
+        <div class="agents" id="agents"></div>
+      </section>
+
+      <section class="ops-block">
+        <h2 class="ops-h2">Review queue</h2>
+        <p class="ops-note">Each candidate carries source links, imagery, costs, and a gate snapshot. Approve from the CLI (<code>npm run review approve &lt;id&gt;</code>) or, in live mode, from its GitHub issue.</p>
+        <div class="board" id="board"></div>
+      </section>
+    </main>
+
+    <script src="ops.js"></script>
+  </body>
+</html>

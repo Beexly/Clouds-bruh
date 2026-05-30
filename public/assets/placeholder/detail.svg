@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000" role="img" aria-label="Eclipse placeholder">
+  <rect width="800" height="1000" fill="#14141a"/>
+  <rect x="300" y="340" width="200" height="200" fill="none" stroke="#e9c46a" stroke-width="1.5" opacity="0.6"/>
+  <line x1="300" y1="340" x2="500" y2="540" stroke="#2a2a33" stroke-width="1"/>
+  <text x="400" y="800" fill="#5a5a64" font-family="system-ui, sans-serif" font-size="16" letter-spacing="6" text-anchor="middle">DETAIL · PLACEHOLDER</text>
+</svg>

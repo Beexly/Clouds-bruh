@@ -1,0 +1,208 @@
+/* Nav */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-2) var(--space-3);
+  background: rgba(10, 10, 13, 0.82);
+  backdrop-filter: blur(10px);
+  border-bottom: var(--line-thin);
+}
+.nav__brand {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+.nav__brand .wordmark {
+  font-size: var(--step-1);
+}
+.nav__net {
+  font-size: 0.62rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--corona);
+}
+.nav__links {
+  display: flex;
+  gap: var(--space-3);
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.nav__links a:hover {
+  color: var(--ink);
+}
+
+/* Hero */
+.hero {
+  position: relative;
+  text-align: center;
+  padding: var(--space-5) 0 var(--space-4);
+  z-index: 1;
+}
+.hero__eyebrow {
+  font-size: 0.72rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--corona);
+  margin-bottom: var(--space-2);
+}
+.hero__title {
+  font-size: var(--step-4);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, var(--ink), #b9b9c4);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hero__title::after {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 64px;
+  margin: var(--space-3) auto 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, transparent 54%, var(--corona) 55%, transparent 60%);
+  box-shadow: 0 0 60px rgba(233, 196, 106, 0.25);
+}
+.hero__sub {
+  max-width: 46ch;
+  margin: var(--space-3) auto 0;
+  color: var(--muted);
+}
+
+/* Rails */
+.rail {
+  position: relative;
+  z-index: 1;
+  padding: var(--space-4) 0;
+  border-top: var(--line-thin);
+}
+.rail__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+.rail__head h2 {
+  font-size: var(--step-3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.rail__note {
+  font-size: 0.68rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Grid + cards */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-3);
+}
+.card {
+  border: var(--line-thin);
+  background: var(--surface);
+  transition: transform 0.4s var(--ease), border-color 0.4s var(--ease);
+}
+.card:hover {
+  transform: translateY(-4px);
+  border-color: var(--corona);
+}
+.card__media {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  background: var(--surface-hi);
+  overflow: hidden;
+}
+.card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.92;
+}
+.card__badge {
+  position: absolute;
+  top: var(--space-1);
+  left: var(--space-1);
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  background: rgba(10, 10, 13, 0.7);
+  border: 1px solid var(--line);
+  color: var(--corona);
+}
+.card__body {
+  padding: var(--space-2);
+}
+.card__title {
+  font-family: var(--font-display);
+  font-size: var(--step-1);
+  letter-spacing: 0.02em;
+}
+.card__sub {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.card__price {
+  margin-top: var(--space-2);
+  font-family: var(--font-mono);
+  color: var(--ink);
+}
+.card__specs {
+  margin-top: var(--space-2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.chip {
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  padding: 2px 7px;
+}
+
+/* Empty state */
+.empty {
+  border: 1px dashed var(--line);
+  padding: var(--space-4);
+  text-align: center;
+  color: var(--muted);
+}
+.empty strong {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: var(--step-2);
+  display: block;
+  margin-bottom: var(--space-1);
+}
+
+/* Footer */
+.foot {
+  position: relative;
+  z-index: 1;
+  border-top: var(--line-thin);
+  margin-top: var(--space-4);
+  padding: var(--space-4) var(--space-3);
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.foot .wordmark {
+  color: var(--ink);
+}

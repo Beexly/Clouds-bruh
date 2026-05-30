@@ -1,0 +1,167 @@
+{
+  "brand": {
+    "name": "Eclipse",
+    "network": "Galaxy",
+    "display": "Eclipse · Galaxy Network",
+    "tagline": "Step into the dark.",
+    "positioning": "A curated luxury marketplace: the breadth and autonomous curation of the mega-retailers, the polish and price confidence of the luxury houses, the edge of streetwear — kept clean, dark, and deliberate.",
+    "palette": {
+      "void": "#0A0A0D",
+      "surface": "#14141A",
+      "surfaceHi": "#1E1E27",
+      "ink": "#F4F4F6",
+      "muted": "#9A9AA5",
+      "line": "#2A2A33",
+      "corona": "#E9C46A",
+      "plasma": "#6C4BF4",
+      "oxblood": "#7A1E2B",
+      "signal": "#3FB6A8"
+    },
+    "tiers": {
+      "house": "Eclipse House",
+      "vault": "The Vault"
+    }
+  },
+  "products": [
+    {
+      "id": "prod_q9hj17fz979v",
+      "slug": "obsidian-chain-belt",
+      "title": "Obsidian Chain Belt",
+      "subtitle": "Antiqued brass",
+      "description": "Obsidian Chain Belt — built for those who already know. Antiqued brass with hand-linked chain. Dark, deliberate, and made to outlast the trend cycle. Specificity over volume, always.",
+      "bulletBenefits": [
+        "Antiqued brass — quality you register before any logo",
+        "Hand-linked chain — the detail most of the market skips",
+        "Considered accessory silhouette — engineered to be worn, not just seen",
+        "Made in Portugal in a controlled run — no oversupply, no markdowns"
+      ],
+      "emotionalHooks": [
+        "Not for everyone. Exactly as intended.",
+        "Step into the dark."
+      ],
+      "brand": "Eclipse",
+      "tier": "The Vault",
+      "category": "accessory",
+      "tags": [
+        "hardware",
+        "gothic",
+        "unisex"
+      ],
+      "specs": {
+        "material": "Antiqued brass",
+        "detail": "Hand-linked chain",
+        "origin": "Made in Portugal",
+        "care": "Cold wash, hang dry"
+      },
+      "price": {
+        "listMinor": 5800,
+        "currency": "USD"
+      },
+      "variants": [
+        {
+          "id": "var_kj9hzs6yschj",
+          "sku": "ECL-ACCE-ONY-OS",
+          "color": "Onyx",
+          "size": "OS"
+        },
+        {
+          "id": "var_jr2pg6dbqczq",
+          "sku": "ECL-ACCE-BON-OS",
+          "color": "Bone",
+          "size": "OS"
+        },
+        {
+          "id": "var_eca6e9t02nvb",
+          "sku": "ECL-ACCE-OXB-OS",
+          "color": "Oxblood",
+          "size": "OS"
+        }
+      ],
+      "media": [
+        {
+          "role": "hero",
+          "url": "assets/placeholder/hero.svg",
+          "alt": "Obsidian Chain Belt — hero (placeholder, pending real shoot)"
+        },
+        {
+          "role": "angle",
+          "url": "assets/placeholder/angle.svg",
+          "alt": "Obsidian Chain Belt — angle (placeholder, pending real shoot)"
+        },
+        {
+          "role": "detail",
+          "url": "assets/placeholder/detail.svg",
+          "alt": "Obsidian Chain Belt — detail (placeholder, pending real shoot)"
+        }
+      ]
+    },
+    {
+      "id": "prod_0scc2bdwb4t4",
+      "slug": "halo-hoop-earrings",
+      "title": "Halo Hoop Earrings",
+      "subtitle": "14k gold vermeil",
+      "description": "Halo Hoop Earrings — built for those who already know. 14k gold vermeil with hypoallergenic posts. Dark, deliberate, and made to outlast the trend cycle. Specificity over volume, always.",
+      "bulletBenefits": [
+        "14k gold vermeil — quality you register before any logo",
+        "Hypoallergenic posts — the detail most of the market skips",
+        "Considered jewelry silhouette — engineered to be worn, not just seen",
+        "Made in Italy in a controlled run — no oversupply, no markdowns"
+      ],
+      "emotionalHooks": [
+        "Not for everyone. Exactly as intended.",
+        "Step into the dark."
+      ],
+      "brand": "Eclipse",
+      "tier": "The Vault",
+      "category": "jewelry",
+      "tags": [
+        "gold",
+        "minimal",
+        "everyday"
+      ],
+      "specs": {
+        "material": "14k gold vermeil",
+        "detail": "Hypoallergenic posts",
+        "origin": "Made in Italy",
+        "care": "Cold wash, hang dry"
+      },
+      "price": {
+        "listMinor": 4200,
+        "currency": "USD"
+      },
+      "variants": [
+        {
+          "id": "var_7tv3p7zpmjky",
+          "sku": "ECL-JEWE-GOL-OS",
+          "color": "Gold",
+          "size": "OS"
+        },
+        {
+          "id": "var_32c7mwwj2rra",
+          "sku": "ECL-JEWE-SIL-OS",
+          "color": "Silver",
+          "size": "OS"
+        }
+      ],
+      "media": [
+        {
+          "role": "hero",
+          "url": "assets/placeholder/hero.svg",
+          "alt": "Halo Hoop Earrings — hero (placeholder, pending real shoot)"
+        },
+        {
+          "role": "angle",
+          "url": "assets/placeholder/angle.svg",
+          "alt": "Halo Hoop Earrings — angle (placeholder, pending real shoot)"
+        },
+        {
+          "role": "detail",
+          "url": "assets/placeholder/detail.svg",
+          "alt": "Halo Hoop Earrings — detail (placeholder, pending real shoot)"
+        }
+      ]
+    }
+  ],
+  "count": 2,
+  "generatedAt": "2026-05-30T02:24:32.751Z"
+}

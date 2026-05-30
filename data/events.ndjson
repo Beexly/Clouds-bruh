@@ -1,0 +1,6 @@
+{"id":"evt_x1pcapqcyk4s","type":"candidate.approved","at":"2026-05-30T02:24:16.835Z","actor":"human:operator","payload":{"candidateId":"cand_veq8n89f21vg","productId":"prod_q9hj17fz979v"}}
+{"id":"evt_4jpxt6sdxvth","type":"product.published","at":"2026-05-30T02:24:17.078Z","actor":"human:operator","payload":{"productId":"prod_q9hj17fz979v","stockState":"in-stock"}}
+{"id":"evt_vgyvp6zp7grh","type":"candidate.published","at":"2026-05-30T02:24:17.081Z","actor":"human:operator","payload":{"candidateId":"cand_veq8n89f21vg","productId":"prod_q9hj17fz979v"}}
+{"id":"evt_8dvmec3rxe1h","type":"candidate.approved","at":"2026-05-30T02:24:17.343Z","actor":"human:operator","payload":{"candidateId":"cand_ytgghm777xpk","productId":"prod_0scc2bdwb4t4"}}
+{"id":"evt_hede6qq1xz8e","type":"product.published","at":"2026-05-30T02:24:17.584Z","actor":"human:operator","payload":{"productId":"prod_0scc2bdwb4t4","stockState":"in-stock"}}
+{"id":"evt_kg3cz2s1vt4b","type":"candidate.published","at":"2026-05-30T02:24:17.587Z","actor":"human:operator","payload":{"candidateId":"cand_ytgghm777xpk","productId":"prod_0scc2bdwb4t4"}}

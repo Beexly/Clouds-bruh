@@ -1,0 +1,24 @@
+[
+  {
+    "id": "col_p406nbjc2z",
+    "slug": "eclipse-house",
+    "title": "Eclipse House — Altar XIV Capsule",
+    "productIds": [
+      "prod_81v1cvdqhfqy",
+      "prod_vb6e4s608zyy",
+      "prod_rvze5q9x3ep9",
+      "prod_e8tw6ycyrpjg"
+    ],
+    "dropCode": "AX-CAPSULE",
+    "visibility": "hidden",
+    "createdAt": "2026-05-30T02:23:57.884Z"
+  },
+  {
+    "id": "col_cap8cns7bs",
+    "slug": "the-vault",
+    "title": "The Vault",
+    "productIds": [],
+    "visibility": "hidden",
+    "createdAt": "2026-05-30T02:23:57.884Z"
+  }
+]

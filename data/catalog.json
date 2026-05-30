@@ -1,0 +1,797 @@
+{
+  "products": [
+    {
+      "id": "prod_81v1cvdqhfqy",
+      "slug": "altar-tee",
+      "title": "Altar Tee",
+      "subtitle": "400GSM Heavyweight Cotton",
+      "description": "Cut heavy, printed deliberate, built for the person who carries conviction everywhere. 400GSM organic cotton, boxy dropped-shoulder cut, made for a five-year wear life.",
+      "bulletBenefits": [
+        "400GSM organic ring-spun cotton — the weight you feel on contact",
+        "Boxy, dropped-shoulder cut designed to layer or stand alone",
+        "Screen-printed, not transferred — ink pressed into fabric to age well",
+        "Pre-washed to resist shrink — what you order is what you wear"
+      ],
+      "emotionalHooks": [
+        "Worn. Not displayed.",
+        "Formed at the altar. Lived on the street."
+      ],
+      "brand": "Eclipse",
+      "tier": "Eclipse House",
+      "category": "tops",
+      "tags": [
+        "altar-xiv",
+        "capsule",
+        "house"
+      ],
+      "specs": {
+        "gsm": "400",
+        "fiber": "Organic cotton",
+        "print": "Water-based screen"
+      },
+      "variants": [
+        {
+          "id": "var_ghx6q1c0a16t",
+          "sku": "ECL-TOPS-ONY-S",
+          "color": "Onyx",
+          "size": "S",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        },
+        {
+          "id": "var_k2edj7qd94br",
+          "sku": "ECL-TOPS-ONY-M",
+          "color": "Onyx",
+          "size": "M",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        },
+        {
+          "id": "var_vef26bw4gxtx",
+          "sku": "ECL-TOPS-ONY-L",
+          "color": "Onyx",
+          "size": "L",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        },
+        {
+          "id": "var_jcyqbvvp1a9s",
+          "sku": "ECL-TOPS-ONY-XL",
+          "color": "Onyx",
+          "size": "XL",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        },
+        {
+          "id": "var_rgh5c0z5sb2p",
+          "sku": "ECL-TOPS-BON-S",
+          "color": "Bone",
+          "size": "S",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        },
+        {
+          "id": "var_jwbdf8zxh9p6",
+          "sku": "ECL-TOPS-BON-M",
+          "color": "Bone",
+          "size": "M",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        },
+        {
+          "id": "var_3qn322fbe1bp",
+          "sku": "ECL-TOPS-BON-L",
+          "color": "Bone",
+          "size": "L",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        },
+        {
+          "id": "var_63am7z8yfq0x",
+          "sku": "ECL-TOPS-BON-XL",
+          "color": "Bone",
+          "size": "XL",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        }
+      ],
+      "media": [
+        {
+          "id": "med_t4hwthypax",
+          "role": "hero",
+          "url": "assets/placeholder/hero.svg",
+          "alt": "Altar Tee — hero",
+          "provenance": "placeholder",
+          "approved": false
+        }
+      ],
+      "pricing": {
+        "listMinor": 6800,
+        "currency": "USD",
+        "floorMinor": 4600
+      },
+      "lifecycle": "draft",
+      "visibility": "hidden",
+      "stockState": "out-of-stock",
+      "supplierId": "sup_j5tdfz0j1w",
+      "scores": {
+        "readiness": 0,
+        "media": 0,
+        "supplier": 0
+      },
+      "origin": {
+        "source": "seed"
+      },
+      "createdAt": "2026-05-30T02:23:57.882Z",
+      "updatedAt": "2026-05-30T02:23:57.882Z"
+    },
+    {
+      "id": "prod_vb6e4s608zyy",
+      "slug": "xiv-hoodie",
+      "title": "XIV Hoodie",
+      "subtitle": "500GSM French Terry",
+      "description": "XIV is a reference point, not decoration. Built from 500GSM French terry that holds structure wash after wash. Clean construction, specific meaning, no filler branding.",
+      "bulletBenefits": [
+        "500GSM French terry — measurably heavier than fast-fashion fleece",
+        "Set-in sleeves hold the shoulder across repeated wear",
+        "Embroidered XIV — raised thread, permanent, correct scale",
+        "Pre-washed — what arrives is what it remains"
+      ],
+      "emotionalHooks": [
+        "Heavy enough to feel like armor.",
+        "The ones who know will recognize you."
+      ],
+      "brand": "Eclipse",
+      "tier": "Eclipse House",
+      "category": "tops",
+      "tags": [
+        "altar-xiv",
+        "capsule",
+        "house"
+      ],
+      "specs": {
+        "gsm": "500",
+        "fiber": "French terry",
+        "mark": "Embroidered XIV"
+      },
+      "variants": [
+        {
+          "id": "var_ghx6q1c0a16t",
+          "sku": "ECL-TOPS-ONY-S",
+          "color": "Onyx",
+          "size": "S",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        },
+        {
+          "id": "var_k2edj7qd94br",
+          "sku": "ECL-TOPS-ONY-M",
+          "color": "Onyx",
+          "size": "M",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        },
+        {
+          "id": "var_vef26bw4gxtx",
+          "sku": "ECL-TOPS-ONY-L",
+          "color": "Onyx",
+          "size": "L",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        },
+        {
+          "id": "var_jcyqbvvp1a9s",
+          "sku": "ECL-TOPS-ONY-XL",
+          "color": "Onyx",
+          "size": "XL",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        },
+        {
+          "id": "var_rgh5c0z5sb2p",
+          "sku": "ECL-TOPS-BON-S",
+          "color": "Bone",
+          "size": "S",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        },
+        {
+          "id": "var_jwbdf8zxh9p6",
+          "sku": "ECL-TOPS-BON-M",
+          "color": "Bone",
+          "size": "M",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        },
+        {
+          "id": "var_3qn322fbe1bp",
+          "sku": "ECL-TOPS-BON-L",
+          "color": "Bone",
+          "size": "L",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        },
+        {
+          "id": "var_63am7z8yfq0x",
+          "sku": "ECL-TOPS-BON-XL",
+          "color": "Bone",
+          "size": "XL",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        }
+      ],
+      "media": [
+        {
+          "id": "med_8pajgw485w",
+          "role": "hero",
+          "url": "assets/placeholder/hero.svg",
+          "alt": "XIV Hoodie — hero",
+          "provenance": "placeholder",
+          "approved": false
+        }
+      ],
+      "pricing": {
+        "listMinor": 12800,
+        "currency": "USD",
+        "floorMinor": 8600
+      },
+      "lifecycle": "draft",
+      "visibility": "hidden",
+      "stockState": "out-of-stock",
+      "supplierId": "sup_j5tdfz0j1w",
+      "scores": {
+        "readiness": 0,
+        "media": 0,
+        "supplier": 0
+      },
+      "origin": {
+        "source": "seed"
+      },
+      "createdAt": "2026-05-30T02:23:57.883Z",
+      "updatedAt": "2026-05-30T02:23:57.883Z"
+    },
+    {
+      "id": "prod_rvze5q9x3ep9",
+      "slug": "remnant-cap",
+      "title": "Remnant Cap",
+      "subtitle": "Six-Panel Structured",
+      "description": "Structured six-panel built for daily wear with tonal, faith-forward embroidery. Buckram-lined front panels hold the crown without a frame. Low-profile, high-conviction.",
+      "bulletBenefits": [
+        "Buckram-lined front panels — shape retained without storage",
+        "Tonal embroidery — reads as texture before it reads as text",
+        "Brass adjuster buckle — closes secure, never cheapens",
+        "Cotton twill resists fraying at the brim edge"
+      ],
+      "emotionalHooks": [
+        "Worn by those who held the line.",
+        "One word. You know if it is yours."
+      ],
+      "brand": "Eclipse",
+      "tier": "Eclipse House",
+      "category": "accessory",
+      "tags": [
+        "altar-xiv",
+        "capsule",
+        "house"
+      ],
+      "specs": {
+        "construction": "Six-panel",
+        "lining": "Buckram",
+        "hardware": "Brass buckle"
+      },
+      "variants": [
+        {
+          "id": "var_kj9hzs6yschj",
+          "sku": "ECL-ACCE-ONY-OS",
+          "color": "Onyx",
+          "size": "OS",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        },
+        {
+          "id": "var_jr2pg6dbqczq",
+          "sku": "ECL-ACCE-BON-OS",
+          "color": "Bone",
+          "size": "OS",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        },
+        {
+          "id": "var_eca6e9t02nvb",
+          "sku": "ECL-ACCE-OXB-OS",
+          "color": "Oxblood",
+          "size": "OS",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        }
+      ],
+      "media": [
+        {
+          "id": "med_p0ew0hnrts",
+          "role": "hero",
+          "url": "assets/placeholder/hero.svg",
+          "alt": "Remnant Cap — hero",
+          "provenance": "placeholder",
+          "approved": false
+        }
+      ],
+      "pricing": {
+        "listMinor": 4800,
+        "currency": "USD",
+        "floorMinor": 3000
+      },
+      "lifecycle": "draft",
+      "visibility": "hidden",
+      "stockState": "out-of-stock",
+      "supplierId": "sup_j5tdfz0j1w",
+      "scores": {
+        "readiness": 0,
+        "media": 0,
+        "supplier": 0
+      },
+      "origin": {
+        "source": "seed"
+      },
+      "createdAt": "2026-05-30T02:23:57.884Z",
+      "updatedAt": "2026-05-30T02:23:57.884Z"
+    },
+    {
+      "id": "prod_e8tw6ycyrpjg",
+      "slug": "consecrated-crewneck",
+      "title": "Consecrated Crewneck",
+      "subtitle": "480GSM Garment-Dyed Fleece",
+      "description": "Set apart by construction. 480GSM loopback fleece, garment-dyed post-construction so each piece lands slightly different. Structured outside, brushed inside.",
+      "bulletBenefits": [
+        "480GSM loopback fleece — heavyweight without being suffocating",
+        "Garment-dyed — subtle tonal variation, each piece unique",
+        "Ribbed collar holds its round through repeated washes",
+        "Preshrunk — what you order is what you keep"
+      ],
+      "emotionalHooks": [
+        "Each one different. Like the person who wears it.",
+        "Set apart. Now the wardrobe matches."
+      ],
+      "brand": "Eclipse",
+      "tier": "Eclipse House",
+      "category": "tops",
+      "tags": [
+        "altar-xiv",
+        "capsule",
+        "house"
+      ],
+      "specs": {
+        "gsm": "480",
+        "fiber": "Loopback fleece",
+        "finish": "Garment-dyed"
+      },
+      "variants": [
+        {
+          "id": "var_ghx6q1c0a16t",
+          "sku": "ECL-TOPS-ONY-S",
+          "color": "Onyx",
+          "size": "S",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        },
+        {
+          "id": "var_k2edj7qd94br",
+          "sku": "ECL-TOPS-ONY-M",
+          "color": "Onyx",
+          "size": "M",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        },
+        {
+          "id": "var_vef26bw4gxtx",
+          "sku": "ECL-TOPS-ONY-L",
+          "color": "Onyx",
+          "size": "L",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        },
+        {
+          "id": "var_jcyqbvvp1a9s",
+          "sku": "ECL-TOPS-ONY-XL",
+          "color": "Onyx",
+          "size": "XL",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        },
+        {
+          "id": "var_rgh5c0z5sb2p",
+          "sku": "ECL-TOPS-BON-S",
+          "color": "Bone",
+          "size": "S",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        },
+        {
+          "id": "var_jwbdf8zxh9p6",
+          "sku": "ECL-TOPS-BON-M",
+          "color": "Bone",
+          "size": "M",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        },
+        {
+          "id": "var_3qn322fbe1bp",
+          "sku": "ECL-TOPS-BON-L",
+          "color": "Bone",
+          "size": "L",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        },
+        {
+          "id": "var_63am7z8yfq0x",
+          "sku": "ECL-TOPS-BON-XL",
+          "color": "Bone",
+          "size": "XL",
+          "inventory": {
+            "onHand": 0,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "out-of-stock"
+        }
+      ],
+      "media": [
+        {
+          "id": "med_ynvvwpay8y",
+          "role": "hero",
+          "url": "assets/placeholder/hero.svg",
+          "alt": "Consecrated Crewneck — hero",
+          "provenance": "placeholder",
+          "approved": false
+        }
+      ],
+      "pricing": {
+        "listMinor": 11800,
+        "currency": "USD",
+        "floorMinor": 7800
+      },
+      "lifecycle": "draft",
+      "visibility": "hidden",
+      "stockState": "out-of-stock",
+      "supplierId": "sup_j5tdfz0j1w",
+      "scores": {
+        "readiness": 0,
+        "media": 0,
+        "supplier": 0
+      },
+      "origin": {
+        "source": "seed"
+      },
+      "createdAt": "2026-05-30T02:23:57.884Z",
+      "updatedAt": "2026-05-30T02:23:57.884Z"
+    },
+    {
+      "id": "prod_q9hj17fz979v",
+      "slug": "obsidian-chain-belt",
+      "title": "Obsidian Chain Belt",
+      "subtitle": "Antiqued brass",
+      "description": "Obsidian Chain Belt — built for those who already know. Antiqued brass with hand-linked chain. Dark, deliberate, and made to outlast the trend cycle. Specificity over volume, always.",
+      "bulletBenefits": [
+        "Antiqued brass — quality you register before any logo",
+        "Hand-linked chain — the detail most of the market skips",
+        "Considered accessory silhouette — engineered to be worn, not just seen",
+        "Made in Portugal in a controlled run — no oversupply, no markdowns"
+      ],
+      "emotionalHooks": [
+        "Not for everyone. Exactly as intended.",
+        "Step into the dark."
+      ],
+      "brand": "Eclipse",
+      "tier": "The Vault",
+      "category": "accessory",
+      "tags": [
+        "hardware",
+        "gothic",
+        "unisex"
+      ],
+      "specs": {
+        "material": "Antiqued brass",
+        "detail": "Hand-linked chain",
+        "origin": "Made in Portugal",
+        "care": "Cold wash, hang dry"
+      },
+      "variants": [
+        {
+          "id": "var_kj9hzs6yschj",
+          "sku": "ECL-ACCE-ONY-OS",
+          "color": "Onyx",
+          "size": "OS",
+          "inventory": {
+            "onHand": 25,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "in-stock"
+        },
+        {
+          "id": "var_jr2pg6dbqczq",
+          "sku": "ECL-ACCE-BON-OS",
+          "color": "Bone",
+          "size": "OS",
+          "inventory": {
+            "onHand": 25,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "in-stock"
+        },
+        {
+          "id": "var_eca6e9t02nvb",
+          "sku": "ECL-ACCE-OXB-OS",
+          "color": "Oxblood",
+          "size": "OS",
+          "inventory": {
+            "onHand": 25,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "in-stock"
+        }
+      ],
+      "media": [
+        {
+          "id": "med_m73gfsdrd4",
+          "role": "hero",
+          "url": "assets/placeholder/hero.svg",
+          "alt": "Obsidian Chain Belt — hero (placeholder, pending real shoot)",
+          "provenance": "placeholder",
+          "approved": true
+        },
+        {
+          "id": "med_c3shnj8nxm",
+          "role": "angle",
+          "url": "assets/placeholder/angle.svg",
+          "alt": "Obsidian Chain Belt — angle (placeholder, pending real shoot)",
+          "provenance": "placeholder",
+          "approved": true
+        },
+        {
+          "id": "med_wtjxxecech",
+          "role": "detail",
+          "url": "assets/placeholder/detail.svg",
+          "alt": "Obsidian Chain Belt — detail (placeholder, pending real shoot)",
+          "provenance": "placeholder",
+          "approved": true
+        }
+      ],
+      "pricing": {
+        "listMinor": 5800,
+        "currency": "USD",
+        "floorMinor": 2800
+      },
+      "lifecycle": "published",
+      "visibility": "visible",
+      "stockState": "in-stock",
+      "supplierId": "sup_j5tdfz0j1w",
+      "scores": {
+        "readiness": 0,
+        "media": 0,
+        "supplier": 0
+      },
+      "origin": {
+        "source": "agent",
+        "candidateId": "cand_veq8n89f21vg",
+        "agent": "sourcing"
+      },
+      "approvedBy": "human:operator",
+      "approvedAt": "2026-05-30T02:24:16.833Z",
+      "createdAt": "2026-05-30T02:24:16.818Z",
+      "updatedAt": "2026-05-30T02:24:17.077Z"
+    },
+    {
+      "id": "prod_0scc2bdwb4t4",
+      "slug": "halo-hoop-earrings",
+      "title": "Halo Hoop Earrings",
+      "subtitle": "14k gold vermeil",
+      "description": "Halo Hoop Earrings — built for those who already know. 14k gold vermeil with hypoallergenic posts. Dark, deliberate, and made to outlast the trend cycle. Specificity over volume, always.",
+      "bulletBenefits": [
+        "14k gold vermeil — quality you register before any logo",
+        "Hypoallergenic posts — the detail most of the market skips",
+        "Considered jewelry silhouette — engineered to be worn, not just seen",
+        "Made in Italy in a controlled run — no oversupply, no markdowns"
+      ],
+      "emotionalHooks": [
+        "Not for everyone. Exactly as intended.",
+        "Step into the dark."
+      ],
+      "brand": "Eclipse",
+      "tier": "The Vault",
+      "category": "jewelry",
+      "tags": [
+        "gold",
+        "minimal",
+        "everyday"
+      ],
+      "specs": {
+        "material": "14k gold vermeil",
+        "detail": "Hypoallergenic posts",
+        "origin": "Made in Italy",
+        "care": "Cold wash, hang dry"
+      },
+      "variants": [
+        {
+          "id": "var_7tv3p7zpmjky",
+          "sku": "ECL-JEWE-GOL-OS",
+          "color": "Gold",
+          "size": "OS",
+          "inventory": {
+            "onHand": 25,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "in-stock"
+        },
+        {
+          "id": "var_32c7mwwj2rra",
+          "sku": "ECL-JEWE-SIL-OS",
+          "color": "Silver",
+          "size": "OS",
+          "inventory": {
+            "onHand": 25,
+            "reserved": 0,
+            "restockThreshold": 6
+          },
+          "stockState": "in-stock"
+        }
+      ],
+      "media": [
+        {
+          "id": "med_66ehkts3hw",
+          "role": "hero",
+          "url": "assets/placeholder/hero.svg",
+          "alt": "Halo Hoop Earrings — hero (placeholder, pending real shoot)",
+          "provenance": "placeholder",
+          "approved": true
+        },
+        {
+          "id": "med_vt3j1p3qp7",
+          "role": "angle",
+          "url": "assets/placeholder/angle.svg",
+          "alt": "Halo Hoop Earrings — angle (placeholder, pending real shoot)",
+          "provenance": "placeholder",
+          "approved": true
+        },
+        {
+          "id": "med_vkaanywk53",
+          "role": "detail",
+          "url": "assets/placeholder/detail.svg",
+          "alt": "Halo Hoop Earrings — detail (placeholder, pending real shoot)",
+          "provenance": "placeholder",
+          "approved": true
+        }
+      ],
+      "pricing": {
+        "listMinor": 4200,
+        "currency": "USD",
+        "floorMinor": 1800
+      },
+      "lifecycle": "published",
+      "visibility": "visible",
+      "stockState": "in-stock",
+      "supplierId": "sup_j5tdfz0j1w",
+      "scores": {
+        "readiness": 0,
+        "media": 0,
+        "supplier": 0
+      },
+      "origin": {
+        "source": "agent",
+        "candidateId": "cand_ytgghm777xpk",
+        "agent": "sourcing"
+      },
+      "approvedBy": "human:operator",
+      "approvedAt": "2026-05-30T02:24:17.341Z",
+      "createdAt": "2026-05-30T02:24:17.325Z",
+      "updatedAt": "2026-05-30T02:24:17.582Z"
+    }
+  ],
+  "updatedAt": "2026-05-30T02:24:17.582Z"
+}

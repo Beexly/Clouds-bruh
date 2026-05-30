@@ -1,0 +1,23 @@
+{
+  "name": "galaxy-eclipse",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Eclipse (Galaxy Network) — autonomous luxury commerce house. Dependency-free Node core: agents propose, humans approve, nothing goes live until gated.",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test",
+    "test:phase1": "node --test test/integration.phase1.test.mjs",
+    "seed": "node src/cli/seed.mjs",
+    "rebuild": "node src/cli/rebuild.mjs",
+    "agent": "node src/cli/run-agent.mjs",
+    "tick": "node src/cli/tick.mjs",
+    "review": "node src/cli/review.mjs",
+    "serve": "node src/server/static.mjs public 8080",
+    "ops": "node src/server/static.mjs public 8081",
+    "dev": "node src/cli/seed.mjs && node src/server/static.mjs public 8080"
+  },
+  "license": "UNLICENSED"
+}

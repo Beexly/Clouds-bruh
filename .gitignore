@@ -1,0 +1,16 @@
+# Dependencies (there are none — this project is dependency-free — but never commit these if added)
+node_modules/
+
+# Secrets — only .env.example (names, no values) is committed
+.env
+.env.*
+!.env.example
+
+# Generated runtime state (projections under data/ ARE committed for demo; runtime/ is not)
+data/runtime/
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.log
+*.tmp

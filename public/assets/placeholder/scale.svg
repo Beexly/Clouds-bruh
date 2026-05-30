@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000" role="img" aria-label="Eclipse placeholder">
+  <rect width="800" height="1000" fill="#1e1e27"/>
+  <line x1="200" y1="500" x2="600" y2="500" stroke="#e9c46a" stroke-width="1" opacity="0.5"/>
+  <line x1="200" y1="480" x2="200" y2="520" stroke="#e9c46a" stroke-width="1" opacity="0.5"/>
+  <line x1="600" y1="480" x2="600" y2="520" stroke="#e9c46a" stroke-width="1" opacity="0.5"/>
+  <text x="400" y="800" fill="#5a5a64" font-family="system-ui, sans-serif" font-size="16" letter-spacing="6" text-anchor="middle">SCALE · PLACEHOLDER</text>
+</svg>
