@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.next/
+.medusa/
+.turbo/
+*.log
+.env
+.DS_Store
+packages/data/*.csv

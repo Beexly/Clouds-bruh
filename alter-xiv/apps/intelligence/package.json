@@ -1,0 +1,21 @@
+{
+  "name": "intelligence",
+  "version": "0.1.0",
+  "description": "Alter XIV autonomous agent departments + learning loop + introspection",
+  "scripts": {
+    "dev": "tsx watch src/orchestrator/index.ts",
+    "build": "tsc",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@alterxiv/shared": "workspace:*",
+    "@anthropic-ai/claude-agent-sdk": "latest",
+    "@anthropic-ai/sdk": "latest",
+    "ioredis": "^5.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}

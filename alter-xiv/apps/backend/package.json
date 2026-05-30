@@ -1,0 +1,29 @@
+{
+  "name": "backend",
+  "version": "0.1.0",
+  "description": "Alter XIV commerce core (Medusa v2) + intelligence modules",
+  "scripts": {
+    "dev": "medusa develop",
+    "build": "medusa build",
+    "seed": "tsx ../../scripts/seed.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@alterxiv/shared": "workspace:*",
+    "@medusajs/admin-sdk": "^2.15.5",
+    "@medusajs/dashboard": "^2.15.5",
+    "@medusajs/framework": "latest",
+    "@medusajs/medusa": "latest",
+    "pg": "^8.13.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@swc/core": "^1.15.40",
+    "@swc/helpers": "^0.5.23",
+    "@types/node": "^25.9.1",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}
