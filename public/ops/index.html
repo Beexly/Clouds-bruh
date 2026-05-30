@@ -38,6 +38,12 @@
         <p class="ops-note">Each candidate carries source links, imagery, costs, and a gate snapshot. Approve from the CLI (<code>npm run review approve &lt;id&gt;</code>) or, in live mode, from its GitHub issue.</p>
         <div class="board" id="board"></div>
       </section>
+
+      <section class="ops-block">
+        <h2 class="ops-h2">Orders</h2>
+        <p class="ops-note">Storefront checkouts land here. Agents advance fulfillment automatically; refunds and cancellations are human-only (<code>npm run orders refund &lt;number&gt;</code>). Payment stays in test mode.</p>
+        <div id="orders"></div>
+      </section>
     </main>
 
     <script src="ops.js"></script>

@@ -63,6 +63,7 @@ async function load() {
   document.getElementById('overall').textContent = (data.ledger?.overallPct ?? 0) + '%';
   document.getElementById('lanes').innerHTML = (data.ledger?.lanes || []).map(lane).join('');
   document.getElementById('agents').innerHTML = (data.agents || []).map(agent).join('');
+  renderOrders(data.orders);
 
   const board = document.getElementById('board');
   const cols = (data.board?.columns || []).filter((c) => c.items.length || ['queued', 'in_review', 'approved'].includes(c.key));
@@ -77,6 +78,35 @@ async function load() {
         )
         .join('')
     : '<div class="board__empty">Queue is empty. Run <code>npm run agent sourcing</code> to propose candidates.</div>';
+}
+
+function renderOrders(o) {
+  const wrap = document.getElementById('orders');
+  if (!wrap) return;
+  if (!o || !o.total) {
+    wrap.innerHTML = '<div class="board__empty">No orders yet. A checkout on the storefront creates one here.</div>';
+    return;
+  }
+  const stats = `
+    <div class="ordstats">
+      <div><span class="ordstats__n">${o.total}</span><span class="ordstats__l">orders</span></div>
+      <div><span class="ordstats__n">${o.openCount}</span><span class="ordstats__l">open</span></div>
+      <div><span class="ordstats__n">${money(o.revenueMinor)}</span><span class="ordstats__l">recognized</span></div>
+    </div>`;
+  const rows = o.recent
+    .map(
+      (r) => `
+      <tr>
+        <td class="mono">${r.number}</td>
+        <td><span class="ostatus">${r.status}</span></td>
+        <td>${r.itemCount}</td>
+        <td class="mono">${money(r.grandMinor)}</td>
+        <td class="muted">${r.email || ''}</td>
+        <td>${r.paymentLive ? '<span class="live">LIVE</span>' : '<span class="muted">test</span>'}</td>
+      </tr>`
+    )
+    .join('');
+  wrap.innerHTML = stats + `<table class="otable"><thead><tr><th>Order</th><th>Status</th><th>Items</th><th>Total</th><th>Customer</th><th>Pay</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
 load();

@@ -18,6 +18,9 @@
     "mirror": "node src/cli/mirror.mjs",
     "stripe:plan": "node src/cli/stripe-sync.mjs",
     "imagery:plan": "node src/cli/imagery.mjs",
+    "orders": "node src/cli/orders.mjs",
+    "analytics": "node src/cli/analytics.mjs",
+    "support": "node src/cli/support.mjs",
     "serve": "node src/server/static.mjs public 8080",
     "ops": "node src/server/static.mjs public 8081",
     "dev": "node src/cli/seed.mjs && node src/server/static.mjs public 8080"

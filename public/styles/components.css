@@ -376,3 +376,14 @@
 .pdp__specs { width: 100%; border-collapse: collapse; margin-top: var(--space-2); font-size: 0.82rem; }
 .pdp__specs th { text-align: left; color: var(--muted); text-transform: capitalize; padding: 6px 0; width: 40%; font-weight: 400; }
 .pdp__specs td { padding: 6px 0; border-bottom: var(--line-thin); }
+
+/* Support form */
+.support-form { position: relative; z-index: 1; display: grid; gap: var(--space-2); max-width: 560px; margin: var(--space-4) auto var(--space-5); }
+.support-form input, .support-form textarea {
+  background: var(--surface);
+  border: var(--line-thin);
+  color: var(--ink);
+  font: inherit;
+  padding: 12px 14px;
+}
+.support-form textarea { resize: vertical; }
