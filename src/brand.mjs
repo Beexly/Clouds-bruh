@@ -22,6 +22,15 @@ export const BRAND = Object.freeze({
     'mega-retailers, the polish and price confidence of the luxury houses, the ' +
     'edge of streetwear — kept clean, dark, and deliberate.',
 
+  // Domains. The current live URL is a DRAFT/staging surface for reviewing
+  // designs; the production domain for Eclipse is not chosen yet. Update
+  // `production` here (single source of truth) once the new domain is acquired.
+  domains: Object.freeze({
+    draft: 'alter1414.com', // existing — use to preview designs only, not the launch domain
+    production: null, // TBD — Eclipse production domain not yet selected/acquired
+    status: 'draft-only',
+  }),
+
   voice: Object.freeze({
     profanity: false,
     traits: ['confident', 'exclusive', 'specific', 'unhurried', 'dark-luxe'],
