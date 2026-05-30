@@ -25,5 +25,27 @@ export default defineConfig({
     // Redis-backed event bus + workflow engine in production:
     { resolve: '@medusajs/medusa/event-bus-redis', options: { redisUrl: process.env.REDIS_URL } },
     { resolve: '@medusajs/medusa/workflow-engine-redis', options: { redis: { url: process.env.REDIS_URL } } },
+    // Payment: pp_system_default always enabled; Stripe activated when key present
+    {
+      resolve: '@medusajs/medusa/payment',
+      options: {
+        providers: [
+          ...(process.env.STRIPE_API_KEY ? [{
+            resolve: '@medusajs/medusa/payment-stripe',
+            id: 'stripe',
+            options: { apiKey: process.env.STRIPE_API_KEY },
+          }] : []),
+        ],
+      },
+    },
+    // Fulfillment: manual drop-ship provider
+    {
+      resolve: '@medusajs/medusa/fulfillment',
+      options: {
+        providers: [{ resolve: '@medusajs/medusa/fulfillment-manual', id: 'manual' }],
+      },
+    },
+    // Promotions module (coupons, campaigns)
+    { resolve: '@medusajs/medusa/promotion' },
   ],
 });

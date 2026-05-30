@@ -1,9 +1,55 @@
 import type { SubscriberArgs, SubscriberConfig } from '@medusajs/framework';
+import { Modules } from '@medusajs/framework/utils';
 
-// Event-driven: when an order is placed, consume drop units + notify the intelligence layer
-// (Quartermaster monitors fulfillment, Learning Loop attributes conversion).
 export default async function orderPlaced({ event, container }: SubscriberArgs<{ id: string }>) {
-  const drops = container.resolve('drops') as any;
-  // TODO: decrement drop units for purchased products; emit a `conversion` reward to ORACLE.
+  const orderId = event.data?.id;
+  if (!orderId) return;
+
+  try {
+    // Resolve order details to find product IDs
+    const orderModule = container.resolve(Modules.ORDER) as any;
+    const [order] = await orderModule.listOrders(
+      { id: orderId },
+      { relations: ['items'], select: ['id', 'items.variant_id', 'items.product_id', 'items.quantity', 'metadata'] }
+    ).catch(() => [null]);
+
+    if (!order) return;
+
+    const drops = container.resolve('drops') as any;
+    const allDrops = await drops.listDrops({ status: 'live' }).catch(() => []);
+
+    // Decrement units_remaining for any live drop containing purchased products
+    const productIds = (order.items ?? []).map((i: any) => i.product_id).filter(Boolean);
+    for (const drop of allDrops as any[]) {
+      const dropProducts: string[] = drop.product_ids ?? [];
+      const overlap = productIds.filter((pid: string) => dropProducts.includes(pid));
+      if (overlap.length > 0) {
+        const totalQty = (order.items ?? [])
+          .filter((i: any) => overlap.includes(i.product_id))
+          .reduce((s: number, i: any) => s + (i.quantity ?? 1), 0);
+        await drops.consumeUnits(drop.id, totalQty).catch((e: Error) =>
+          console.warn(`[order-placed] consumeUnits failed for drop ${drop.id}:`, e.message?.slice(0, 60))
+        );
+        console.log(`[order-placed] Drop ${drop.name}: consumed ${totalQty} units`);
+      }
+    }
+
+    // Emit SIGNAL purchase event so ORACLE can attribute conversion reward
+    const signalModule = container.resolve('signal') as any;
+    await signalModule.ingest({
+      visitor_id: order.metadata?.visitor_id ?? 'unknown',
+      session_id: order.metadata?.session_id ?? 'unknown',
+      type: 'purchase',
+      entity_id: orderId,
+      entity_type: 'order',
+      value: (order.items ?? []).reduce((s: number, i: any) => s + (i.unit_price ?? 0) * (i.quantity ?? 1), 0) / 100,
+      chapter: order.metadata?.chapter,
+      ts: new Date().toISOString(),
+    }).catch(() => {});
+
+  } catch (e: any) {
+    console.error('[order-placed] subscriber error:', e.message?.slice(0, 120));
+  }
 }
+
 export const config: SubscriberConfig = { event: 'order.placed' };

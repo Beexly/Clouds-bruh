@@ -1,11 +1,11 @@
 # ALTER XIV — BUILD PROGRESS
-**Overall:** 50%  ·  **Phase:** 5/10 — CONGREGATION  ·  **Updated:** 2026-05-30
+**Overall:** 60%  ·  **Phase:** 6/10 — COMMERCE COMPLETENESS  ·  **Updated:** 2026-05-30
 
 ## Status
-- ✅ Done: Phase 0, Phase 1 complete
-- ✅ Done: Phase 0, Phase 1, Phase 2, Phase 3, Phase 4 complete
-- 🔄 In progress: Phase 5 — CONGREGATION (orchestrator + agents)
-- ⛔ Blocked: 0  ·  🙋 Needs Garrett: 0
+- ✅ Done: Phase 0–5 complete
+- ✅ Done: Phase 6 — Commerce Completeness complete
+- 🔄 In progress: Phase 7 — INTROSPECTION + Learning Loop
+- ⛔ Blocked: 0  ·  🙋 Needs Garrett: STRIPE_API_KEY (optional — pp_system_default works in test mode)
 
 ## Phases
 | # | Phase | Status | Notes |
@@ -15,12 +15,8 @@
 | 2 | SIGNAL + MIND | ✅ | /store/signal live · Redis stream · affinity decay · high_intent segment · identify merge |
 | 3 | ORACLE | ✅ | pgvector embeddings (80 products) · for_you/trending/because_you_viewed/complete_the_set · Thompson bandit broadcast |
 | 4 | The Broadcast | ✅ | Home + rec rails · product detail · cart · checkout (test-mode) · SIGNAL on every interaction |
-| 5 | CONGREGATION | 🔄 | 10 agents scheduled (cron + events) · Ledger (Postgres) · Introspection · escalation gate · mock mode |
-| 2 | SIGNAL + MIND | ☐ | |
-| 3 | ORACLE | ☐ | |
-| 4 | The Broadcast | ☐ | |
-| 5 | CONGREGATION | ☐ | |
-| 6 | Commerce Completeness | ☐ | |
+| 5 | CONGREGATION | ✅ | 10 agents scheduled (cron + events) · Ledger (Postgres) · Introspection · escalation gate · mock mode |
+| 6 | Commerce Completeness | ✅ | pp_system_default test-mode payments · place-drop-order compensatable workflow · shipping options · order.placed subscriber · 80 variants priced · full checkout verified |
 | 7 | INTROSPECTION + Learning | ☐ | |
 | 8 | Analyst / BI | ☐ | |
 | 9 | Hardening | ☐ | |

@@ -1,6 +1,6 @@
 'use client';
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
-import { createCart, getCart, addToCart, removeFromCart } from '../lib/api';
+import { createCart, getCart, addToCart, removeFromCart, getRegions } from '../lib/api';
 import { signal } from '../lib/signal';
 
 interface CartCtx {
@@ -27,7 +27,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return c;
       } catch { localStorage.removeItem('axiv_cart'); }
     }
-    const { cart: c } = await createCart();
+    const regions = await getRegions().catch(() => []);
+    const regionId = regions[0]?.id;
+    const { cart: c } = await createCart(regionId);
     localStorage.setItem('axiv_cart', c.id);
     setCart(c);
     return c;

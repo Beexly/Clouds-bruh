@@ -37,8 +37,14 @@ export async function getRecs(visitorId: string, strategy = 'for_you', limit = 1
   return apiFetch(`/store/recommendations?visitor_id=${encodeURIComponent(visitorId)}&strategy=${strategy}&limit=${limit}`);
 }
 
-export async function createCart() {
-  return apiFetch('/store/carts', { method: 'POST', body: JSON.stringify({}) });
+export async function getRegions() {
+  const res = await apiFetch('/store/regions');
+  return (res.regions ?? []) as any[];
+}
+
+export async function createCart(regionId?: string) {
+  const body = regionId ? { region_id: regionId } : {};
+  return apiFetch('/store/carts', { method: 'POST', body: JSON.stringify(body) });
 }
 
 export async function getCart(cartId: string) {
@@ -54,4 +60,36 @@ export async function addToCart(cartId: string, variantId: string, quantity = 1)
 
 export async function removeFromCart(cartId: string, lineItemId: string) {
   return apiFetch(`/store/carts/${cartId}/line-items/${lineItemId}`, { method: 'DELETE' });
+}
+
+export async function getShippingOptions(cartId: string) {
+  const res = await apiFetch(`/store/shipping-options?cart_id=${encodeURIComponent(cartId)}`);
+  return (res.shipping_options ?? []) as any[];
+}
+
+export async function addShippingMethod(cartId: string, optionId: string) {
+  return apiFetch(`/store/carts/${cartId}/shipping-methods`, {
+    method: 'POST',
+    body: JSON.stringify({ option_id: optionId }),
+  });
+}
+
+export async function createPaymentCollection(cartId: string) {
+  const res = await apiFetch('/store/payment-collections', {
+    method: 'POST',
+    body: JSON.stringify({ cart_id: cartId }),
+  });
+  return res.payment_collection as any;
+}
+
+export async function initPaymentSession(collectionId: string, providerId: string) {
+  const res = await apiFetch(`/store/payment-collections/${collectionId}/payment-sessions`, {
+    method: 'POST',
+    body: JSON.stringify({ provider_id: providerId }),
+  });
+  return res.payment_collection as any;
+}
+
+export async function completeCart(cartId: string) {
+  return apiFetch(`/store/carts/${cartId}/complete`, { method: 'POST' });
 }
