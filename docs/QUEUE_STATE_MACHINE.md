@@ -36,3 +36,15 @@ Each candidate ↔ one GitHub issue for remote, mobile approve/reject:
 | label `in-review` / `approved` / `needs-changes` / `rejected` | pulled by QA/orders tick → applied as a **human-actor** transition |
 | `published` | issue closed with a link to the live product |
 | `rejected` | issue closed as not planned |
+
+### Pulling decisions back (implemented)
+
+`src/queue/decisions.mjs#applyGithubDecision({ candidateId, labels }, actor)` maps an issue's
+labels to the matching human-gated review action via `transitionForLabels`:
+
+- On **conflicting labels, the most conservative action wins**: `reject` > `needs-changes` > `approve`.
+- The labeling operator is the **actor of record** — so this routes through the same
+  `review-actions` path as the CLI, and the agent-can't-approve gate still holds.
+- Idempotent: already-resolved candidates are no-ops.
+
+The agent reads issue labels via the GitHub MCP and calls this resolver; Node never calls MCP directly.
