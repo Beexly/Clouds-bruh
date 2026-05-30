@@ -14,6 +14,9 @@ export const BRAND = Object.freeze({
   name: 'Eclipse',
   network: 'Galaxy',
   display: 'Eclipse · Galaxy Network',
+  // Default tenant id (R2 multi-tenant seam). Single-tenant today; threaded
+  // through products now so the platform can be tenant-scoped when sold.
+  tenant: 'eclipse',
   skuPrefix: 'ECL',
   orderPrefix: 'ECL',
   tagline: 'Step into the dark.',

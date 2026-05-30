@@ -37,15 +37,41 @@ export function createMediaRef(input = {}) {
   };
 }
 
+/**
+ * Variant with a generic `attributes` map (R2). Luxury breadth needs more than
+ * color/size — material, carat, length, fragrance volume, finish. `attributes`
+ * is the canonical bag; `color`/`size` remain as derived, backwards-compatible
+ * conveniences (and the default attributes for apparel). `label` is the
+ * human-readable variant name derived from attributes.
+ */
 export function createVariant(input = {}, category = 'item') {
-  const color = input.color || 'Default';
-  const size = input.size || 'OS';
-  const sku = input.sku || skuFrom({ category, color, size });
+  // Merge legacy color/size into the canonical attributes map.
+  const attributes = { ...(input.attributes || {}) };
+  if (input.color != null && attributes.color == null) attributes.color = input.color;
+  if (input.size != null && attributes.size == null) attributes.size = input.size;
+
+  const color = attributes.color ?? 'Default';
+  const size = attributes.size ?? 'OS';
+
+  // SKU stays stable for apparel (category/color/size); for attribute-only
+  // variants it derives from the joined attribute values.
+  const skuSeed =
+    attributes.color != null || attributes.size != null
+      ? { category, color, size }
+      : { category, color: Object.values(attributes)[0] || 'X', size: Object.values(attributes)[1] || 'OS' };
+
+  // Human label: prefer real attribute values; fall back to color/size.
+  const label = Object.keys(attributes).length
+    ? Object.values(attributes).join(' / ')
+    : `${color} / ${size}`;
+
   return {
-    id: input.id || variantId([sku]),
-    sku,
-    color,
-    size,
+    id: input.id || variantId([input.sku || skuFrom(skuSeed)]),
+    sku: input.sku || skuFrom(skuSeed),
+    attributes,
+    label,
+    color, // back-compat
+    size, // back-compat
     priceMinor: input.priceMinor,
     inventory: {
       onHand: int(input.inventory?.onHand, 0),
@@ -64,6 +90,9 @@ export function createProduct(input = {}) {
   const at = input.createdAt || now();
   const product = {
     id: input.id || productId([slug, category, input.origin?.candidateId || '']),
+    // Tenancy seam (R2): single-tenant today; the key is planted now so events,
+    // queue, and projections can be tenant-scoped when Eclipse is sold/multi-tenant.
+    tenantId: input.tenantId || BRAND.tenant,
     slug,
     title,
     subtitle: input.subtitle,
@@ -71,6 +100,7 @@ export function createProduct(input = {}) {
     bulletBenefits: input.bulletBenefits || [],
     emotionalHooks: input.emotionalHooks || [],
     collectionId: input.collectionId,
+    categoryId: input.categoryId, // taxonomy node (createCategory); distinct from curated collection
     brand: input.brand || BRAND.name,
     tier: input.tier || BRAND.tiers.vault,
     category,
@@ -84,7 +114,6 @@ export function createProduct(input = {}) {
       floorMinor: int(input.pricing?.floorMinor, 0),
       marginPct: input.pricing?.marginPct,
     },
-    // DEFAULT-DENY: every product is born draft, hidden, out-of-stock.
     lifecycle: input.lifecycle || Lifecycle.DRAFT,
     visibility: input.visibility || Visibility.HIDDEN,
     stockState: input.stockState || StockState.OUT,
