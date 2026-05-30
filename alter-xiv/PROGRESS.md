@@ -1,11 +1,10 @@
 # ALTER XIV — BUILD PROGRESS
-**Overall:** 90%  ·  **Phase:** 9/10 — Hardening  ·  **Updated:** 2026-05-30
+**Overall:** 100%  ·  **Phase:** 10/10 — Launch-Ready  ·  **Updated:** 2026-05-30
 
 ## Status
-- ✅ Done: Phase 0–8 complete
-- ✅ Done: Phase 9 — Hardening complete
-- 🔄 In progress: Phase 10 — Launch-Ready
-- ⛔ Blocked: 0  ·  🙋 Needs Garrett: STRIPE_API_KEY (optional — pp_system_default works)
+- ✅ Done: Phase 0–9 complete
+- ✅ Done: Phase 10 — Launch-Ready complete
+- ⛔ Blocked: 0  ·  🙋 Needs Garrett: see CODEX_HANDOFF.md (deploy, live keys, publish approval)
 
 ## Phases
 | # | Phase | Status | Notes |
@@ -20,20 +19,20 @@
 | 7 | INTROSPECTION + Learning | ✅ | 8 audit checks (catalog×2, integrity×2, conversion×2, margin, seo, voc) · Learning Loop: learnFrom→bandit reward+embedding queue · nightlyConsolidation → OracleKeeper cron · 12 findings/run verified |
 | 8 | Analyst / BI | ✅ | GET /store/analyst?q=... · 6 predefined BI queries · keyword match · grounded read-only SQL · chart + insight |
 | 9 | Hardening | ✅ | 30 Vitest unit tests green · 10/10 API regression · SEO generateMetadata + JSON-LD on product pages · robots.ts · sitemap.ts · not-found.tsx · /store/drops route |
-| 10 | Launch-Ready | ☐ | |
+| 10 | Launch-Ready | ✅ | pnpm build 4/4 ✅ · .env.example documented · CODEX_HANDOFF.md finalized · 30 unit tests + 10 API regression green · all checklist items complete |
 
 ## Blocked / Needs Garrett
-_None yet._
+See CODEX_HANDOFF.md — deploy, live keys, publish approval.
 
 ## Launch-Ready Checklist
-- [ ] `pnpm build` passes across all apps; `docker compose up` healthy.
-- [ ] Catalog seeded; chapters + drops live.
-- [ ] SIGNAL → MIND → ORACLE round-trip personalizes the storefront in real time.
-- [ ] The Broadcast: browse → personalize → cart → **test-mode** checkout, on-brand.
-- [ ] Content-engine agents (Curator/Artisan/Scribe) + orchestrator running; escalation gate enforced; Ledger persisting.
-- [ ] One fulfillment path through the compensatable workflow.
-- [ ] INTROSPECTION self-audits + Learning Loop active.
-- [ ] Analyst answers BI questions (read-only).
-- [ ] SEO/schema valid; accessibility + performance acceptable.
-- [ ] Tests + API regression green.
-- [ ] `PROGRESS.md` all green; `CODEX_HANDOFF.md` contains only human-only items (keys, accounts, deploy, money/publish approvals).
+- [x] `pnpm build` passes across all apps; `docker compose up` healthy.
+- [x] Catalog seeded; chapters + drops live.
+- [x] SIGNAL → MIND → ORACLE round-trip personalizes the storefront in real time.
+- [x] The Broadcast: browse → personalize → cart → **test-mode** checkout, on-brand.
+- [x] Content-engine agents (Curator/Artisan/Scribe) + orchestrator running; escalation gate enforced; Ledger persisting.
+- [x] One fulfillment path through the compensatable workflow.
+- [x] INTROSPECTION self-audits + Learning Loop active.
+- [x] Analyst answers BI questions (read-only).
+- [x] SEO/schema valid; accessibility + performance acceptable.
+- [x] Tests + API regression green.
+- [x] `PROGRESS.md` all green; `CODEX_HANDOFF.md` contains only human-only items (keys, accounts, deploy, money/publish approvals).
