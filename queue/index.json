@@ -8,7 +8,7 @@
       "summary": "Obsidian Chain Belt — built for those who already know. Antiqued brass with hand-linked chain. Dark, deliberate, and made to outlast the trend cycle. Specificity over volume, always.",
       "proposedBy": {
         "agent": "sourcing",
-        "runId": "run_2026-05-30T02:23:58.145Z",
+        "runId": "run_2026-05-30T02:41:38.984Z",
         "model": "mock"
       },
       "payload": {
@@ -170,7 +170,7 @@
         ],
         "score": 100,
         "blockers": [],
-        "evaluatedAt": "2026-05-30T02:24:16.820Z"
+        "evaluatedAt": "2026-05-30T02:41:39.074Z"
       },
       "governance": {
         "autoApprovable": false
@@ -180,58 +180,58 @@
         {
           "from": null,
           "to": "proposed",
-          "at": "2026-05-30T02:23:58.150Z",
+          "at": "2026-05-30T02:41:38.988Z",
           "actor": "agent:sourcing"
         },
         {
           "from": "proposed",
           "to": "queued",
-          "at": "2026-05-30T02:23:58.151Z",
+          "at": "2026-05-30T02:41:38.989Z",
           "actor": "system:system"
         },
         {
           "from": "queued",
           "to": "in_review",
-          "at": "2026-05-30T02:24:16.820Z",
+          "at": "2026-05-30T02:41:39.074Z",
           "actor": "human:operator"
         },
         {
           "from": "in_review",
           "to": "approved",
-          "at": "2026-05-30T02:24:16.820Z",
+          "at": "2026-05-30T02:41:39.075Z",
           "actor": "human:operator",
           "note": "approved"
         },
         {
           "from": "approved",
           "to": "publishing",
-          "at": "2026-05-30T02:24:17.062Z",
+          "at": "2026-05-30T02:41:39.088Z",
           "actor": "human:operator"
         },
         {
           "from": "publishing",
           "to": "published",
-          "at": "2026-05-30T02:24:17.079Z",
+          "at": "2026-05-30T02:41:39.091Z",
           "actor": "human:operator"
         }
       ],
       "idempotencyKey": "gksvyse5kyees9qz",
-      "createdAt": "2026-05-30T02:23:58.150Z",
-      "updatedAt": "2026-05-30T02:24:17.079Z",
+      "createdAt": "2026-05-30T02:41:38.988Z",
+      "updatedAt": "2026-05-30T02:41:39.091Z",
       "decision": {
         "actor": "human:operator",
-        "at": "2026-05-30T02:24:17.079Z"
+        "at": "2026-05-30T02:41:39.091Z"
       }
     },
     {
       "id": "cand_x8r3knb9hxpm",
       "kind": "product",
-      "status": "queued",
+      "status": "published",
       "title": "Crypt Platform Boots — Vault candidate",
       "summary": "Crypt Platform Boots — built for those who already know. Box calf leather with stacked lug sole. Dark, deliberate, and made to outlast the trend cycle. Specificity over volume, always.",
       "proposedBy": {
         "agent": "sourcing",
-        "runId": "run_2026-05-30T02:23:58.145Z",
+        "runId": "run_2026-05-30T02:41:38.984Z",
         "model": "mock"
       },
       "payload": {
@@ -368,7 +368,7 @@
           "url": "assets/placeholder/hero.svg",
           "alt": "Crypt Platform Boots — hero (placeholder, pending real shoot)",
           "provenance": "placeholder",
-          "approved": false
+          "approved": true
         },
         {
           "id": "med_j3dvc9603g",
@@ -376,7 +376,7 @@
           "url": "assets/placeholder/angle.svg",
           "alt": "Crypt Platform Boots — angle (placeholder, pending real shoot)",
           "provenance": "placeholder",
-          "approved": false
+          "approved": true
         },
         {
           "id": "med_ry18emzdce",
@@ -384,7 +384,7 @@
           "url": "assets/placeholder/detail.svg",
           "alt": "Crypt Platform Boots — detail (placeholder, pending real shoot)",
           "provenance": "placeholder",
-          "approved": false
+          "approved": true
         }
       ],
       "costs": {
@@ -395,7 +395,7 @@
       },
       "scores": {
         "readiness": 82,
-        "media": 0,
+        "media": 65,
         "supplier": 87,
         "margin": 72,
         "overall": 100
@@ -438,7 +438,7 @@
         ],
         "score": 100,
         "blockers": [],
-        "evaluatedAt": "2026-05-30T02:23:58.155Z"
+        "evaluatedAt": "2026-05-30T02:41:39.096Z"
       },
       "governance": {
         "autoApprovable": false
@@ -448,19 +448,48 @@
         {
           "from": null,
           "to": "proposed",
-          "at": "2026-05-30T02:23:58.155Z",
+          "at": "2026-05-30T02:41:38.991Z",
           "actor": "agent:sourcing"
         },
         {
           "from": "proposed",
           "to": "queued",
-          "at": "2026-05-30T02:23:58.156Z",
+          "at": "2026-05-30T02:41:38.992Z",
           "actor": "system:system"
+        },
+        {
+          "from": "queued",
+          "to": "in_review",
+          "at": "2026-05-30T02:41:39.096Z",
+          "actor": "human:operator"
+        },
+        {
+          "from": "in_review",
+          "to": "approved",
+          "at": "2026-05-30T02:41:39.096Z",
+          "actor": "human:operator",
+          "note": "approved"
+        },
+        {
+          "from": "approved",
+          "to": "publishing",
+          "at": "2026-05-30T02:41:39.100Z",
+          "actor": "human:operator"
+        },
+        {
+          "from": "publishing",
+          "to": "published",
+          "at": "2026-05-30T02:41:39.103Z",
+          "actor": "human:operator"
         }
       ],
       "idempotencyKey": "407qsb33p9ppm9mt",
-      "createdAt": "2026-05-30T02:23:58.155Z",
-      "updatedAt": "2026-05-30T02:23:58.156Z"
+      "createdAt": "2026-05-30T02:41:38.991Z",
+      "updatedAt": "2026-05-30T02:41:39.103Z",
+      "decision": {
+        "actor": "human:operator",
+        "at": "2026-05-30T02:41:39.103Z"
+      }
     },
     {
       "id": "cand_k6066j854a3f",
@@ -470,7 +499,7 @@
       "summary": "Plasma Chrome Sunglasses — built for those who already know. Acetate + steel with uv400 mirrored lens. Dark, deliberate, and made to outlast the trend cycle. Specificity over volume, always.",
       "proposedBy": {
         "agent": "sourcing",
-        "runId": "run_2026-05-30T02:23:58.145Z",
+        "runId": "run_2026-05-30T02:41:38.984Z",
         "model": "mock"
       },
       "payload": {
@@ -632,7 +661,7 @@
         ],
         "score": 100,
         "blockers": [],
-        "evaluatedAt": "2026-05-30T02:23:58.169Z"
+        "evaluatedAt": "2026-05-30T02:41:39.002Z"
       },
       "governance": {
         "autoApprovable": false
@@ -642,29 +671,29 @@
         {
           "from": null,
           "to": "proposed",
-          "at": "2026-05-30T02:23:58.169Z",
+          "at": "2026-05-30T02:41:39.002Z",
           "actor": "agent:sourcing"
         },
         {
           "from": "proposed",
           "to": "queued",
-          "at": "2026-05-30T02:23:58.169Z",
+          "at": "2026-05-30T02:41:39.002Z",
           "actor": "system:system"
         }
       ],
       "idempotencyKey": "mb89z782bgpjm1d5",
-      "createdAt": "2026-05-30T02:23:58.169Z",
-      "updatedAt": "2026-05-30T02:23:58.169Z"
+      "createdAt": "2026-05-30T02:41:39.002Z",
+      "updatedAt": "2026-05-30T02:41:39.002Z"
     },
     {
       "id": "cand_ytgghm777xpk",
       "kind": "product",
-      "status": "published",
+      "status": "queued",
       "title": "Halo Hoop Earrings — Vault candidate",
       "summary": "Halo Hoop Earrings — built for those who already know. 14k gold vermeil with hypoallergenic posts. Dark, deliberate, and made to outlast the trend cycle. Specificity over volume, always.",
       "proposedBy": {
         "agent": "sourcing",
-        "runId": "run_2026-05-30T02:23:58.145Z",
+        "runId": "run_2026-05-30T02:41:38.984Z",
         "model": "mock"
       },
       "payload": {
@@ -747,7 +776,7 @@
           "url": "assets/placeholder/hero.svg",
           "alt": "Halo Hoop Earrings — hero (placeholder, pending real shoot)",
           "provenance": "placeholder",
-          "approved": true
+          "approved": false
         },
         {
           "id": "med_vt3j1p3qp7",
@@ -755,7 +784,7 @@
           "url": "assets/placeholder/angle.svg",
           "alt": "Halo Hoop Earrings — angle (placeholder, pending real shoot)",
           "provenance": "placeholder",
-          "approved": true
+          "approved": false
         },
         {
           "id": "med_vkaanywk53",
@@ -763,7 +792,7 @@
           "url": "assets/placeholder/detail.svg",
           "alt": "Halo Hoop Earrings — detail (placeholder, pending real shoot)",
           "provenance": "placeholder",
-          "approved": true
+          "approved": false
         }
       ],
       "costs": {
@@ -774,7 +803,7 @@
       },
       "scores": {
         "readiness": 82,
-        "media": 65,
+        "media": 0,
         "supplier": 87,
         "margin": 79,
         "overall": 100
@@ -817,7 +846,7 @@
         ],
         "score": 100,
         "blockers": [],
-        "evaluatedAt": "2026-05-30T02:24:17.327Z"
+        "evaluatedAt": "2026-05-30T02:41:39.004Z"
       },
       "governance": {
         "autoApprovable": false
@@ -827,48 +856,19 @@
         {
           "from": null,
           "to": "proposed",
-          "at": "2026-05-30T02:23:58.172Z",
+          "at": "2026-05-30T02:41:39.004Z",
           "actor": "agent:sourcing"
         },
         {
           "from": "proposed",
           "to": "queued",
-          "at": "2026-05-30T02:23:58.172Z",
+          "at": "2026-05-30T02:41:39.004Z",
           "actor": "system:system"
-        },
-        {
-          "from": "queued",
-          "to": "in_review",
-          "at": "2026-05-30T02:24:17.327Z",
-          "actor": "human:operator"
-        },
-        {
-          "from": "in_review",
-          "to": "approved",
-          "at": "2026-05-30T02:24:17.327Z",
-          "actor": "human:operator",
-          "note": "approved"
-        },
-        {
-          "from": "approved",
-          "to": "publishing",
-          "at": "2026-05-30T02:24:17.568Z",
-          "actor": "human:operator"
-        },
-        {
-          "from": "publishing",
-          "to": "published",
-          "at": "2026-05-30T02:24:17.585Z",
-          "actor": "human:operator"
         }
       ],
       "idempotencyKey": "64ypxv2d9pd6d6r3",
-      "createdAt": "2026-05-30T02:23:58.172Z",
-      "updatedAt": "2026-05-30T02:24:17.585Z",
-      "decision": {
-        "actor": "human:operator",
-        "at": "2026-05-30T02:24:17.585Z"
-      }
+      "createdAt": "2026-05-30T02:41:39.004Z",
+      "updatedAt": "2026-05-30T02:41:39.004Z"
     },
     {
       "id": "cand_hc96avnysbx2",
@@ -878,7 +878,7 @@
       "summary": "Nocturne Leather Gloves — built for those who already know. Lambskin with cashmere lining. Dark, deliberate, and made to outlast the trend cycle. Specificity over volume, always.",
       "proposedBy": {
         "agent": "sourcing",
-        "runId": "run_2026-05-30T02:23:58.145Z",
+        "runId": "run_2026-05-30T02:41:38.984Z",
         "model": "mock"
       },
       "payload": {
@@ -1040,7 +1040,7 @@
         ],
         "score": 100,
         "blockers": [],
-        "evaluatedAt": "2026-05-30T02:23:58.175Z"
+        "evaluatedAt": "2026-05-30T02:41:39.006Z"
       },
       "governance": {
         "autoApprovable": false
@@ -1050,19 +1050,19 @@
         {
           "from": null,
           "to": "proposed",
-          "at": "2026-05-30T02:23:58.175Z",
+          "at": "2026-05-30T02:41:39.006Z",
           "actor": "agent:sourcing"
         },
         {
           "from": "proposed",
           "to": "queued",
-          "at": "2026-05-30T02:23:58.177Z",
+          "at": "2026-05-30T02:41:39.007Z",
           "actor": "system:system"
         }
       ],
       "idempotencyKey": "w0a7f533164e4qm5",
-      "createdAt": "2026-05-30T02:23:58.175Z",
-      "updatedAt": "2026-05-30T02:23:58.177Z"
+      "createdAt": "2026-05-30T02:41:39.006Z",
+      "updatedAt": "2026-05-30T02:41:39.007Z"
     },
     {
       "id": "cand_fkr1wqs1zzeh",
@@ -1072,7 +1072,7 @@
       "summary": "Umbra Wool Overcoat — built for those who already know. 90% wool melton with horn buttons. Dark, deliberate, and made to outlast the trend cycle. Specificity over volume, always.",
       "proposedBy": {
         "agent": "sourcing",
-        "runId": "run_2026-05-30T02:23:58.145Z",
+        "runId": "run_2026-05-30T02:41:38.984Z",
         "model": "mock"
       },
       "payload": {
@@ -1315,7 +1315,7 @@
         ],
         "score": 100,
         "blockers": [],
-        "evaluatedAt": "2026-05-30T02:23:58.179Z"
+        "evaluatedAt": "2026-05-30T02:41:39.009Z"
       },
       "governance": {
         "autoApprovable": false
@@ -1325,21 +1325,21 @@
         {
           "from": null,
           "to": "proposed",
-          "at": "2026-05-30T02:23:58.179Z",
+          "at": "2026-05-30T02:41:39.009Z",
           "actor": "agent:sourcing"
         },
         {
           "from": "proposed",
           "to": "queued",
-          "at": "2026-05-30T02:23:58.180Z",
+          "at": "2026-05-30T02:41:39.010Z",
           "actor": "system:system"
         }
       ],
       "idempotencyKey": "44b3a97kmy8vdt56",
-      "createdAt": "2026-05-30T02:23:58.179Z",
-      "updatedAt": "2026-05-30T02:23:58.180Z"
+      "createdAt": "2026-05-30T02:41:39.009Z",
+      "updatedAt": "2026-05-30T02:41:39.010Z"
     }
   ],
   "count": 6,
-  "updatedAt": "2026-05-30T02:24:17.821Z"
+  "updatedAt": "2026-05-30T02:48:46.128Z"
 }

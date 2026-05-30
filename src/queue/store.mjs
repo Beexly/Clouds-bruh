@@ -76,3 +76,11 @@ export async function saveCandidate(paths, candidate) {
   await rebuildQueueIndex(paths);
   return candidate;
 }
+
+/** Record the GitHub (or other) mirror reference on a candidate. */
+export async function recordMirror(paths, id, mirror) {
+  const c = await getCandidate(paths, id);
+  if (!c) throw new Error('Candidate not found: ' + id);
+  const next = { ...c, mirror: { ...(c.mirror || {}), ...mirror }, updatedAt: now() };
+  return saveCandidate(paths, next);
+}

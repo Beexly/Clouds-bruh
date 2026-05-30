@@ -96,16 +96,16 @@
       ]
     },
     {
-      "id": "prod_0scc2bdwb4t4",
-      "slug": "halo-hoop-earrings",
-      "title": "Halo Hoop Earrings",
-      "subtitle": "14k gold vermeil",
-      "description": "Halo Hoop Earrings — built for those who already know. 14k gold vermeil with hypoallergenic posts. Dark, deliberate, and made to outlast the trend cycle. Specificity over volume, always.",
+      "id": "prod_hdzwjakyr6cr",
+      "slug": "crypt-platform-boots",
+      "title": "Crypt Platform Boots",
+      "subtitle": "Box calf leather",
+      "description": "Crypt Platform Boots — built for those who already know. Box calf leather with stacked lug sole. Dark, deliberate, and made to outlast the trend cycle. Specificity over volume, always.",
       "bulletBenefits": [
-        "14k gold vermeil — quality you register before any logo",
-        "Hypoallergenic posts — the detail most of the market skips",
-        "Considered jewelry silhouette — engineered to be worn, not just seen",
-        "Made in Italy in a controlled run — no oversupply, no markdowns"
+        "Box calf leather — quality you register before any logo",
+        "Stacked lug sole — the detail most of the market skips",
+        "Considered footwear silhouette — engineered to be worn, not just seen",
+        "Made in Japan in a controlled run — no oversupply, no markdowns"
       ],
       "emotionalHooks": [
         "Not for everyone. Exactly as intended.",
@@ -113,55 +113,91 @@
       ],
       "brand": "Eclipse",
       "tier": "The Vault",
-      "category": "jewelry",
+      "category": "footwear",
       "tags": [
-        "gold",
-        "minimal",
-        "everyday"
+        "leather",
+        "platform",
+        "statement"
       ],
       "specs": {
-        "material": "14k gold vermeil",
-        "detail": "Hypoallergenic posts",
-        "origin": "Made in Italy",
-        "care": "Cold wash, hang dry"
+        "material": "Box calf leather",
+        "detail": "Stacked lug sole",
+        "origin": "Made in Japan",
+        "care": "Spot clean only"
       },
       "price": {
-        "listMinor": 4200,
+        "listMinor": 21900,
         "currency": "USD"
       },
       "variants": [
         {
-          "id": "var_7tv3p7zpmjky",
-          "sku": "ECL-JEWE-GOL-OS",
-          "color": "Gold",
-          "size": "OS"
+          "id": "var_nsc05keyn417",
+          "sku": "ECL-FOOT-ONY-8",
+          "color": "Onyx",
+          "size": "8"
         },
         {
-          "id": "var_32c7mwwj2rra",
-          "sku": "ECL-JEWE-SIL-OS",
-          "color": "Silver",
-          "size": "OS"
+          "id": "var_kxg1vstyy2hz",
+          "sku": "ECL-FOOT-ONY-9",
+          "color": "Onyx",
+          "size": "9"
+        },
+        {
+          "id": "var_nxrvy84cd0r7",
+          "sku": "ECL-FOOT-ONY-10",
+          "color": "Onyx",
+          "size": "10"
+        },
+        {
+          "id": "var_bwe5n1838h9w",
+          "sku": "ECL-FOOT-ONY-11",
+          "color": "Onyx",
+          "size": "11"
+        },
+        {
+          "id": "var_a4zpjwj5qm8r",
+          "sku": "ECL-FOOT-BON-8",
+          "color": "Bone",
+          "size": "8"
+        },
+        {
+          "id": "var_majt3138te72",
+          "sku": "ECL-FOOT-BON-9",
+          "color": "Bone",
+          "size": "9"
+        },
+        {
+          "id": "var_0n1rxa7mcszj",
+          "sku": "ECL-FOOT-BON-10",
+          "color": "Bone",
+          "size": "10"
+        },
+        {
+          "id": "var_rk91z1eda5bv",
+          "sku": "ECL-FOOT-BON-11",
+          "color": "Bone",
+          "size": "11"
         }
       ],
       "media": [
         {
           "role": "hero",
           "url": "assets/placeholder/hero.svg",
-          "alt": "Halo Hoop Earrings — hero (placeholder, pending real shoot)"
+          "alt": "Crypt Platform Boots — hero (placeholder, pending real shoot)"
         },
         {
           "role": "angle",
           "url": "assets/placeholder/angle.svg",
-          "alt": "Halo Hoop Earrings — angle (placeholder, pending real shoot)"
+          "alt": "Crypt Platform Boots — angle (placeholder, pending real shoot)"
         },
         {
           "role": "detail",
           "url": "assets/placeholder/detail.svg",
-          "alt": "Halo Hoop Earrings — detail (placeholder, pending real shoot)"
+          "alt": "Crypt Platform Boots — detail (placeholder, pending real shoot)"
         }
       ]
     }
   ],
   "count": 2,
-  "generatedAt": "2026-05-30T02:24:32.751Z"
+  "generatedAt": "2026-05-30T02:48:46.133Z"
 }
