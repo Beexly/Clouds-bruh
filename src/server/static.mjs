@@ -11,6 +11,21 @@ import { analytics } from '../ops/analytics.mjs';
 import { addMessage, loadInbox, inboxSummary } from '../support/inbox.mjs';
 import { AGENTS } from '../agents/registry.mjs';
 import { createCheckout, orderConfirmation } from '../orders/checkout.mjs';
+import { queryCatalog, parseQuery } from '../storefront/query.mjs';
+import { recommendationsFor, mostCoveted } from '../storefront/recommend.mjs';
+import { submitReview, loadReviews, ratingSummary } from '../storefront/reviews.mjs';
+import { loadOrders } from '../orders/store.mjs';
+
+/** Units sold per product id from realized (non-intake/cancelled/refunded) orders. */
+async function unitsByProduct(paths) {
+  const orders = await loadOrders(paths);
+  const map = {};
+  for (const o of orders) {
+    if (['intake', 'cancelled', 'refunded'].includes(o.status)) continue;
+    for (const i of o.items || []) map[i.productId] = (map[i.productId] || 0) + i.qty;
+  }
+  return map;
+}
 
 const root = join(process.cwd(), process.argv[2] || 'public');
 const port = Number(process.argv[3] || 8080);
@@ -73,13 +88,32 @@ const server = createServer(async (req, res) => {
     if (url.pathname === '/api/support.json') {
       return sendJson(res, inboxSummary(await loadInbox(paths)));
     }
-    // Single live product for the PDP.
+    // Catalog query: facet/sort/paginate over the public projection.
+    if (url.pathname === '/api/catalog.json') {
+      const data = await renderStorefront(paths);
+      const result = queryCatalog(data.products, parseQuery(url.searchParams));
+      return sendJson(res, result);
+    }
+    // Honest "most coveted this week" from realized sales.
+    if (url.pathname === '/api/coveted.json') {
+      const data = await renderStorefront(paths);
+      return sendJson(res, { items: mostCoveted(data.products, await unitsByProduct(paths), 6) });
+    }
+    // Single live product for the PDP — enriched with recommendations + reviews.
     if (url.pathname === '/api/product') {
       const data = await renderStorefront(paths);
       const product = data.products.find(
         (p) => p.slug === url.searchParams.get('slug') || p.id === url.searchParams.get('id')
       );
-      return product ? sendJson(res, product) : sendJson(res, { error: 'Not found' }, 404);
+      if (!product) return sendJson(res, { error: 'Not found' }, 404);
+      const reviews = ratingSummary(await loadReviews(paths), product.id);
+      const recommendations = recommendationsFor(product, data.products, 4);
+      return sendJson(res, { ...product, reviews, recommendations });
+    }
+    // Public reviews summary for a product.
+    if (url.pathname === '/api/reviews.json') {
+      const id = url.searchParams.get('productId');
+      return sendJson(res, ratingSummary(await loadReviews(paths), id));
     }
 
     // — Command APIs —
@@ -90,6 +124,18 @@ const server = createServer(async (req, res) => {
         const { cart, customer, shippingMinor, taxMinor } = await readBody(req);
         const order = await createCheckout(paths, cart, customer, { shippingMinor, taxMinor });
         return sendJson(res, orderConfirmation(order), 201);
+      } catch (e) {
+        return sendJson(res, { error: e.message }, 400);
+      }
+    }
+    // Customer submits a product review (verified against real orders; stays
+    // pending until a human moderates — honest social proof, never fabricated).
+    if (url.pathname === '/api/reviews' && req.method === 'POST') {
+      try {
+        const { productId, email, rating, title, body } = await readBody(req);
+        if (!productId || !email || !rating) throw new Error('productId, email, and rating are required');
+        const r = await submitReview(paths, { productId, email, rating, title, body });
+        return sendJson(res, { id: r.id, status: r.status, verified: r.verified, note: 'Thank you — your review will appear after moderation.' }, 201);
       } catch (e) {
         return sendJson(res, { error: e.message }, 400);
       }

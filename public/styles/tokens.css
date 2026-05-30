@@ -1,33 +1,113 @@
-/* Eclipse design tokens — dark luxury × punk/gothic. Mirrors src/brand.mjs palette. */
+/* Eclipse design tokens — dark luxury × punk/gothic.
+ * Leveled up from the 80-brand R&D synthesis (docs/research/04):
+ * one voltage (corona gold), Cormorant display ramp w/ negative tracking,
+ * void→surface elevation ladder + a single media shadow, sharp corners,
+ * tabular numerics for money, and the full motion system. Mirrors src/brand.mjs. */
 :root {
+  /* — Surfaces: a tuned void (never pure black) + an elevation ladder — */
   --void: #0a0a0d;
   --surface: #14141a;
   --surface-hi: #1e1e27;
-  --ink: #f4f4f6;
+  --surface-hover: #24242f;
+  --ink: #f4f4f6; /* bone, not pure white */
   --muted: #9a9aa5;
   --line: #2a2a33;
-  --corona: #e9c46a; /* eclipse-ring gold */
-  --plasma: #6c4bf4; /* cosmic violet */
-  --oxblood: #7a1e2b; /* punk accent */
-  --signal: #3fb6a8;
+  --line-strong: #3a3a45;
 
+  /* — One voltage. Corona gold is THE accent; the rest are demoted to state roles — */
+  --corona: #e9c46a; /* primary accent / focus / price emphasis */
+  --plasma: #6c4bf4; /* state: links / in-progress only */
+  --oxblood: #7a1e2b; /* state: danger / sold-out */
+  --signal: #3fb6a8; /* state: success / in-stock */
+
+  /* — Type — */
   --font-display: 'Cormorant Garamond', 'Times New Roman', serif;
   --font-body: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+
+  /* Display ramp: tight negative tracking is the luxury cadence; weight ≤600 */
+  --display-weight: 500;
+  --display-tracking: -0.02em;
+  --eyebrow-tracking: 0.28em; /* labels get positive tracking (taxonomy contrast) */
 
   --step-0: 0.95rem;
   --step-1: 1.15rem;
   --step-2: 1.6rem;
   --step-3: 2.4rem;
   --step-4: clamp(3rem, 9vw, 6.5rem);
+  --step-5: clamp(4rem, 12vw, 9rem); /* billboard tier for hero */
 
+  /* — Space rhythm (whitespace as the pedestal) — */
   --space-1: 0.5rem;
   --space-2: 1rem;
   --space-3: 1.75rem;
   --space-4: 3rem;
   --space-5: 5rem;
+  --space-6: 8rem; /* section breathing room on hero/PDP */
 
-  --radius: 2px;
+  /* — Form — */
+  --radius: 0px; /* sharp = luxury-auto precision */
+  --radius-pill: 100px; /* badges only */
   --line-thin: 1px solid var(--line);
-  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --shadow-media: 0 24px 60px -20px rgba(0, 0, 0, 0.7); /* the ONE shadow, for product media */
+
+  /* — Motion system (adopted verbatim from findings/04) — */
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-entrance: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  --ease-emphasis: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-instant: 90ms;
+  --dur-fast: 160ms;
+  --dur-base: 240ms;
+  --dur-slow: 420ms;
+  --dur-cinematic: 720ms;
+
+  --ease: var(--ease-entrance); /* back-compat alias for existing rules */
+}
+
+/* Money, run counts, SKUs, specs read as tabular figures (Stripe/Coinbase law). */
+.card__price,
+.pdp__price,
+.lane__val,
+.metric__n,
+.funnel__n,
+.otable .mono,
+.mono {
+  font-variant-numeric: tabular-nums;
+}
+
+/* The single press microinteraction — the system's heartbeat. */
+button,
+.btn-primary,
+.nav__cart {
+  transition: transform var(--dur-instant) var(--ease-standard), border-color var(--dur-fast) var(--ease-standard),
+    filter var(--dur-fast) var(--ease-standard);
+}
+button:active,
+.btn-primary:active,
+.nav__cart:active {
+  transform: scale(0.97);
+}
+
+/* Reveal-on-load for product grids; honored only when motion is welcome. */
+@media (prefers-reduced-motion: no-preference) {
+  .grid .card {
+    animation: eclipse-reveal var(--dur-slow) var(--ease-entrance) both;
+  }
+  .grid .card:nth-child(2) { animation-delay: 60ms; }
+  .grid .card:nth-child(3) { animation-delay: 120ms; }
+  .grid .card:nth-child(4) { animation-delay: 180ms; }
+  .grid .card:nth-child(n + 5) { animation-delay: 240ms; }
+}
+@keyframes eclipse-reveal {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
 }

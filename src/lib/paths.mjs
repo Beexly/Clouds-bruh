@@ -21,6 +21,7 @@ export function createPaths(root = process.cwd()) {
     ledger: join(data, 'progress.json'),
     orders: join(runtime, 'orders.json'),
     support: join(runtime, 'support.json'),
+    reviews: join(runtime, 'reviews.json'),
     restockSignals: join(runtime, 'restock-signals.json'),
     agentRuns: join(runtime, 'agent-runs.ndjson'),
     queueEvents: join(queue, 'candidates.ndjson'),

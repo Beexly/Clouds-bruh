@@ -387,3 +387,38 @@
   padding: 12px 14px;
 }
 .support-form textarea { resize: vertical; }
+
+/* === R3: recommendations, reviews, scarcity, trust === */
+.pdp__rail { position: relative; z-index: 1; padding: var(--space-5) 0; border-top: var(--line-thin); }
+.pdp__rail h2 { font-size: var(--step-2); text-transform: uppercase; letter-spacing: var(--display-tracking); margin-bottom: var(--space-3); }
+
+/* honest scarcity + trust line on PDP */
+.pdp__scarcity { color: var(--corona); font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase; margin: var(--space-2) 0; }
+.pdp__trust { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-3); color: var(--muted); font-size: 0.74rem; }
+.pdp__trust span::before { content: '— '; color: var(--corona); }
+
+/* reviews */
+.reviews { display: grid; gap: var(--space-3); }
+.reviews__head { display: flex; align-items: baseline; gap: var(--space-3); }
+.reviews__avg { font-family: var(--font-display); font-size: var(--step-3); color: var(--corona); font-variant-numeric: tabular-nums; }
+.reviews__stars { color: var(--corona); letter-spacing: 2px; }
+.reviews__count { color: var(--muted); font-size: 0.8rem; }
+.reviews__dist { display: grid; gap: 4px; max-width: 320px; }
+.reviews__bar { display: grid; grid-template-columns: 28px 1fr 32px; gap: var(--space-2); align-items: center; font-size: 0.72rem; color: var(--muted); }
+.reviews__track { height: 5px; background: var(--surface-hi); border: 1px solid var(--line); }
+.reviews__fill { height: 100%; background: var(--corona); }
+.review { border: var(--line-thin); background: var(--surface); padding: var(--space-2); }
+.review__top { display: flex; gap: var(--space-2); align-items: center; }
+.review__verified { font-size: 0.6rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--signal); border: 1px solid var(--signal); padding: 1px 6px; }
+.review__title { font-family: var(--font-display); font-size: var(--step-1); margin-top: 4px; }
+.review__body { color: var(--ink); opacity: 0.85; font-size: 0.88rem; margin-top: 4px; }
+.reviews__empty { color: var(--muted); font-size: 0.85rem; }
+
+/* review form */
+.review-form { display: grid; gap: var(--space-2); max-width: 420px; margin-top: var(--space-3); }
+.review-form input, .review-form textarea, .review-form select {
+  background: var(--void); border: var(--line-thin); color: var(--ink); font: inherit; padding: 10px 12px;
+}
+
+/* "most coveted" rail on home */
+.coveted__badge { color: var(--corona); font-size: 0.6rem; letter-spacing: 0.16em; text-transform: uppercase; }
