@@ -4,6 +4,7 @@ dist/
 .medusa/
 .turbo/
 *.log
+*.rdb
 .env
 .DS_Store
 packages/data/*.csv

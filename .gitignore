@@ -1,0 +1,12 @@
+# Repo root — the project itself lives in alter-xiv/ (a pnpm workspace).
+# These are stray/runtime artifacts that must never be committed.
+
+# Dependencies
+node_modules/
+
+# Redis persistence dumps
+*.rdb
+
+# Stray root-level package files (anchored to root; alter-xiv/ keeps its own)
+/package.json
+/pnpm-lock.yaml
