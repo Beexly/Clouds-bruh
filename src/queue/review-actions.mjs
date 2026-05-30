@@ -96,6 +96,55 @@ export async function rejectCandidate(paths, id, actor, note) {
   return c;
 }
 
+/**
+ * Attach generated imagery to a candidate (agent action). Media is recorded as
+ * `approved:false` regardless of what is passed — only a human approval makes it
+ * count toward the gate. Idempotent per role: a new URL for an existing role
+ * replaces it; new roles are appended.
+ */
+export async function attachCandidateImagery(paths, id, media = []) {
+  let c = await getCandidate(paths, id);
+  if (!c) throw new Error('Candidate not found: ' + id);
+  const byRole = new Map((c.imagery || []).map((m) => [m.role, m]));
+  for (const m of media) {
+    byRole.set(m.role, {
+      role: m.role,
+      url: m.url,
+      alt: m.alt || `${c.title} — ${m.role}`,
+      provenance: m.provenance || 'imagegen',
+      approved: false, // never trust caller-supplied approval
+    });
+  }
+  c = { ...c, imagery: [...byRole.values()], updatedAt: now() };
+  await saveCandidate(paths, c);
+  return c;
+}
+
+/**
+ * Human approves a candidate's imagery (gated action). Marks media approved and
+ * recomputes the media score + gate snapshot so the board reflects readiness.
+ */
+export async function approveCandidateImagery(paths, id, actor) {
+  let c = await getCandidate(paths, id);
+  if (!c) throw new Error('Candidate not found: ' + id);
+  const imagery = (c.imagery || []).map((m) => ({ ...m, approved: true }));
+  const draft = createProduct({
+    ...(c.payload?.product || {}),
+    media: imagery,
+    origin: { source: 'agent', candidateId: c.id, agent: c.proposedBy?.agent },
+  });
+  const gate = evaluateLaunchGates(draft, { humanApproved: false });
+  c = {
+    ...c,
+    imagery,
+    scores: { ...c.scores, media: mediaScore(imagery) },
+    gate,
+    updatedAt: now(),
+  };
+  await saveCandidate(paths, c);
+  return c;
+}
+
 export async function requestChanges(paths, id, actor, changesRequested) {
   let c = await getCandidate(paths, id);
   if (!c) throw new Error('Candidate not found: ' + id);
