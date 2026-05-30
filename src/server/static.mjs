@@ -1,6 +1,6 @@
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
-import { join, extname, normalize } from 'node:path';
+import { join, extname, normalize, sep } from 'node:path';
 import { createPaths } from '../lib/paths.mjs';
 import { renderStorefront } from '../storefront/render.mjs';
 import { loadQueue } from '../queue/store.mjs';
@@ -49,7 +49,8 @@ const server = createServer(async (req, res) => {
     if (p === '/' || p === '\\') p = '/index.html';
     if (p.endsWith('/')) p += 'index.html';
     const filePath = join(root, p);
-    if (!filePath.startsWith(root)) {
+    // Defense-in-depth: never serve outside the root directory.
+    if (filePath !== root && !filePath.startsWith(root + sep)) {
       res.writeHead(403);
       return res.end('Forbidden');
     }
@@ -62,6 +63,9 @@ const server = createServer(async (req, res) => {
   }
 });
 
-server.listen(port, () => {
-  console.log(`Eclipse · Galaxy Network — serving ${root} at http://localhost:${port}  (ops console at /ops/)`);
+// Bind to loopback by default — the ops API exposes internal cost/supplier data.
+// Override with HOST=0.0.0.0 only when you intend to expose it on the network.
+const host = process.env.HOST || '127.0.0.1';
+server.listen(port, host, () => {
+  console.log(`Eclipse · Galaxy Network — serving ${root} at http://${host}:${port}  (ops console at /ops/)`);
 });
