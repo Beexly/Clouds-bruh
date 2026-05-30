@@ -666,7 +666,10 @@
       "governance": {
         "autoApprovable": false
       },
-      "mirror": {},
+      "mirror": {
+        "githubIssueNumber": 1,
+        "githubUrl": "https://github.com/Beexly/Clouds-bruh/issues/1"
+      },
       "history": [
         {
           "from": null,
@@ -683,7 +686,7 @@
       ],
       "idempotencyKey": "mb89z782bgpjm1d5",
       "createdAt": "2026-05-30T02:41:39.002Z",
-      "updatedAt": "2026-05-30T02:41:39.002Z"
+      "updatedAt": "2026-05-30T02:52:29.019Z"
     },
     {
       "id": "cand_ytgghm777xpk",
@@ -851,7 +854,10 @@
       "governance": {
         "autoApprovable": false
       },
-      "mirror": {},
+      "mirror": {
+        "githubIssueNumber": 2,
+        "githubUrl": "https://github.com/Beexly/Clouds-bruh/issues/2"
+      },
       "history": [
         {
           "from": null,
@@ -868,7 +874,7 @@
       ],
       "idempotencyKey": "64ypxv2d9pd6d6r3",
       "createdAt": "2026-05-30T02:41:39.004Z",
-      "updatedAt": "2026-05-30T02:41:39.004Z"
+      "updatedAt": "2026-05-30T02:52:29.032Z"
     },
     {
       "id": "cand_hc96avnysbx2",
@@ -1045,7 +1051,10 @@
       "governance": {
         "autoApprovable": false
       },
-      "mirror": {},
+      "mirror": {
+        "githubIssueNumber": 3,
+        "githubUrl": "https://github.com/Beexly/Clouds-bruh/issues/3"
+      },
       "history": [
         {
           "from": null,
@@ -1062,7 +1071,7 @@
       ],
       "idempotencyKey": "w0a7f533164e4qm5",
       "createdAt": "2026-05-30T02:41:39.006Z",
-      "updatedAt": "2026-05-30T02:41:39.007Z"
+      "updatedAt": "2026-05-30T02:52:29.036Z"
     },
     {
       "id": "cand_fkr1wqs1zzeh",
@@ -1320,7 +1329,10 @@
       "governance": {
         "autoApprovable": false
       },
-      "mirror": {},
+      "mirror": {
+        "githubIssueNumber": 4,
+        "githubUrl": "https://github.com/Beexly/Clouds-bruh/issues/4"
+      },
       "history": [
         {
           "from": null,
@@ -1337,9 +1349,9 @@
       ],
       "idempotencyKey": "44b3a97kmy8vdt56",
       "createdAt": "2026-05-30T02:41:39.009Z",
-      "updatedAt": "2026-05-30T02:41:39.010Z"
+      "updatedAt": "2026-05-30T02:52:29.039Z"
     }
   ],
   "count": 6,
-  "updatedAt": "2026-05-30T02:48:46.128Z"
+  "updatedAt": "2026-05-30T02:52:29.102Z"
 }
