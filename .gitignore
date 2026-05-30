@@ -14,3 +14,6 @@ data/runtime/
 Thumbs.db
 *.log
 *.tmp
+
+# Ephemeral R&D workspace (mined third-party repos live outside the repo)
+eclipse-research/
