@@ -7,12 +7,13 @@ import * as imagery from './imagery-agent.mjs';
 import * as support from './support-agent.mjs';
 import * as catalog from './catalog-agent.mjs';
 import * as trends from './trends-agent.mjs';
+import * as retention from './retention-agent.mjs';
 import { buildContext } from './context.mjs';
 import { createTask } from '../model/agent-task.mjs';
 import { appendNdjson } from '../lib/ndjson.mjs';
 import { now } from '../lib/clock.mjs';
 
-const RUNNERS = { sourcing, restock, qa, pricing, orders, imagery, support, catalog, trends };
+const RUNNERS = { sourcing, restock, qa, pricing, orders, imagery, support, catalog, trends, retention };
 
 export function runnableAgents() {
   return Object.keys(RUNNERS);

@@ -105,6 +105,20 @@ export const AGENTS = Object.freeze([
     },
   }),
   createAgent({
+    id: 'agent.retention',
+    role: 'retention',
+    name: 'Retention',
+    description: 'Computes RFM/cohort/LTV and proposes lifecycle outreach for a human to send.',
+    inputs: ['order log', 'customer segments'],
+    outputs: ['lifecycle draft proposals', 'retention snapshot'],
+    cadence: { kind: 'interval', everyMinutes: 1440 },
+    governance: {
+      autonomous: ['compute_rfm_cohort_ltv', 'propose_lifecycle_draft'],
+      gated: ['send_outreach', 'apply_offer'],
+      forbidden: ['auto_send', 'discount_below_margin_floor', 'use_third_party_surveillance_data'],
+    },
+  }),
+  createAgent({
     id: 'agent.restock',
     role: 'restock',
     name: 'Restock',

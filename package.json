@@ -23,6 +23,7 @@
     "support": "node src/cli/support.mjs",
     "trends": "node src/cli/trends.mjs",
     "standard": "node src/cli/standard.mjs",
+    "retention": "node src/cli/retention.mjs",
     "serve": "node src/server/static.mjs public 8080",
     "ops": "node src/server/static.mjs public 8081",
     "dev": "node src/cli/seed.mjs && node src/server/static.mjs public 8080"

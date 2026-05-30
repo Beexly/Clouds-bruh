@@ -87,6 +87,10 @@ const server = createServer(async (req, res) => {
     if (url.pathname === '/api/analytics.json') {
       return sendJson(res, await analytics(paths));
     }
+    if (url.pathname === '/api/retention.json') {
+      const { retentionSummary } = await import('../retention/engine.mjs');
+      return sendJson(res, retentionSummary(await loadOrders(paths)));
+    }
     if (url.pathname === '/api/support.json') {
       return sendJson(res, inboxSummary(await loadInbox(paths)));
     }
