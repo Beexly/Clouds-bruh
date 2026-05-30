@@ -29,3 +29,13 @@ export async function getProductByCandidate(paths, candidateId) {
   const catalog = await loadCatalog(paths);
   return catalog.products.find((p) => p.origin?.candidateId === candidateId) || null;
 }
+
+/** Record external sync references (e.g. Stripe product/price IDs) on a product. */
+export async function recordProductSync(paths, productId, sync) {
+  const catalog = await loadCatalog(paths);
+  const p = catalog.products.find((x) => x.id === productId);
+  if (!p) throw new Error('Product not found: ' + productId);
+  p.sync = { ...(p.sync || {}), ...sync };
+  await saveCatalog(paths, catalog);
+  return p;
+}
