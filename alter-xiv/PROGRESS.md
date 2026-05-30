@@ -1,10 +1,10 @@
 # ALTER XIV — BUILD PROGRESS
-**Overall:** 70%  ·  **Phase:** 7/10 — INTROSPECTION + Learning Loop  ·  **Updated:** 2026-05-30
+**Overall:** 80%  ·  **Phase:** 8/10 — Analyst / BI  ·  **Updated:** 2026-05-30
 
 ## Status
-- ✅ Done: Phase 0–6 complete
-- ✅ Done: Phase 7 — INTROSPECTION + Learning Loop complete
-- 🔄 In progress: Phase 8 — Analyst / BI
+- ✅ Done: Phase 0–7 complete
+- ✅ Done: Phase 8 — Analyst / BI complete
+- 🔄 In progress: Phase 9 — Hardening
 - ⛔ Blocked: 0  ·  🙋 Needs Garrett: STRIPE_API_KEY (optional — pp_system_default works)
 
 ## Phases
@@ -18,7 +18,7 @@
 | 5 | CONGREGATION | ✅ | 10 agents scheduled (cron + events) · Ledger (Postgres) · Introspection · escalation gate · mock mode |
 | 6 | Commerce Completeness | ✅ | pp_system_default test-mode payments · place-drop-order compensatable workflow · shipping options · order.placed subscriber · 80 variants priced · full checkout verified |
 | 7 | INTROSPECTION + Learning | ✅ | 8 audit checks (catalog×2, integrity×2, conversion×2, margin, seo, voc) · Learning Loop: learnFrom→bandit reward+embedding queue · nightlyConsolidation → OracleKeeper cron · 12 findings/run verified |
-| 8 | Analyst / BI | ☐ | |
+| 8 | Analyst / BI | ✅ | GET /store/analyst?q=... · 6 predefined BI queries · keyword match · grounded read-only SQL · chart + insight |
 | 9 | Hardening | ☐ | |
 | 10 | Launch-Ready | ☐ | |
 
