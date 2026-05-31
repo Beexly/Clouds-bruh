@@ -4,10 +4,25 @@ import type { EventType } from '@alterxiv/shared';
 const BASE = process.env.NEXT_PUBLIC_MEDUSA_URL || 'http://localhost:9000';
 const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
 
+function readCookie(name: string): string | null {
+  if (typeof document === 'undefined') return null;
+  const m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+  return m ? decodeURIComponent(m[1]) : null;
+}
+
+/**
+ * Visitor identity, anonymous-first. Prefer the `axiv_vid` cookie set by middleware
+ * (so the SAME id is used on the server for first-paint personalization), falling back
+ * to localStorage, then minting one.
+ */
 export function visitorId(): string {
   if (typeof window === 'undefined') return 'ssr';
-  let id = localStorage.getItem('axiv_vid');
-  if (!id) { id = crypto.randomUUID(); localStorage.setItem('axiv_vid', id); }
+  let id = readCookie('axiv_vid') || localStorage.getItem('axiv_vid');
+  if (!id) {
+    id = crypto.randomUUID();
+    document.cookie = `axiv_vid=${id}; path=/; max-age=${60 * 60 * 24 * 365}; samesite=lax`;
+  }
+  localStorage.setItem('axiv_vid', id);
   return id;
 }
 
