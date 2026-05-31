@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "tsx watch src/orchestrator/index.ts",
     "build": "tsc",
-    "test": "vitest run"
+    "test": "vitest run",
+    "operator": "tsx src/operator/index.ts"
   },
   "dependencies": {
     "@alterxiv/shared": "workspace:*",

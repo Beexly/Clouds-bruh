@@ -13,6 +13,8 @@ import { claudeSeo } from './seo';
 import { apify } from './apify';
 import { dbGpt } from './db-gpt';
 import { voc } from './voc';
+import { videoRender } from './video';
+import { glReconcile, monthEndClose, statementAudit } from './finance';
 import {
   datasetQuery, productDraft, contentDraft, schemaWrite,
   imageTemplates, imageWrite, brandAudit, ledgerTool,
@@ -36,6 +38,10 @@ export const TOOLS: Record<string, Tool> = {
   image_write: imageWrite,
   brand_audit: brandAudit,
   ledger: ledgerTool,
+  video_render: videoRender,
+  gl_reconcile: glReconcile,
+  month_end_close: monthEndClose,
+  statement_audit: statementAudit,
 };
 
 /** Resolve an agent's allowed tools into Claude tool-use definitions. */

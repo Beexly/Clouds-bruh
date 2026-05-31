@@ -93,6 +93,14 @@ async function boot() {
     console.log('[orchestrator] Nightly consolidation triggered');
   });
 
+  // 2c. OPERATOR daily loop at 5am — the manager delegates to + validates the CONGREGATION
+  // and routes only escalations to the founder. This is what makes it a company of one.
+  cron.schedule('0 5 * * *', () => {
+    const { runDailyLoop } = require('../operator');
+    runDailyLoop().catch(console.error);
+    console.log('[orchestrator] OPERATOR daily loop triggered');
+  });
+
   // 3. Start Redis stream consumer in background
   consumeRedisStream().catch((e: Error) => {
     console.error('[orchestrator] Stream consumer error:', e.message);

@@ -10,76 +10,150 @@ function pool(): Pool {
 }
 
 /**
- * The Ledger — shared agent memory + audit log.
- * Every agent reads relevant history before acting and writes decisions after.
- * This is how CONGREGATION learns from itself. Backed by Postgres.
+ * Resilience (agentmemory pattern): a circuit-breaker around Postgres with an in-memory
+ * fallback ring buffer. If Postgres fails repeatedly the breaker OPENS — writes go to
+ * memory (never lost), reads merge memory + db — and HALF-OPENs after a cooldown to probe
+ * recovery. A degraded DB never halts the CONGREGATION or drops a run record.
  */
+const breaker = {
+  failures: 0,
+  threshold: 3,
+  openUntil: 0,
+  cooldownMs: 15_000,
+  get open() {
+    return Date.now() < this.openUntil;
+  },
+  trip() {
+    this.failures += 1;
+    if (this.failures >= this.threshold) {
+      this.openUntil = Date.now() + this.cooldownMs;
+      console.warn(`[ledger] circuit OPEN — Postgres degraded, using in-memory fallback for ${this.cooldownMs}ms`);
+    }
+  },
+  reset() {
+    if (this.failures > 0) console.log('[ledger] circuit reset — Postgres healthy');
+    this.failures = 0;
+    this.openUntil = 0;
+  },
+};
+
+// In-memory fallback stores (ring-buffered).
+const memRuns: AgentRun[] = [];
+const memAudits: Audit[] = [];
+const CAP = 500;
+function push<T>(arr: T[], item: T) {
+  arr.unshift(item);
+  if (arr.length > CAP) arr.length = CAP;
+}
+
+async function withBreaker<T>(op: () => Promise<T>, fallback: () => T, label: string): Promise<T> {
+  if (breaker.open) return fallback();
+  try {
+    const r = await op();
+    breaker.reset();
+    return r;
+  } catch (e: any) {
+    breaker.trip();
+    console.warn(`[ledger] ${label} failed (${e.message?.slice(0, 60)}) — fallback`);
+    return fallback();
+  }
+}
+
 export const Ledger = {
   async record(run: AgentRun): Promise<void> {
-    await pool().query(
-      `INSERT INTO agent_run (id, agent, trigger, input, output, tools_used, decisions, status, escalated, started_at, finished_at)
-       VALUES ($1,$2,$3,$4::jsonb,$5::jsonb,$6,$7,$8,$9,$10,$11)
-       ON CONFLICT (id) DO UPDATE SET
-         output = EXCLUDED.output,
-         tools_used = EXCLUDED.tools_used,
-         decisions = EXCLUDED.decisions,
-         status = EXCLUDED.status,
-         escalated = EXCLUDED.escalated,
-         finished_at = EXCLUDED.finished_at`,
-      [
-        run.id, run.agent, run.trigger,
-        JSON.stringify(run.input), JSON.stringify(run.output),
-        run.tools_used, run.decisions,
-        run.status, run.escalated,
-        run.started_at, run.finished_at ?? null,
-      ]
+    push(memRuns, run); // always mirror to memory first — never lose a record
+    await withBreaker(
+      async () => {
+        await pool().query(
+          `INSERT INTO agent_run (id, agent, trigger, input, output, tools_used, decisions, status, escalated, started_at, finished_at)
+           VALUES ($1,$2,$3,$4::jsonb,$5::jsonb,$6,$7,$8,$9,$10,$11)
+           ON CONFLICT (id) DO UPDATE SET
+             output = EXCLUDED.output, tools_used = EXCLUDED.tools_used, decisions = EXCLUDED.decisions,
+             status = EXCLUDED.status, escalated = EXCLUDED.escalated, finished_at = EXCLUDED.finished_at`,
+          [
+            run.id, run.agent, run.trigger,
+            JSON.stringify(run.input), JSON.stringify(run.output),
+            run.tools_used, run.decisions, run.status, run.escalated,
+            run.started_at, run.finished_at ?? null,
+          ]
+        );
+      },
+      () => undefined,
+      'record'
     );
   },
 
   async outcome(runId: string, outcome: string): Promise<void> {
-    await pool().query(
-      `UPDATE agent_run SET outcome=$1, finished_at=now() WHERE id=$2`,
-      [outcome, runId]
+    const m = memRuns.find((r) => r.id === runId);
+    if (m) m.outcome = outcome;
+    await withBreaker(
+      () => pool().query(`UPDATE agent_run SET outcome=$1, finished_at=now() WHERE id=$2`, [outcome, runId]).then(() => undefined),
+      () => undefined,
+      'outcome'
     );
   },
 
   async history(agent: string, limit = 50): Promise<AgentRun[]> {
-    const { rows } = await pool().query(
-      `SELECT * FROM agent_run WHERE agent=$1 ORDER BY started_at DESC LIMIT $2`,
-      [agent, limit]
+    return withBreaker(
+      async () => {
+        const { rows } = await pool().query(
+          `SELECT * FROM agent_run WHERE agent=$1 ORDER BY started_at DESC LIMIT $2`,
+          [agent, limit]
+        );
+        return rows as AgentRun[];
+      },
+      () => memRuns.filter((r) => r.agent === agent).slice(0, limit),
+      'history'
     );
-    return rows as AgentRun[];
   },
 
   async audit(a: Audit): Promise<void> {
-    await pool().query(
-      `INSERT INTO audit (id, type, severity, finding, recommendation, falsifiable_check, auto_corrected, entity_ref, created_at)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
-       ON CONFLICT (id) DO NOTHING`,
-      [
-        a.id ?? crypto.randomUUID(),
-        a.type, a.severity, a.finding, a.recommendation,
-        a.falsifiable_check, a.auto_corrected, a.entity_ref ?? null,
-        a.created_at ?? new Date().toISOString(),
-      ]
+    push(memAudits, a);
+    await withBreaker(
+      async () => {
+        await pool().query(
+          `INSERT INTO audit (id, type, severity, finding, recommendation, falsifiable_check, auto_corrected, entity_ref, created_at)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ON CONFLICT (id) DO NOTHING`,
+          [
+            a.id ?? crypto.randomUUID(), a.type, a.severity, a.finding, a.recommendation,
+            a.falsifiable_check, a.auto_corrected, a.entity_ref ?? null, a.created_at ?? new Date().toISOString(),
+          ]
+        );
+      },
+      () => undefined,
+      'audit'
     );
   },
 
   async openAudits(severity?: Audit['severity']): Promise<Audit[]> {
-    const { rows } = await pool().query(
-      severity
-        ? `SELECT * FROM audit WHERE severity=$1 ORDER BY created_at DESC LIMIT 50`
-        : `SELECT * FROM audit ORDER BY created_at DESC LIMIT 50`,
-      severity ? [severity] : []
+    return withBreaker(
+      async () => {
+        const { rows } = await pool().query(
+          severity
+            ? `SELECT * FROM audit WHERE severity=$1 ORDER BY created_at DESC LIMIT 50`
+            : `SELECT * FROM audit ORDER BY created_at DESC LIMIT 50`,
+          severity ? [severity] : []
+        );
+        return rows as Audit[];
+      },
+      () => (severity ? memAudits.filter((a) => a.severity === severity) : memAudits).slice(0, 50),
+      'openAudits'
     );
-    return rows as Audit[];
   },
 
   async recentRuns(limit = 20): Promise<AgentRun[]> {
-    const { rows } = await pool().query(
-      `SELECT * FROM agent_run ORDER BY started_at DESC LIMIT $1`,
-      [limit]
+    return withBreaker(
+      async () => {
+        const { rows } = await pool().query(`SELECT * FROM agent_run ORDER BY started_at DESC LIMIT $1`, [limit]);
+        return rows as AgentRun[];
+      },
+      () => memRuns.slice(0, limit),
+      'recentRuns'
     );
-    return rows as AgentRun[];
+  },
+
+  /** Health probe for the OPERATOR's daily report. */
+  get circuitState() {
+    return breaker.open ? 'open' : breaker.failures > 0 ? 'half-open' : 'closed';
   },
 };
