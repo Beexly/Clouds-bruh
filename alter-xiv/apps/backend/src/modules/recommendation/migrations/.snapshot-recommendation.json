@@ -55,7 +55,8 @@
             "for_you",
             "because_you_viewed",
             "complete_the_set",
-            "trending_in_chapter"
+            "trending_in_chapter",
+            "graph_rec"
           ],
           "mappedType": "enum"
         },

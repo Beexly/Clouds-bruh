@@ -3,6 +3,7 @@ import { Recommendation } from './models/recommendation';
 import type { RecStrategy } from '@alterxiv/shared';
 import pg from 'pg';
 import Redis from 'ioredis';
+import { graphRecForVisitor } from './strategies/graph-rec';
 
 // Dimension order: [stillness, armor, signal, altar, relentless]
 const CHAPTER_VEC: Record<string, number[]> = {
@@ -113,6 +114,26 @@ class RecommendationService extends MedusaService({ Recommendation }) {
           );
           const chapter = this.dominantChapter(vpRows[0]?.affinity);
           productIds = await this.trendingByChapter(chapter, limit);
+          break;
+        }
+        case 'graph_rec': {
+          // Item-based collaborative filtering over the co-engagement graph.
+          productIds = await graphRecForVisitor(pool, visitorId, limit);
+          // Cold start / sparse graph → top up with cosine 'for_you'.
+          if (productIds.length < limit) {
+            const vec = await this.visitorVector(visitorId);
+            const { rows } = await pool.query<{ product_id: string }>(
+              `SELECT pe.product_id FROM product_embedding pe
+               JOIN product p ON p.id = pe.product_id
+               WHERE p.deleted_at IS NULL ${productIds.length ? 'AND pe.product_id <> ALL($3)' : ''}
+               ORDER BY pe.embedding <=> $1::vector
+               LIMIT $2`,
+              productIds.length
+                ? [`[${vec.join(',')}]`, limit - productIds.length, productIds]
+                : [`[${vec.join(',')}]`, limit - productIds.length]
+            );
+            productIds = [...productIds, ...rows.map((r) => r.product_id)];
+          }
           break;
         }
       }
