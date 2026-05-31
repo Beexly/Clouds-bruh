@@ -256,6 +256,31 @@ const CHECKS: Array<{ type: Audit['type']; run: () => Promise<Audit[]> }> = [
     },
   },
 
+  // ── Integrity: Altar Credits wallet reconciliation (ledger must equal balance) ──
+  {
+    type: 'integrity',
+    run: async () => {
+      const { rows } = await pool().query(`
+        SELECT w.customer_id, w.balance,
+               COALESCE((SELECT SUM(amount) FROM credit_transaction t WHERE t.customer_id = w.customer_id), 0) AS ledger_sum
+          FROM credit_wallet w
+      `).catch(() => ({ rows: [] }));
+      return rows
+        .filter((r: any) => Number(r.balance) !== Number(r.ledger_sum))
+        .map((r: any) => ({
+          id: crypto.randomUUID(),
+          type: 'integrity' as const,
+          severity: 'error' as const,
+          finding: `Wallet ${r.customer_id} balance ${r.balance} ≠ ledger sum ${r.ledger_sum}.`,
+          recommendation: 'Investigate credit_transaction drift; never adjust balances without an offsetting ledger entry.',
+          falsifiable_check: 'Check: credit_wallet.balance == SUM(credit_transaction.amount) per customer.',
+          auto_corrected: false,
+          entity_ref: r.customer_id,
+          created_at: new Date().toISOString(),
+        }));
+    },
+  },
+
   // ── Integrity: tool/connector registry health (F01 lesson — validate before activation) ──
   {
     type: 'integrity',
