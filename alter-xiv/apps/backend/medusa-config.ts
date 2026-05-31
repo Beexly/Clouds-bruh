@@ -22,6 +22,7 @@ export default defineConfig({
     { resolve: './src/modules/signal' },
     { resolve: './src/modules/personalization' },
     { resolve: './src/modules/recommendation' },
+    { resolve: './src/modules/monetization' },
     // Redis-backed event bus + workflow engine in production:
     { resolve: '@medusajs/medusa/event-bus-redis', options: { redisUrl: process.env.REDIS_URL } },
     { resolve: '@medusajs/medusa/workflow-engine-redis', options: { redis: { url: process.env.REDIS_URL } } },
