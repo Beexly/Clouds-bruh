@@ -70,7 +70,7 @@ export function Shepherd() {
           >
             <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
               <span className="text-label uppercase text-altar-goldlight">The Shepherd</span>
-              <button onClick={() => setOpen(false)} className="text-neutral-500 hover:text-neutral-200">✕</button>
+              <button onClick={() => setOpen(false)} aria-label="Close the Shepherd" className="text-neutral-500 hover:text-neutral-200">✕</button>
             </div>
             <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
               {messages.map((m, i) => (
@@ -94,6 +94,7 @@ export function Shepherd() {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && send()}
                 placeholder="Ask the Shepherd…"
+                aria-label="Ask the Shepherd"
                 className="flex-1 bg-transparent text-sm text-neutral-100 placeholder:text-neutral-600 focus:outline-none"
               />
               <button

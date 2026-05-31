@@ -47,9 +47,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`dark ${serif.variable} ${sans.variable}`}>
       <body className="min-h-screen bg-void font-sans text-neutral-100 antialiased">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(org) }} />
+        <a href="#main" className="skip-link">Skip to content</a>
         <CartProvider>
           <SiteHeader />
-          <PageTransition>{children}</PageTransition>
+          <div id="main">
+            <PageTransition>{children}</PageTransition>
+          </div>
           <Shepherd />
         </CartProvider>
       </body>
