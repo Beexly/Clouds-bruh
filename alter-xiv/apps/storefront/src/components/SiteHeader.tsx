@@ -17,6 +17,9 @@ export function SiteHeader() {
           ALTER&nbsp;XIV
         </Link>
         <nav className="hidden items-center gap-7 text-micro uppercase text-neutral-500 md:flex">
+          <Link href="/drops" className="py-1 transition-colors duration-300 hover:text-altar-goldlight">
+            Drops
+          </Link>
           {CHAPTERS.map((ch) => (
             <Link
               key={ch}

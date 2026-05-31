@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Cormorant_Garamond, Inter } from 'next/font/google';
 import './globals.css';
 import { CartProvider } from '../context/cart';
@@ -34,6 +34,11 @@ export const metadata: Metadata = {
     siteName: 'ALTER XIV',
   },
   twitter: { card: 'summary_large_image', title: 'ALTER XIV — The Broadcast' },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#0a0a0a',
+  colorScheme: 'dark',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
