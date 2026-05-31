@@ -48,5 +48,39 @@ export default defineConfig({
     },
     // Promotions module (coupons, campaigns)
     { resolve: '@medusajs/medusa/promotion' },
+    // Asset storage: MinIO/S3 when configured (set S3_FILE_URL + S3_ENDPOINT + creds),
+    // else local disk. MinIO is S3-compatible — point S3_ENDPOINT at the MinIO server and
+    // keep forcePathStyle for bucket addressing. (F07 research: storage-control grammar.)
+    {
+      resolve: '@medusajs/medusa/file',
+      options: {
+        providers: process.env.S3_FILE_URL
+          ? [
+              {
+                resolve: '@medusajs/medusa/file-s3',
+                id: 's3',
+                options: {
+                  file_url: process.env.S3_FILE_URL,
+                  access_key_id: process.env.S3_ACCESS_KEY_ID,
+                  secret_access_key: process.env.S3_SECRET_ACCESS_KEY,
+                  region: process.env.S3_REGION || 'us-east-1',
+                  bucket: process.env.S3_BUCKET || 'alter-xiv',
+                  endpoint: process.env.S3_ENDPOINT, // e.g. http://minio:9000
+                  additional_client_config: { forcePathStyle: true }, // MinIO path-style
+                },
+              },
+            ]
+          : [
+              {
+                resolve: '@medusajs/medusa/file-local',
+                id: 'local',
+                options: {
+                  upload_dir: 'static',
+                  backend_url: `${process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000'}/static`,
+                },
+              },
+            ],
+      },
+    },
   ],
 });
