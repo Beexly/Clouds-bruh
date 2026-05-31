@@ -1,26 +1,38 @@
 # ALTER XIV — CODEX HANDOFF
 
-_Only genuine blockers — things Claude Code cannot resolve without Garrett. Not tasks that could be solved._
+_Only genuine blockers + human-only items. Everything else is built, mocked, or in progress._
 
-## Needs Garrett (human-only inputs)
+## Needs Garrett (human-only inputs — these UNLOCK, they don't block the build)
 
-### Required to run at full intelligence
-- **ANTHROPIC_API_KEY** — required for agent runtime (CONGREGATION, INTROSPECTION, Learning Loop, db-gpt Claude Haiku fallback). Mock adapters used until provided.
+### API keys (agents + tools run in mock mode until provided)
+- **ANTHROPIC_API_KEY** — flips the CONGREGATION + OPERATOR from mock to live Claude tool-use
+  (Curator/Artisan/Scribe/Herald drafting, Shepherd chat, Analyst NL→SQL fallback). Until set,
+  `run-agent` returns mock runs; the daily loop still executes and validates structurally.
+- **STRIPE_API_KEY** (test mode) — the monetization module already completes memberships +
+  credit purchases locally; with a test key these mirror to real Stripe test subscriptions.
+- **HIGGSFIELD_API_KEY** — Artisan imagery (gpt-image2 templates + ISR upscaling). Mock staged now.
+- **APIFY_TOKEN / OXYLABS_USER+PASS** — Sourcer/Curator data radar (scrapers, price/restock). Mock now.
+- **COMPOSIO_API_KEY** — Congregation action integrations (email/social/ops). Mock now.
+- **MONEYPRINTER_API_URL** — Herald live video render; without it `video_render` stages a manifest.
 
-### Optional / enhancements
-- **HIGGSFIELD_API_KEY** — required for Artisan AI imagery generation. Mock adapter used until provided.
-- **STRIPE_API_KEY** — optional. `pp_system_default` test-mode payments work without it. Stripe is wired in `medusa-config.ts` and activates automatically when key is present.
-- **OXYLABS_USER / OXYLABS_PASS** — required for Curator's live price-scraping from Shein/Amazon. Mock dataset used until provided.
+### Deployment (founder action)
+- Deploy backend (Medusa) + storefront (Next.js) + intelligence (Node) to hosts; point DNS.
+- Run `medusa db:migrate` + `pnpm seed` + `npx medusa exec ../../scripts/seed-monetization.ts` on first deploy.
+- Create a publishable API key in Medusa Admin → set NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY.
 
-### Deployment (Garrett to action)
-- **Deploy backend** to a host (Render, Railway, Fly.io, self-hosted). `docker-compose.yml` provides postgres+pgvector+redis for local/staging. Backend `Dockerfile` needs to be written for production.
-- **Deploy storefront** (Next.js) to Vercel or equivalent. Set `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` and `NEXT_PUBLIC_SITE_URL` in Vercel env.
-- **Deploy intelligence** (CONGREGATION) as a long-running Node process. Ensure `REDIS_URL` and `DATABASE_URL` point to production.
-- **Run migrations + seed** on first deploy: `medusa db:migrate` then `pnpm seed`.
-- **DNS / domain**: point `alterxiv.com` to storefront deployment.
-- **Publishable API key**: after first deploy, create API key in Medusa Admin and set `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` in storefront env.
+### Money / publishing (require explicit approval — escalation gate enforces this)
+- Go-live / publish content / launch a real drop / switch Stripe to live keys / move money.
+  Agents only ever DRAFT and STAGE; the OPERATOR routes these to the founder inbox.
 
-### Money / publishing (require explicit approval)
-- **Go live / publish**: no content, drop, or payment processing should be made public until Garrett approves.
-- **Real Stripe keys**: switch from `pp_system_default` to Stripe live keys only with Garrett's explicit approval.
-- **First real drop**: creation and launch of live drops require Garrett's sign-off.
+## Optional engineering upgrades (founder-gated, non-blocking)
+- **True PPR**: full Partial Prerendering needs the Next.js **canary** channel. We run stable
+  15.5 and achieve the sub-second-perceived Broadcast via a static shell + Suspense-streamed
+  rails + React Compiler. To adopt true PPR: `pnpm add next@canary` in apps/storefront and set
+  `experimental.ppr: 'incremental'` in next.config.ts (verify the rest of the build stays green).
+
+## Known remaining work (tracked in PROGRESS.md, not blockers)
+- ORACLE: implement graph_rec (RecoGCN co-view/co-purchase) + dynamic pricing within margin floor.
+- BI depth: Metabase dashboard spec + MindsDB predictive (demand/churn) on the Analyst.
+- Infra: MinIO/S3 asset provider; accessibility + performance pass; expand tests/regression to
+  cover monetization, OPERATOR, and graph_rec.
+- Storefront: conversational Shepherd (chat widget + order context).
