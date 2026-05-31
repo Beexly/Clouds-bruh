@@ -111,6 +111,55 @@ async function run() {
     assert(data.drops !== undefined || data.error === undefined, 'unexpected drops response');
   });
 
+  // ── ORACLE depth (Wave E) ───────────────────────────────────────────────
+  await check('GET /store/recommendations?strategy=graph_rec — returns products', async () => {
+    const data = await get('/store/recommendations?visitor_id=ssr&strategy=graph_rec&limit=8');
+    assert(data.strategy === 'graph_rec', 'wrong strategy echoed');
+    assert(Array.isArray(data.product_ids) && data.product_ids.length > 0, 'no graph_rec products');
+  });
+
+  await check('GET /store/broadcast — includes a populated graph_rec block', async () => {
+    const data = await get('/store/broadcast?visitor_id=ssr');
+    assert(Array.isArray(data.block_order) && data.block_order.includes('graph_rec'), 'no graph_rec in block_order');
+    assert((data.blocks?.graph_rec ?? []).length > 0, 'graph_rec block empty');
+  });
+
+  await check('GET /store/pricing — staged dynamic price within floor/ceiling', async () => {
+    const prods = await get('/store/products?limit=1&fields=id');
+    const pid = prods.products[0].id;
+    const d = await get(`/store/pricing?product_id=${pid}`);
+    assert(d.would_apply === false, 'pricing must be staged (would_apply=false)');
+    assert(d.suggested_usd >= d.floor_usd && d.suggested_usd <= d.ceiling_usd, 'suggested outside [floor, ceiling]');
+  });
+
+  // ── Monetization (Wave C) ───────────────────────────────────────────────
+  await check('GET /store/monetization/tiers — includes patron', async () => {
+    const d = await get('/store/monetization/tiers');
+    assert(Array.isArray(d.tiers) && d.tiers.some((t: any) => t.key === 'patron'), 'patron tier missing');
+  });
+
+  await check('POST subscribe + purchase credits — test mode round-trip', async () => {
+    const cust = `regression-${Date.now()}`;
+    const sub = await (await fetch(`${API}/store/monetization/subscribe`, {
+      method: 'POST', headers, body: JSON.stringify({ customer_id: cust, tier_key: 'patron' }),
+    })).json();
+    assert(sub.is_patron === true, 'subscribe did not grant patron');
+    const credits = await (await fetch(`${API}/store/monetization/credits`, {
+      method: 'POST', headers, body: JSON.stringify({ customer_id: cust, amount: 1000 }),
+    })).json();
+    assert(credits.balance === 1000, `credit balance ${credits.balance} != 1000`);
+  });
+
+  // ── Conversational Shepherd (Wave D/11) ──────────────────────────────────
+  await check('POST /store/shepherd — replies, grounded in live drops', async () => {
+    const res = await fetch(`${API}/store/shepherd`, {
+      method: 'POST', headers, body: JSON.stringify({ message: 'what drops are live?' }),
+    });
+    assert(res.ok, `shepherd HTTP ${res.status}`);
+    const d = await res.json();
+    assert(typeof d.reply === 'string' && d.reply.length > 0, 'empty shepherd reply');
+  });
+
   console.log(`\nResults: ${passed} passed, ${failed} failed\n`);
   if (failed > 0) process.exit(1);
 }
