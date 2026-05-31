@@ -7,6 +7,7 @@ import { priceStr } from '../lib/catalog';
 import { useCart } from '../context/cart';
 
 const RAIL_LABELS: Record<string, string> = {
+  the_drop: 'The Pieces',
   your_chapters: 'Your Chapters',
   for_you: 'For You',
   trending_in_chapter: 'Trending in Chapter',

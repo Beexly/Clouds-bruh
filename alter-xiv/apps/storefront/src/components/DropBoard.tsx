@@ -37,7 +37,7 @@ export function DropBoard({ drops }: { drops: Drop[] }) {
                 className="group relative border-b border-white/[0.05] last:border-0"
               >
                 <Link
-                  href={`/chapter/${d.chapter}`}
+                  href={`/drop/${d.id}`}
                   onClick={() => signal('countdown_view', d.id, undefined, { chapter: d.chapter })}
                   className="grid grid-cols-[auto_1fr_auto] items-center gap-4 px-5 py-5 transition-colors hover:bg-white/[0.02] sm:gap-8"
                 >
