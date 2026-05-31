@@ -6,6 +6,7 @@ import { PageSignal } from '../components/PageSignal';
 import { Hero } from '../components/Hero';
 import { TuneBroadcast } from '../components/TuneBroadcast';
 import { DropBoardSkeleton, RailSkeleton } from '../components/Skeletons';
+import { getRegionId, PRODUCT_FIELDS } from '../lib/catalog';
 
 const API = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000';
 const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
@@ -30,9 +31,10 @@ function defaultBroadcast() {
 async function fetchProductsByIds(ids: string[]) {
   if (!ids.length) return [];
   try {
+    const region = await getRegionId();
     const params = ids.map((id) => `id[]=${id}`).join('&');
     const res = await fetch(
-      `${API}/store/products?${params}&fields=id,title,handle,thumbnail,metadata,variants,images&limit=20`,
+      `${API}/store/products?${params}&region_id=${region}&fields=${PRODUCT_FIELDS}&limit=20`,
       { cache: 'no-store', headers: { 'x-publishable-api-key': PK } }
     );
     if (!res.ok) return [];

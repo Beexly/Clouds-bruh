@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { ProductRail } from '../../../components/ProductRail';
 import { PageSignal } from '../../../components/PageSignal';
+import { getRegionId, PRODUCT_FIELDS } from '../../../lib/catalog';
 
 const API = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000';
 const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
@@ -19,8 +20,9 @@ const VERSE: Record<Chapter, string> = {
 
 async function fetchChapterProducts(chapter: string) {
   try {
+    const region = await getRegionId();
     const res = await fetch(
-      `${API}/store/products?fields=id,title,handle,thumbnail,metadata,variants,images&limit=100`,
+      `${API}/store/products?region_id=${region}&fields=${PRODUCT_FIELDS}&limit=100`,
       { cache: 'no-store', headers: { 'x-publishable-api-key': PK } }
     );
     if (!res.ok) return [];

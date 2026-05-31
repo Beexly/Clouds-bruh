@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { signal } from '../lib/signal';
+import { priceStr } from '../lib/catalog';
 import { useCart } from '../context/cart';
 
 const RAIL_LABELS: Record<string, string> = {
@@ -60,8 +61,7 @@ export function ProductRail({ blockName, products }: Props) {
 function RailCard({ p, index, block, onAdd }: { p: any; index: number; block: string; onAdd: () => void }) {
   const img = p.thumbnail || p.images?.[0]?.url || p.metadata?.main_image || '';
   const chapter = p.metadata?.chapter ?? '';
-  const price = p.variants?.[0]?.prices?.[0]?.amount;
-  const priceStr = price != null ? `$${(price / 100).toFixed(2)}` : '';
+  const price = priceStr(p);
   const remaining = p.metadata?.units_remaining;
   const lowStock = remaining != null && Number(remaining) <= 10;
   const rating = p.metadata?.rating;
@@ -127,7 +127,7 @@ function RailCard({ p, index, block, onAdd }: { p: any; index: number; block: st
         <div className="mt-3 px-0.5">
           <h3 className="line-clamp-1 font-serif text-base text-neutral-100">{p.title}</h3>
           <div className="mt-1 flex items-center justify-between">
-            {priceStr && <p className="text-sm tabular-nums text-neutral-300">{priceStr}</p>}
+            <p className="text-sm tabular-nums text-neutral-300">{price}</p>
             {reviews ? (
               <p className="text-micro tabular-nums text-neutral-500">★ {rating} · {reviews}</p>
             ) : null}
