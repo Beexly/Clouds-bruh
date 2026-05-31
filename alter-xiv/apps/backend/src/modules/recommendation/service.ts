@@ -210,6 +210,96 @@ class RecommendationService extends MedusaService({ Recommendation }) {
     }
   }
 
+  /**
+   * Dynamic pricing within a margin floor — a STAGED recommendation, never auto-applied
+   * (applying a price change is an escalation to the founder). Luxury/scarcity logic: demand
+   * and scarcity push price UP toward a ceiling; it never drops below the margin floor.
+   *
+   * Cost basis: products don't carry true supplier_price yet, so the floor is derived from a
+   * documented COST_RATIO of retail (override with PRICING_COST_RATIO). Swap in real supplier
+   * cost when available — the floor/ceiling contract stays the same.
+   */
+  async dynamicPrice(productId: string): Promise<{
+    product_id: string;
+    base_usd: number;
+    suggested_usd: number;
+    floor_usd: number;
+    ceiling_usd: number;
+    demand_factor: number;
+    scarcity_factor: number;
+    reason: string;
+    would_apply: boolean;
+  } | null> {
+    const pool = getPool();
+    // Base price (cents).
+    const { rows: priceRows } = await pool.query<{ amount: string }>(
+      `SELECT pr.amount::text AS amount
+         FROM product p
+         JOIN product_variant pv ON pv.product_id = p.id AND pv.deleted_at IS NULL
+         JOIN product_variant_price_set pvps ON pvps.variant_id = pv.id
+         JOIN price pr ON pr.price_set_id = pvps.price_set_id AND pr.currency_code = 'usd'
+        WHERE p.id = $1
+        LIMIT 1`,
+      [productId]
+    );
+    if (!priceRows[0]) return null;
+    const baseCents = Math.round(Number(priceRows[0].amount));
+
+    // Demand: 7-day weighted engagement percentile for this product vs catalog.
+    const { rows: demandRows } = await pool.query<{ score: string; max: string }>(
+      `WITH eng AS (
+         SELECT entity_id,
+                SUM(CASE type WHEN 'purchase' THEN 5 WHEN 'add_to_cart' THEN 3 ELSE 1 END) AS s
+         FROM signal_event
+         WHERE type IN ('product_view','add_to_cart','purchase')
+           AND ts > now() - interval '7 days' AND entity_id IS NOT NULL
+         GROUP BY entity_id
+       )
+       SELECT COALESCE((SELECT s FROM eng WHERE entity_id=$1),0)::text AS score,
+              COALESCE((SELECT MAX(s) FROM eng),1)::text AS max`,
+      [productId]
+    );
+    const demandFactor = Math.min(1, Number(demandRows[0]?.score ?? 0) / Math.max(1, Number(demandRows[0]?.max ?? 1)));
+
+    // Scarcity: tightest live drop containing this product.
+    const { rows: scarcityRows } = await pool.query<{ frac: string }>(
+      `SELECT MIN(units_remaining::numeric / NULLIF(units_total,0))::text AS frac
+         FROM "drop"
+        WHERE status='live' AND product_ids ? $1`,
+      [productId]
+    );
+    const remainingFrac = scarcityRows[0]?.frac != null ? Number(scarcityRows[0].frac) : 1;
+    const scarcityFactor = Math.max(0, 1 - remainingFrac); // 0 = plenty, 1 = nearly gone
+
+    const COST_RATIO = Number(process.env.PRICING_COST_RATIO ?? 0.55);
+    const MIN_MARGIN = Number(process.env.PRICING_MIN_MARGIN ?? 0.15);
+    const floorCents = Math.round(baseCents * COST_RATIO * (1 + MIN_MARGIN));
+    const ceilingCents = Math.round(baseCents * 1.25);
+
+    // Up-only luxury elasticity: blend demand + scarcity into a multiplier in [1.0, 1.25].
+    const lift = 0.25 * (0.6 * demandFactor + 0.4 * scarcityFactor);
+    let suggestedCents = Math.round(baseCents * (1 + lift));
+    suggestedCents = Math.max(floorCents, Math.min(ceilingCents, suggestedCents));
+
+    const reasons: string[] = [];
+    if (demandFactor > 0.5) reasons.push('high demand');
+    if (scarcityFactor > 0.5) reasons.push('low remaining units');
+    if (suggestedCents <= floorCents) reasons.push('held at margin floor');
+    if (!reasons.length) reasons.push('stable — at base');
+
+    return {
+      product_id: productId,
+      base_usd: +(baseCents / 100).toFixed(2),
+      suggested_usd: +(suggestedCents / 100).toFixed(2),
+      floor_usd: +(floorCents / 100).toFixed(2),
+      ceiling_usd: +(ceilingCents / 100).toFixed(2),
+      demand_factor: +demandFactor.toFixed(3),
+      scarcity_factor: +scarcityFactor.toFixed(3),
+      reason: reasons.join(', '),
+      would_apply: false, // staged only — applying is an escalation
+    };
+  }
+
   /** Mark a served recommendation clicked/converted. */
   async attribute(recId: string, kind: 'click' | 'convert') {
     await this.updateRecommendations([{
