@@ -110,3 +110,37 @@ describe('buildChart', () => {
     expect(chart.data.length).toBeLessThanOrEqual(10);
   });
 });
+
+describe('predictive BI (MindsDB-style)', () => {
+  it('matchQuery routes "forecast demand" to the demand forecast', () => {
+    expect(matchQuery('forecast demand next week').description).toMatch(/Demand forecast/);
+  });
+  it('matchQuery routes "when will it sell out" to sell-out projection', () => {
+    expect(matchQuery('when will the drop sell out velocity').description).toMatch(/Sell-out projection/);
+  });
+  it('matchQuery routes "churn" to churn risk', () => {
+    expect(matchQuery('churn retention risk lapsed').description).toMatch(/Churn risk/);
+  });
+  it('demand forecast insight projects next-week from wk/wk momentum', () => {
+    const rows = [{ chapter: 'altar', this_week: 27, prev_week: 9 }];
+    const out = buildInsight('forecast demand by chapter', rows, ['chapter', 'this_week', 'prev_week']);
+    expect(out).toContain('altar');
+    expect(out).toMatch(/next-week demand/);
+  });
+  it('sell-out insight projects days to zero from velocity', () => {
+    const rows = [{ name: 'IRON GATE', units_total: 144, units_remaining: 100, days_live: 4 }];
+    const out = buildInsight('when will it sell out', rows, ['name', 'units_total', 'units_remaining', 'days_live']);
+    expect(out).toMatch(/units\/day/);
+    expect(out).toMatch(/sell-out in/);
+  });
+  it('churn insight reports lapsed percentage', () => {
+    const rows = [{ active: 30, lapsed: 10, segment_lapsed: 8, total: 40 }];
+    const out = buildInsight('churn risk', rows, ['active', 'lapsed', 'segment_lapsed', 'total']);
+    expect(out).toContain('25.0% lapsed');
+  });
+  it('predictive insight takes precedence over the chapter keyword', () => {
+    const rows = [{ chapter: 'armor', this_week: 5, prev_week: 5 }];
+    const out = buildInsight('demand forecast by chapter', rows, ['chapter', 'this_week', 'prev_week']);
+    expect(out).toMatch(/wk\/wk/); // not the margin "Best:" branch
+  });
+});

@@ -63,6 +63,42 @@ export const QUERIES: Array<{ keywords: string[]; description: string; sql: stri
          ORDER BY CASE severity WHEN 'error' THEN 1 WHEN 'warn' THEN 2 WHEN 'info' THEN 3 END`,
     columns: ['type', 'severity', 'count'],
   },
+  // ── Predictive (MindsDB-style: forecast from the data we already have) ──────
+  {
+    keywords: ['forecast', 'predict', 'demand', 'next week', 'projection', 'trend'],
+    description: 'Demand forecast by chapter (this week vs last → next-week projection)',
+    sql: `SELECT p.metadata->>'chapter' AS chapter,
+           SUM(CASE WHEN se.ts > now() - interval '7 days' THEN 1 ELSE 0 END)::int AS this_week,
+           SUM(CASE WHEN se.ts <= now() - interval '7 days' THEN 1 ELSE 0 END)::int AS prev_week
+         FROM signal_event se
+         JOIN product p ON p.id = se.entity_id AND p.deleted_at IS NULL
+         WHERE se.type IN ('product_view','add_to_cart','purchase')
+           AND se.ts > now() - interval '14 days'
+         GROUP BY p.metadata->>'chapter'
+         ORDER BY this_week DESC`,
+    columns: ['chapter', 'this_week', 'prev_week'],
+  },
+  {
+    keywords: ['sellout', 'sell-out', 'sell out', 'when', 'days left', 'velocity', 'projected'],
+    description: 'Sell-out projection for live drops (units/day velocity → days to zero)',
+    sql: `SELECT d.name, d.chapter, d.units_total, d.units_remaining,
+           GREATEST(0.0001, EXTRACT(EPOCH FROM (now() - d.starts_at)) / 86400.0)::numeric(10,3) AS days_live
+         FROM "drop" d
+         WHERE d.status = 'live'
+         ORDER BY d.units_remaining ASC`,
+    columns: ['name', 'chapter', 'units_total', 'units_remaining', 'days_live'],
+  },
+  {
+    keywords: ['churn', 'retention', 'lapsed', 'at risk', 'risk', 'losing'],
+    description: 'Churn risk (lapsed vs active visitor segments)',
+    sql: `SELECT
+             COUNT(*) FILTER (WHERE last_seen > now() - interval '14 days')::int AS active,
+             COUNT(*) FILTER (WHERE last_seen <= now() - interval '14 days')::int AS lapsed,
+             COUNT(*) FILTER (WHERE segment = 'lapsed')::int AS segment_lapsed,
+             COUNT(*)::int AS total
+         FROM visitor_profile`,
+    columns: ['active', 'lapsed', 'segment_lapsed', 'total'],
+  },
 ];
 
 export function matchQuery(question: string) {
@@ -77,6 +113,30 @@ export function matchQuery(question: string) {
 export function buildInsight(q: string, rows: any[], cols: string[]): string {
   if (!rows.length) return 'No data available.';
   const top = rows[0];
+  // ── Predictive insights first (they may also mention 'chapter') ──
+  if (q.includes('forecast') || q.includes('predict') || q.includes('demand') || q.includes('projection')) {
+    const t = Number(top.this_week ?? 0);
+    const p = Number(top.prev_week ?? 0);
+    const growth = p > 0 ? ((t - p) / p) * 100 : t > 0 ? 100 : 0;
+    const projected = Math.round(t * (p > 0 ? t / p : 1));
+    const dir = growth >= 0 ? '↑' : '↓';
+    return `${top.chapter}: ${dir}${Math.abs(growth).toFixed(0)}% wk/wk (${p}→${t}); next-week demand ≈ ${projected} signals.`;
+  }
+  if (q.includes('sellout') || q.includes('sell-out') || q.includes('sell out') || q.includes('velocity') || q.includes('days left')) {
+    const sold = Number(top.units_total ?? 0) - Number(top.units_remaining ?? 0);
+    const days = Number(top.days_live ?? 0.0001);
+    const perDay = sold / days;
+    const daysToZero = perDay > 0 ? Number(top.units_remaining ?? 0) / perDay : Infinity;
+    if (!isFinite(daysToZero)) return `${top.name}: no sales velocity yet — sell-out not projectable.`;
+    return `${top.name}: ${perDay.toFixed(1)} units/day → projected sell-out in ~${daysToZero.toFixed(1)} days (${top.units_remaining} left).`;
+  }
+  if (q.includes('churn') || q.includes('retention') || q.includes('lapsed') || q.includes('at risk') || q.includes('losing')) {
+    const active = Number(top.active ?? 0);
+    const lapsed = Number(top.lapsed ?? 0);
+    const total = Number(top.total ?? 0) || 1;
+    const churnPct = ((lapsed / total) * 100).toFixed(1);
+    return `Churn risk: ${churnPct}% lapsed (${lapsed} of ${total}); ${active} active. Reactivation candidates: ${top.segment_lapsed ?? lapsed}.`;
+  }
   if (q.includes('margin') || q.includes('chapter') || q.includes('earning')) {
     const label = cols.find(c => typeof top[c] === 'string') ?? 'chapter';
     const val = cols.find(c => c.includes('price') || c.includes('usd'));

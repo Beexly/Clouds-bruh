@@ -150,6 +150,19 @@ async function run() {
     assert(credits.balance === 1000, `credit balance ${credits.balance} != 1000`);
   });
 
+  // ── Predictive BI (Wave D / Phase 9) ─────────────────────────────────────
+  await check('GET /store/analyst — demand forecast is predictive', async () => {
+    const d = await get('/store/analyst?q=forecast+demand+by+chapter+next+week');
+    assert(/Demand forecast/.test(d.description), `wrong query matched: ${d.description}`);
+    assert(/next-week demand|wk\/wk/.test(d.insight), `not a forecast insight: ${d.insight}`);
+  });
+
+  await check('GET /store/analyst — churn risk projection', async () => {
+    const d = await get('/store/analyst?q=churn+retention+risk+lapsed');
+    assert(/Churn risk/.test(d.description), `wrong query matched: ${d.description}`);
+    assert(/lapsed/.test(d.insight), `not a churn insight: ${d.insight}`);
+  });
+
   // ── Conversational Shepherd (Wave D/11) ──────────────────────────────────
   await check('POST /store/shepherd — replies, grounded in live drops', async () => {
     const res = await fetch(`${API}/store/shepherd`, {
