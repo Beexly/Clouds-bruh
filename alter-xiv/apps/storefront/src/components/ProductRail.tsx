@@ -6,6 +6,7 @@ import { signal } from '../lib/signal';
 import { useCart } from '../context/cart';
 
 const RAIL_LABELS: Record<string, string> = {
+  your_chapters: 'Your Chapters',
   for_you: 'For You',
   trending_in_chapter: 'Trending in Chapter',
   complete_the_set: 'Complete the Set',

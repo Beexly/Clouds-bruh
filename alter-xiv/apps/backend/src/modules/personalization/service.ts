@@ -94,6 +94,38 @@ class PersonalizationService extends MedusaService({ VisitorProfile }) {
     }
   }
 
+  /**
+   * "Tune the Broadcast" — explicit visitor controls. Following a chapter boosts its affinity
+   * so every ORACLE strategy (for_you / trending / complete_the_set) leans toward it; muting
+   * zeroes it so the Broadcast de-emphasizes it. The visitor steers the algorithm.
+   */
+  async setPreferences(visitorId: string, followed: string[] = [], muted: string[] = []) {
+    const FOLLOW_BOOST = 5;
+    const profiles = await this.listVisitorProfiles({ visitor_id: visitorId }, { take: 1 }).catch(() => []) as any[];
+    const profile = profiles[0] ?? null;
+    const affinity: StoredAffinity = profile?.affinity ? (profile.affinity as StoredAffinity) : emptyAffinity();
+    const chapter = { ...affinity.chapter };
+    for (const c of followed) chapter[c] = Math.max(chapter[c] ?? 0, FOLLOW_BOOST);
+    for (const c of muted) chapter[c] = 0;
+    const updated: StoredAffinity = { ...affinity, chapter };
+    const preferences = { followed: [...new Set(followed)], muted: [...new Set(muted)] };
+    const segment = this.segmentFor(updated, updated._intent ?? 0);
+    const now = new Date();
+
+    if (!profile) {
+      await this.createVisitorProfiles([{ visitor_id: visitorId, segment, affinity: updated, preferences, last_seen: now } as any]);
+    } else {
+      await this.updateVisitorProfiles([{ selector: { visitor_id: visitorId }, data: { affinity: updated, preferences, segment, last_seen: now } }] as any);
+    }
+    return preferences;
+  }
+
+  async getPreferences(visitorId: string): Promise<{ followed: string[]; muted: string[] }> {
+    const profiles = await this.listVisitorProfiles({ visitor_id: visitorId }, { take: 1 }).catch(() => []) as any[];
+    const p = profiles[0]?.preferences as { followed?: string[]; muted?: string[] } | undefined;
+    return { followed: p?.followed ?? [], muted: p?.muted ?? [] };
+  }
+
   segmentFor(affinity: StoredAffinity, intentScore: number): Segment {
     if (intentScore >= 20) return 'high_intent';
     const chapterEntries = Object.entries(affinity.chapter ?? {});

@@ -108,6 +108,22 @@
           "enumItems": [],
           "mappedType": "json"
         },
+        "preferences": {
+          "name": "preferences",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "json"
+        },
         "last_seen": {
           "name": "last_seen",
           "type": "timestamptz",

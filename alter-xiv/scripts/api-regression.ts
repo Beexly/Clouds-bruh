@@ -163,6 +163,18 @@ async function run() {
     assert(/lapsed/.test(d.insight), `not a churn insight: ${d.insight}`);
   });
 
+  // ── Tune the Broadcast — visitor controls (Wave G) ───────────────────────
+  await check('POST /store/preferences — follow steers ORACLE toward the chapter', async () => {
+    const vid = `tune-reg-${Date.now()}`;
+    const set = await (await fetch(`${API}/store/preferences`, {
+      method: 'POST', headers, body: JSON.stringify({ visitor_id: vid, followed: ['armor'], muted: ['altar'] }),
+    })).json();
+    assert(set.followed?.includes('armor') && set.muted?.includes('altar'), 'preferences not stored');
+    const bc = await get(`/store/broadcast?visitor_id=${vid}`);
+    assert(bc.block_order?.[0] === 'your_chapters', `followed rail should lead, got ${bc.block_order?.[0]}`);
+    assert(bc.preferences?.followed?.includes('armor'), 'broadcast did not reflect preferences');
+  });
+
   // ── Conversational Shepherd (Wave D/11) ──────────────────────────────────
   await check('POST /store/shepherd — replies, grounded in live drops', async () => {
     const res = await fetch(`${API}/store/shepherd`, {

@@ -4,6 +4,7 @@ import { DropBoard } from '../components/DropBoard';
 import { ProductRail } from '../components/ProductRail';
 import { PageSignal } from '../components/PageSignal';
 import { Hero } from '../components/Hero';
+import { TuneBroadcast } from '../components/TuneBroadcast';
 import { DropBoardSkeleton, RailSkeleton } from '../components/Skeletons';
 
 const API = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000';
@@ -77,6 +78,7 @@ export default async function Home() {
     <main className="min-h-screen bg-void bg-sacred-grain">
       <PageSignal type="page_view" context={{ page: 'home' }} />
       <Hero />
+      <TuneBroadcast />
       <Suspense
         fallback={
           <>

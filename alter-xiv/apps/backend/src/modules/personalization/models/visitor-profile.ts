@@ -8,6 +8,8 @@ export const VisitorProfile = model.define('visitor_profile', {
   // embedding stored as pgvector column via migration (model.json placeholder here).
   embedding: model.json().nullable(),
   affinity: model.json(), // { chapter:{}, category:{}, price_band:{}, aesthetic:{} }
+  // Explicit visitor controls over their Broadcast: { followed:[], muted:[] } chapters.
+  preferences: model.json().nullable(),
   last_seen: model.dateTime(),
   ltv_estimate: model.number().nullable(),
 });
