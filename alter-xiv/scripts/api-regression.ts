@@ -175,6 +175,14 @@ async function run() {
     assert(bc.preferences?.followed?.includes('armor'), 'broadcast did not reflect preferences');
   });
 
+  // ── Founder's Cockpit (Wave J) ───────────────────────────────────────────
+  await check('GET /store/cockpit — returns ops snapshot', async () => {
+    const d = await get('/store/cockpit');
+    assert(Array.isArray(d.recent_runs), 'missing recent_runs');
+    assert(d.signals_7d && typeof d.signals_7d.total === 'number', 'missing signals_7d');
+    assert(Array.isArray(d.approval_inbox), 'missing approval_inbox');
+  });
+
   // ── Altar Rewards loyalty (Wave H) ───────────────────────────────────────
   await check('GET /store/rewards — returns tier + next-blessing state', async () => {
     const d = await get(`/store/rewards?visitor_id=rewards-reg-${Date.now()}`);
