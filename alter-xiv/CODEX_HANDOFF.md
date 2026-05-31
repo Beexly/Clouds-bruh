@@ -30,9 +30,14 @@ _Only genuine blockers + human-only items. Everything else is built, mocked, or 
   rails + React Compiler. To adopt true PPR: `pnpm add next@canary` in apps/storefront and set
   `experimental.ppr: 'incremental'` in next.config.ts (verify the rest of the build stays green).
 
+## Asset storage (MinIO/S3) — needs an endpoint to fully verify
+The Medusa File module is wired: set `S3_FILE_URL`, `S3_ENDPOINT` (MinIO), `S3_ACCESS_KEY_ID`,
+`S3_SECRET_ACCESS_KEY`, `S3_BUCKET` to switch from local disk to MinIO (forcePathStyle on).
+Stand up a MinIO server (or any S3) and set those env vars; then uploads land in the bucket.
+Verified locally only on the default (local-disk) path — no object store runs in this sandbox.
+
 ## Known remaining work (tracked in PROGRESS.md, not blockers)
-- ORACLE: implement graph_rec (RecoGCN co-view/co-purchase) + dynamic pricing within margin floor.
-- BI depth: Metabase dashboard spec + MindsDB predictive (demand/churn) on the Analyst.
-- Infra: MinIO/S3 asset provider; accessibility + performance pass; expand tests/regression to
-  cover monetization, OPERATOR, and graph_rec.
-- Storefront: conversational Shepherd (chat widget + order context).
+- Performance/Lighthouse pass — needs a hosted/preview environment to measure.
+- Verified upload-to-MinIO — needs a running MinIO/S3 endpoint (see above).
+- DONE since last handoff: graph_rec + dynamic pricing, predictive BI (demand/sell-out/churn),
+  conversational Shepherd, OPERATOR + resilient Ledger, monetization, a11y pass, MinIO wiring.

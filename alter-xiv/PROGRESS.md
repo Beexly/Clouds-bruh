@@ -1,5 +1,5 @@
 # ALTER XIV — BUILD PROGRESS
-**Overall:** ~92%  ·  **Tracking:** MASTER_PLAN 12-phase model  ·  **Updated:** 2026-05-31
+**Overall:** ~96%  ·  **Tracking:** MASTER_PLAN 12-phase model  ·  **Updated:** 2026-05-31
 **Bar:** the best overall website of 2026. **Constraint:** a company of one — it runs itself.
 
 ## Status
@@ -20,8 +20,8 @@
 | 6 | Monetization | ✅ | `monetization` module: memberships/Patron tier (Autumn) + Altar Credits wallet (Flexprice) + gift cards · verified in test mode |
 | 7 | Commerce Completeness | ✅ | compensatable place-drop-order; promotions module; order.placed → drop-consume subscriber |
 | 8 | Content & Finance Autopilot | ✅ | Herald `video_render` (MoneyPrinterTurbo, staged) · Treasurer `gl_reconcile`/`month_end_close`/`statement_audit` (read-only) — both verified |
-| 9 | BI + Learning Loop | 🔄 | Analyst text-to-SQL ✅ · INTROSPECTION (8 checks) ✅ · Learning Loop (bandit reward + embedding refresh + nightly) ✅ · **MindsDB-style predictive depth pending** |
-| 10 | Hardening | 🔄 | 30 Vitest + **16** API-regression green (covers graph_rec/pricing/monetization/Shepherd) · SEO/JSON-LD/robots/sitemap ✅ · **MinIO assets + a11y/perf pass pending** |
+| 9 | BI + Learning Loop | ✅ | Analyst text-to-SQL ✅ · **predictive BI** (demand forecast / sell-out projection / churn risk) ✅ · INTROSPECTION (8 checks) ✅ · Learning Loop (bandit reward + embedding refresh + nightly) ✅ |
+| 10 | Hardening | 🔄 | **37** Vitest + **18** API-regression green · SEO/JSON-LD/robots/sitemap ✅ · **MinIO/S3 file provider wired** (gated; upload needs endpoint) · **a11y pass** (skip link/focus-visible/aria) ✅ · perf/Lighthouse pending (needs hosted env) |
 | 11 | Best-of-2026 Polish | ✅ | sub-second-perceived Broadcast (streamed shell + React Compiler) · brand/motion finish · **conversational Shepherd live** (/store/shepherd + widget) · (true PPR = canary upgrade, founder-gated) |
 | 12 | Scale + Web3 (optional) | ☐ | ScyllaDB/etcd/Go collector + Solana Pay — later, as load demands |
 
@@ -37,8 +37,9 @@
 - [x] Analyst answers BI questions; INTROSPECTION self-audits; Learning Loop applies rewards.
 - [x] graph_rec + dynamic pricing (staged); conversational Shepherd live.
 - [x] Tests + API regression green over new surfaces (monetization/graph_rec/pricing/Shepherd) — 16/16.
-- [ ] SEO/schema valid (✅) · accessibility + performance pass (pending) · assets on MinIO (pending).
-- [ ] MindsDB-style predictive BI — pending.
+- [x] MindsDB-style predictive BI (demand/sell-out/churn) — live.
+- [x] Accessibility pass (skip link, focus-visible, aria); MinIO/S3 provider wired (gated).
+- [ ] Performance/Lighthouse pass + verified upload-to-MinIO — need a hosted env / MinIO endpoint.
 
 ## Needs founder (unlocks, not blockers)
 - ANTHROPIC_API_KEY — flips agents from mock → live (OPERATOR loop, Scribe/Artisan/Herald drafting).
