@@ -175,6 +175,14 @@ async function run() {
     assert(bc.preferences?.followed?.includes('armor'), 'broadcast did not reflect preferences');
   });
 
+  // ── Altar Rewards loyalty (Wave H) ───────────────────────────────────────
+  await check('GET /store/rewards — returns tier + next-blessing state', async () => {
+    const d = await get(`/store/rewards?visitor_id=rewards-reg-${Date.now()}`);
+    assert(d.reward_tier === 'Seeker', `fresh account should be Seeker, got ${d.reward_tier}`);
+    assert(d.next_tier === 'Faithful' && d.credits_to_next === 2500, 'wrong next-tier math');
+    assert(typeof d.balance === 'number' && typeof d.multiplier === 'number', 'missing rewards fields');
+  });
+
   // ── Conversational Shepherd (Wave D/11) ──────────────────────────────────
   await check('POST /store/shepherd — replies, grounded in live drops', async () => {
     const res = await fetch(`${API}/store/shepherd`, {

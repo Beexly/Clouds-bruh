@@ -107,6 +107,50 @@ class MonetizationService extends MedusaService({
     await this.updateGiftCards([{ selector: { id: gc.id }, data: { balance: 0, status: 'redeemed' } as any }]);
     return { redeemed: gc.initial_balance, wallet_balance: balanceAfter };
   }
+
+  // ---- Altar Rewards (loyalty: earn credits on purchase, Patron multiplier) ----
+
+  /** Grant reward credits for a purchase. Patron tier earns 2×. Returns credits awarded. */
+  async awardForPurchase(accountId: string, orderTotalCents: number) {
+    const EARN_RATE = Number(process.env.REWARDS_EARN_RATE ?? 0.05); // 5% back in credits
+    const { is_patron } = (await this.entitlementsFor(accountId).catch(() => ({ is_patron: false }))) as any;
+    const multiplier = is_patron ? 2 : 1;
+    const award = Math.round(orderTotalCents * EARN_RATE * multiplier);
+    if (award <= 0) return 0;
+    await this.grant(accountId, award, `reward: ${(EARN_RATE * 100).toFixed(0)}% back${is_patron ? ' ×2 patron' : ''}`);
+    return award;
+  }
+
+  /** Visitor-facing rewards state: balance, lifetime earned, tier, and the next blessing. */
+  async rewardsSummary(accountId: string) {
+    const wallet = await this.walletFor(accountId);
+    const txns = (await this.listCreditTransactions({ customer_id: accountId }, { take: 500 }).catch(() => [])) as any[];
+    const lifetimeEarned = txns.filter((t) => t.amount > 0).reduce((s, t) => s + t.amount, 0);
+    const { is_patron, tier } = (await this.entitlementsFor(accountId).catch(() => ({ is_patron: false, tier: null }))) as any;
+
+    const TIERS = [
+      { name: 'Seeker', at: 0 },
+      { name: 'Faithful', at: 2500 },
+      { name: 'Anointed', at: 10000 },
+      { name: 'Elect', at: 50000 },
+    ];
+    let current = TIERS[0];
+    let next: (typeof TIERS)[number] | null = null;
+    for (const t of TIERS) {
+      if (lifetimeEarned >= t.at) current = t;
+      else { next = t; break; }
+    }
+    return {
+      account_id: accountId,
+      balance: wallet.balance ?? 0,
+      lifetime_earned: lifetimeEarned,
+      reward_tier: current.name,
+      membership_tier: tier ?? null,
+      multiplier: is_patron ? 2 : 1,
+      next_tier: next?.name ?? null,
+      credits_to_next: next ? next.at - lifetimeEarned : 0,
+    };
+  }
 }
 
 export default MonetizationService;

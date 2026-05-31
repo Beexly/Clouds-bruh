@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useCart } from '../../context/cart';
 import { PageSignal } from '../../components/PageSignal';
+import { RewardsPanel } from '../../components/RewardsPanel';
 
 export default function CartPage() {
   const { cart, remove } = useCart();
@@ -53,6 +54,10 @@ export default function CartPage() {
             <div className="mt-8 border-t border-neutral-900 pt-6 flex items-center justify-between">
               <span className="text-sm text-neutral-400">Total</span>
               <span className="font-serif text-xl text-neutral-100">${(total / 100).toFixed(2)}</span>
+            </div>
+
+            <div className="mt-6">
+              <RewardsPanel cartTotalCents={total} />
             </div>
 
             <Link
