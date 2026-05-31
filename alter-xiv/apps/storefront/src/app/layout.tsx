@@ -5,6 +5,7 @@ import { CartProvider } from '../context/cart';
 import { SiteHeader } from '../components/SiteHeader';
 import { PageTransition } from '../components/PageTransition';
 import { Shepherd } from '../components/Shepherd';
+import { CommandPalette } from '../components/CommandPalette';
 
 // Editorial serif for the sacred voice; a quiet grotesque for the body.
 const serif = Cormorant_Garamond({
@@ -54,6 +55,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <PageTransition>{children}</PageTransition>
           </div>
           <Shepherd />
+          <CommandPalette />
         </CartProvider>
       </body>
     </html>
