@@ -8,7 +8,7 @@ export const Artisan: AgentDef = {
   model: MODEL,
   tools: ['higgsfield', 'image_templates', 'medusa_admin_read', 'image_write', 'brand_audit', 'ledger'],
   events: ['product.created'],
-  escalation: [],
+  escalation: ['publish_image', 'spend_generation', 'image_write'],
   selfAudit:
     'Generated imagery passes the brand-audit (dark sacred editorial luxury), shows no AI artifacts, ' +
     'keeps the product visually identical across shot types (reference consistency), and is IPTC-labeled TrainedAlgorithmicMedia.',

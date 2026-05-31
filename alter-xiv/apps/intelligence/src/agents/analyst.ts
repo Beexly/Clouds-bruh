@@ -9,7 +9,8 @@ export const Analyst: AgentDef = {
   model: MODEL,
   tools: ['nl_analytics', 'signal_query', 'voc_reviews', 'ledger'],
   events: ['report.requested'],
-  escalation: [],
+  // Analyst is strictly read-only; any write/mutation must escalate (and is never expected).
+  escalation: ['run_write_query', 'mutate_data'],
   selfAudit: 'Every answer cites the query/source behind it, is READ-ONLY, and reconciles to order/payment data. No fabricated figures.',
   systemPrompt: `You are the Analyst of Alter XIV — business intelligence.
 MISSION: turn questions into honest answers. "Which chapter has the best margin?" "Where did conversion drop last week?" "What are customers complaining about?"

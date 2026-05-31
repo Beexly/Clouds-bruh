@@ -16,6 +16,10 @@ import { voc } from './voc';
 import { videoRender } from './video';
 import { glReconcile, monthEndClose, statementAudit } from './finance';
 import {
+  signalQuery, recommendationRead, orderLookup, replyDraft, calendarWrite,
+  invoiceGenerate, pdfRender, supplierApi, recommendationAdmin, experimentAdmin,
+} from './connectors';
+import {
   datasetQuery, productDraft, contentDraft, schemaWrite,
   imageTemplates, imageWrite, brandAudit, ledgerTool,
 } from './stubs';
@@ -42,6 +46,16 @@ export const TOOLS: Record<string, Tool> = {
   gl_reconcile: glReconcile,
   month_end_close: monthEndClose,
   statement_audit: statementAudit,
+  signal_query: signalQuery,
+  recommendation_read: recommendationRead,
+  order_lookup: orderLookup,
+  reply_draft: replyDraft,
+  calendar_write: calendarWrite,
+  invoice_generate: invoiceGenerate,
+  pdf_render: pdfRender,
+  supplier_api: supplierApi,
+  recommendation_admin: recommendationAdmin,
+  experiment_admin: experimentAdmin,
 };
 
 /** Resolve an agent's allowed tools into Claude tool-use definitions. */

@@ -255,6 +255,49 @@ const CHECKS: Array<{ type: Audit['type']; run: () => Promise<Audit[]> }> = [
       }));
     },
   },
+
+  // ── Integrity: tool/connector registry health (F01 lesson — validate before activation) ──
+  {
+    type: 'integrity',
+    run: async () => {
+      // Validate that every agent's declared tools resolve in the registry. A missing/misnamed
+      // connector must be caught in the control plane, never silently fail mid-loop.
+      const { AGENTS } = require('./agents');
+      const { TOOLS } = require('./tools');
+      const findings: Audit[] = [];
+      for (const def of Object.values(AGENTS) as any[]) {
+        const missing = (def.tools ?? []).filter((t: string) => !TOOLS[t]);
+        if (missing.length) {
+          findings.push({
+            id: crypto.randomUUID(),
+            type: 'integrity',
+            severity: 'error',
+            finding: `Agent "${def.name}" references unregistered tool(s): ${missing.join(', ')}.`,
+            recommendation: 'Register the connector in tools/index.ts or correct the agent definition before the next loop.',
+            falsifiable_check: 'Check: every name in AgentDef.tools exists as a key in the TOOLS registry.',
+            auto_corrected: false,
+            entity_ref: def.name,
+            created_at: new Date().toISOString(),
+          });
+        }
+        // Escalation hygiene: a privileged agent with no escalation gate is a control-plane risk.
+        if ((def.escalation ?? []).length === 0) {
+          findings.push({
+            id: crypto.randomUUID(),
+            type: 'integrity',
+            severity: 'warn',
+            finding: `Agent "${def.name}" declares no escalation gate.`,
+            recommendation: 'Define which actions require founder approval (escalation[]).',
+            falsifiable_check: 'Check: AgentDef.escalation is a non-empty array.',
+            auto_corrected: false,
+            entity_ref: def.name,
+            created_at: new Date().toISOString(),
+          });
+        }
+      }
+      return findings;
+    },
+  },
 ];
 
 export async function runIntrospection() {
