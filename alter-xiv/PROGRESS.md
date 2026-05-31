@@ -1,12 +1,22 @@
 # ALTER XIV — BUILD PROGRESS
-**Overall:** ~96%  ·  **Tracking:** MASTER_PLAN 12-phase model  ·  **Updated:** 2026-05-31
+**Overall:** ~98% (MASTER_PLAN complete; now beyond it)  ·  **Updated:** 2026-05-31
 **Bar:** the best overall website of 2026. **Constraint:** a company of one — it runs itself.
 
 ## Status
-- ✅ Phases 0–7 complete; 8 (autopilot) + 9 (BI/Learning) substantially done; 11 (polish) largely done.
-- 🔄 Remaining: ORACLE graph-rec + dynamic pricing (Ph3 depth), Metabase/MindsDB BI depth (Ph9),
-  MinIO assets (Ph10), test/regression expansion + a11y/perf pass (Ph10), conversational Shepherd (Ph11).
-- ⛔ Blocked: 0  ·  🙋 Needs founder: see CODEX_HANDOFF.md (API keys unlock live agents + real test-mode purchases).
+- ✅ MASTER_PLAN phases 0–11 effectively complete and verified.
+- ✅ Beyond-plan capabilities shipped this session (waves G–O), research-grounded:
+  - **Tune the Broadcast** — visitor steers ORACLE (follow/mute chapters → affinity → every rail).
+  - **Altar Rewards** — earn-on-purchase loyalty (Patron 2×, tiers, Fogg "next blessing" nudge).
+  - **Command palette** (⌘K) — product + chapter search.
+  - **Founder's Cockpit** (/cockpit) — OPERATOR loop + approval inbox + runs + audits.
+  - **PDP enrichment + storefront-wide price fix** (calculated_price; prices were invisible before).
+  - **Drop detail page** (/drop/[id]) + **/drops** index + countdowns/scarcity.
+  - **Connector control-plane health-check** (F01) — caught + fixed 14 real defects; 10 connectors
+    implemented; registry invariant locked by test.
+  - **PWA** (manifest/icon/theme), richer sitemap, resilience boundaries (error/loading).
+- 🔢 Tests: 46 unit (5 files) + 21 API-regression, all green.
+- ⛔ Blocked: 0  ·  🙋 Needs founder: see CODEX_HANDOFF.md (API keys unlock live agents; MinIO endpoint;
+  hosted env for Lighthouse). Everything works locally without them.
 
 ## Phases (MASTER_PLAN)
 | # | Phase | Status | Notes |

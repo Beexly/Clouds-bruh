@@ -10,7 +10,7 @@ export default async function orderPlaced({ event, container }: SubscriberArgs<{
     const orderModule = container.resolve(Modules.ORDER) as any;
     const [order] = await orderModule.listOrders(
       { id: orderId },
-      { relations: ['items'], select: ['id', 'items.variant_id', 'items.product_id', 'items.quantity', 'metadata'] }
+      { relations: ['items'], select: ['id', 'customer_id', 'items.variant_id', 'items.product_id', 'items.quantity', 'items.unit_price', 'metadata'] }
     ).catch(() => [null]);
 
     if (!order) return;
