@@ -14,6 +14,11 @@
 - **CI build-order** — `turbo.json` `lint` now `dependsOn: ["^build"]`; `verify-api.sh` builds
   `@alterxiv/shared` before `medusa db:migrate` (it resolves only to `dist/`).
 - **Brand attribution** (Galaxy parent / "owned and operated by Galaxy Network") + **`NORTH_STAR.md`**.
+- **CI fully fixed (PR #5)** — pre-existing `pnpm/action-setup` version conflict + the analyst/cockpit
+  production-gate; both jobs now pass. **Verified locally `verify:api` 24/24 (EXIT 0).**
+- **P0 — money routes LOCKED** — `/store/monetization/{subscribe,credits,wallet,gift-cards,entitlements}`
+  now require an authenticated customer (`api/store/middlewares.ts`); `customer_id` derives from the
+  session, never the body. Regression authenticates a real customer + asserts unauth → 401. Verified 24/24.
 
 ## 🔴 BLOCKED — needs you / a verify-env / the logs
 
@@ -34,18 +39,11 @@ Two pre-existing bugs, both fixed (neither was in the original diff):
   `DATABASE_URL=…/alterxiv_verify MEDUSA_ADMIN_DISABLED=true pnpm verify:api`. Do **not** prefix
   `pkill -f medusa` (it matches its own shell → self-kill), and the harness blocks foreground `sleep`.
 
-### 2. P0 — money routes are unauthenticated (pre-launch blocker)
-- `/store/monetization/{subscribe,credits,wallet,gift-cards,entitlements}` take `customer_id` from the
-  body/query with **no auth** → anyone with the public publishable key can grant memberships, mint
-  Lumens, or read any customer's wallet (`apps/backend/src/api/store/monetization/*`).
-- **Fix (designed, needs a verify-env):** add `apps/backend/src/api/store/middlewares.ts` →
-  `authenticate('customer', ['session','bearer'])` on `/store/monetization/*`; derive `customer_id`
-  from `req.auth_context.actor_id`, never the body.
-- **Why not shipped here:** it breaks the API regression (`scripts/api-regression.ts:141-151` calls
-  these with a fake string id + no auth) → that check must be rewritten to register/login a real
-  customer and validated with `verify:api` (no Docker in this sandbox).
-- **HANDOFF → Codex:** implement the middleware + rewrite the monetization regression to authenticate,
-  then run `verify:api` to green.
+### 2. P0 — money routes locked ✅ DONE (verified 24/24)
+Shipped `apps/backend/src/api/store/middlewares.ts` → `authenticate('customer', ['session','bearer'])`
+on subscribe/credits/wallet/gift-cards/entitlements; handlers derive `customer_id` from
+`req.auth_context.actor_id` (`/tiers` stays public). `api-regression.ts` now registers+logs in a real
+customer for the authed round-trip and asserts unauth → 401. Verified locally: `verify:api` 24/24 (EXIT 0).
 
 ### 3. P0 — zero-payment grants (founder + code)
 - `subscribe` / `purchaseCredits` / `issueGiftCard` grant entitlements/credits with **no real charge**
