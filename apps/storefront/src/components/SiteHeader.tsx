@@ -32,19 +32,36 @@ export function SiteHeader() {
             </Link>
           ))}
         </nav>
-        <Link
-          href="/cart"
-          className="group relative flex items-center gap-2 text-neutral-400 transition-colors hover:text-neutral-100"
-        >
-          <span className="text-micro uppercase">Cart</span>
-          <span
-            className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] tabular-nums transition ${
-              lineCount > 0 ? 'bg-altar-gold text-black' : 'border border-white/10 text-neutral-600'
-            }`}
+        <div className="flex items-center gap-5">
+          <button
+            type="button"
+            onClick={() => {
+              signal('page_view', undefined, undefined, { surface: 'search_open' });
+              window.dispatchEvent(new Event('lumera:open-search'));
+            }}
+            aria-label="Search"
+            className="group flex items-center gap-2 text-neutral-400 transition-colors hover:text-neutral-100"
           >
-            {lineCount}
-          </span>
-        </Link>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="7" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <span className="hidden text-micro uppercase md:inline">Search</span>
+          </button>
+          <Link
+            href="/cart"
+            className="group relative flex items-center gap-2 text-neutral-400 transition-colors hover:text-neutral-100"
+          >
+            <span className="text-micro uppercase">Cart</span>
+            <span
+              className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[10px] tabular-nums transition ${
+                lineCount > 0 ? 'bg-altar-gold text-black' : 'border border-white/10 text-neutral-600'
+              }`}
+            >
+              {lineCount}
+            </span>
+          </Link>
+        </div>
       </div>
     </header>
   );

@@ -18,7 +18,7 @@ export function CommandPalette() {
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Global Cmd/Ctrl-K + Esc.
+  // Global Cmd/Ctrl-K + Esc, plus a click-to-open event from the header search button.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
@@ -28,8 +28,13 @@ export function CommandPalette() {
         setOpen(false);
       }
     };
+    const onOpen = () => setOpen(true);
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener('lumera:open-search', onOpen);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      window.removeEventListener('lumera:open-search', onOpen);
+    };
   }, []);
 
   useEffect(() => {
