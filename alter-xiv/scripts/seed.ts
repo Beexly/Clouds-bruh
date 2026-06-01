@@ -5,7 +5,7 @@
  * Reads Bright Data sample CSVs, maps products to the 5 chapters,
  * creates Medusa categories + products, then seeds 2 live drops.
  */
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { parse } from 'csv-parse/sync';
 import type { ExecArgs } from '@medusajs/framework/types';
@@ -13,6 +13,11 @@ import { Modules } from '@medusajs/framework/utils';
 import type { Chapter } from '@alterxiv/shared';
 
 const DATA = join(__dirname, '../packages/data');
+
+const FALLBACK_FIXTURES: Record<string, string> = {
+  'amazon-products.sample.csv': 'fixtures/amazon-products.fixture.csv',
+  'shein-products.sample.csv': 'fixtures/shein-products.fixture.csv',
+};
 
 // Chapter detection: keyword → chapter
 const CHAPTER_KEYWORDS: Record<Chapter, string[]> = {
@@ -32,7 +37,17 @@ function detectChapter(text: string): Chapter {
 }
 
 function parseCsv(file: string): Record<string, string>[] {
-  const content = readFileSync(join(DATA, file), 'utf8');
+  const primaryPath = join(DATA, file);
+  const fallback = FALLBACK_FIXTURES[file];
+  const fallbackPath = fallback ? join(DATA, fallback) : undefined;
+  let sourcePath = primaryPath;
+
+  if (!existsSync(primaryPath) && fallbackPath && existsSync(fallbackPath)) {
+    sourcePath = fallbackPath;
+    console.warn(`[seed] ${file} not found; using committed fixture ${fallback}`);
+  }
+
+  const content = readFileSync(sourcePath, 'utf8');
   return parse(content, {
     columns: true,
     skip_empty_lines: true,

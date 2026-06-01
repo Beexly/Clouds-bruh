@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 ###############################################################################
 # Alter XIV — verify:api
-# One reproducible command: ensure infra → migrate → seed → boot → run the 21
-# API regressions → tear down. Non-interactive, fail-fast, logs to stdout.
+# One reproducible command: ensure infra → migrate → seed → boot → run the
+# API regression suite → tear down. Non-interactive, fail-fast, logs to stdout.
 #
 #   pnpm verify:api            (from repo root: alter-xiv/)
 #
@@ -16,6 +16,7 @@ cd "$ROOT"
 
 export DATABASE_URL="${DATABASE_URL:-postgres://alterxiv:alterxiv@localhost:5432/alterxiv}"
 export PUBLISHABLE_KEY="${PUBLISHABLE_KEY:-pk_3597340b67d6e63689846700f8264afde0105aed898356d6d630df566afd3050}"
+export MEDUSA_ADMIN_DISABLED="${MEDUSA_ADMIN_DISABLED:-true}"
 PORT="${PORT:-9000}"
 LOG="/tmp/alterxiv-verify-backend.log"
 BACKEND_PID=""
@@ -88,7 +89,13 @@ if [ -n "$CAPTURED_PK" ]; then PUBLISHABLE_KEY="$CAPTURED_PK"; ok "Publishable k
 
 # ── 4. Build + boot backend ──────────────────────────────────────────────────
 say "Building backend"
-[ -d ".medusa/server" ] && ok "Build present (reusing)" || { npx medusa build >/dev/null 2>&1 && ok "Build complete" || die "build failed"; }
+SERVER_BUILD=".medusa/server/medusa-config.js"
+ADMIN_BUILD=".medusa/server/public/admin/index.html"
+if [ -f "$SERVER_BUILD" ] && { [ "$MEDUSA_ADMIN_DISABLED" = "true" ] || [ -f "$ADMIN_BUILD" ]; }; then
+  ok "Build present (reusing)"
+else
+  npx medusa build >/dev/null 2>&1 && ok "Build complete" || die "build failed"
+fi
 
 say "Booting backend on :$PORT"
 if port_up "$PORT"; then ok "Backend already running on :$PORT"; else
@@ -101,11 +108,11 @@ if port_up "$PORT"; then ok "Backend already running on :$PORT"; else
 fi
 
 # ── 5. API regression ────────────────────────────────────────────────────────
-say "Running the 21 API regressions"
+say "Running the API regression suite"
 cd "$ROOT"
 if MEDUSA_BACKEND_URL="http://localhost:$PORT" PUBLISHABLE_KEY="$PUBLISHABLE_KEY" npx tsx scripts/api-regression.ts; then
   ok "API regression GREEN"
-  echo; ok "verify:api PASSED — infra → migrate → seed → boot → 21 regressions all green."
+  echo; ok "verify:api PASSED — infra → migrate → seed → boot → API regressions all green."
 else
   die "API regression failed"
 fi

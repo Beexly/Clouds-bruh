@@ -1,6 +1,12 @@
-# Seed datasets (Bright Data samples)
-Trimmed samples (~400 rows each) for local seeding + schema reference:
+# Seed datasets
+
+Committed fixtures under `fixtures/` are tiny synthetic rows for clean local
+verification. They are not sellable products and are only meant to keep
+`pnpm verify:api` reproducible from a fresh checkout.
+
+Optional Bright Data samples may be added locally for richer seeding:
 `amazon-products.sample.csv`, `shein-products.sample.csv`, `walmart-products.sample.csv`.
+Those sample CSVs are ignored by Git.
 
 These are the blueprint for the product model (see `docs/ARCHITECTURE.md` §4). Columns worth stealing:
 - Amazon: `bs_rank`, `bought_past_month`, buybox, `discount`, `variations` (ranking + social proof primitives)

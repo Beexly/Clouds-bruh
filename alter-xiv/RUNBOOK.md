@@ -14,7 +14,7 @@ gates — don't conflate them.
 pnpm install --frozen-lockfile
 pnpm verify:api
 ```
-`verify:api` (scripts/verify-api.sh) is non-interactive and fail-fast. It:
+`verify:api` (`scripts/verify-api.ts`) is non-interactive, cross-platform and fail-fast. It:
 1. ensures Postgres (and Redis if available — otherwise the backend uses in-memory defaults),
 2. runs migrations (timeout-guarded; **never hangs on Redis** — the Redis modules load only when
    `REDIS_URL` is set),
@@ -22,7 +22,7 @@ pnpm verify:api
    sales-channel) → prices → inventory → **ORACLE embeddings** → membership tiers,
 4. ensures + links a publishable API key and captures it,
 5. builds + boots the backend, waits for `/health`,
-6. runs the **21 API regressions** and reports PASS/FAIL.
+6. runs the **API regression suite** and reports PASS/FAIL.
 
 Target a throwaway DB to prove the clean path:
 ```bash
@@ -30,22 +30,23 @@ DATABASE_URL=postgres://alterxiv:alterxiv@localhost:5432/alterxiv_verify pnpm ve
 ```
 
 ## Readiness gates (keep these separate)
-- **Implementation green** — `pnpm build` (4 pkgs) · `pnpm test` (46 unit) · `pnpm lint`
+- **Implementation green** — `pnpm build` (4 pkgs) · `pnpm test` · `pnpm lint`
   (real `tsc --noEmit` across all 4 packages) · `git diff --check`.
-- **Operational green** — `pnpm verify:api` → 21/21 (migrate + seed + boot + API regression from clean).
+- **Operational green** — `pnpm verify:api` (migrate + seed + boot + API regression from clean).
 - **Launch green** — human-only: Lighthouse on a deploy, live MinIO upload, Stripe live keys,
   tax/legal/domain, and founder approval for any publish/spend. Tracked in `CODEX_HANDOFF.md`.
 
 ## Individual commands
 ```bash
 pnpm build            # all apps
-pnpm test             # 46 unit tests (turbo)
+pnpm test             # unit tests (turbo)
 pnpm test:unit        # vitest only
 pnpm lint             # tsc --noEmit across packages
-pnpm test:regression  # 21 API regressions (needs a backend on :9000)
+pnpm test:regression  # API regressions (needs a backend on :9000)
 ```
 
 ## Notes
+- The legacy Bash runner remains at `scripts/verify-api.sh` for shell-first environments.
 - Mocked-until-keyed surfaces (agents, Shepherd, imagery, scrapers) run in mock mode without API
   keys and flip to live when the keys in `.env` are set. None publish, spend, or move real money.
 - Redis is optional for dev/verify; recommended in production for the event bus + workflow engine

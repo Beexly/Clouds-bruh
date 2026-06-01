@@ -6,6 +6,9 @@ loadEnv(process.env.NODE_ENV || 'development', process.cwd());
  * The custom modules are the nervous system; Medusa's built-ins are the skeleton.
  */
 export default defineConfig({
+  admin: {
+    disable: process.env.MEDUSA_ADMIN_DISABLED === 'true',
+  },
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     redisUrl: process.env.REDIS_URL,

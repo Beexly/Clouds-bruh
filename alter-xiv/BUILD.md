@@ -13,7 +13,7 @@ pnpm install                    # install workspace
 cd apps/backend
 # Initialize Medusa into this app if not present (follow Medusa v2 docs), keeping medusa-config.ts.
 npx medusa db:migrate           # runs core + custom-module migrations (signal, personalization, recommendation, drops)
-pnpm seed                       # seeds catalog from packages/data (Bright Data samples) — see scripts/seed.ts
+pnpm seed                       # seeds catalog from local samples or committed fixtures — see scripts/seed.ts
 pnpm dev                        # Medusa API + admin
 ```
 Register custom modules in `medusa-config.ts` (already stubbed): `signal`, `personalization`, `recommendation`, `drops`.

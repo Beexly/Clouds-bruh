@@ -14,7 +14,7 @@
   - **Connector control-plane health-check** (F01) — caught + fixed 14 real defects; 10 connectors
     implemented; registry invariant locked by test.
   - **PWA** (manifest/icon/theme), richer sitemap, resilience boundaries (error/loading).
-- 🔢 Tests: 46 unit (5 files) + 21 API-regression, all green.
+- Tests: unit suite + API-regression suite, all green at the latest verified baseline.
 - ⛔ Blocked: 0  ·  🙋 Needs founder: see CODEX_HANDOFF.md (API keys unlock live agents; MinIO endpoint;
   hosted env for Lighthouse). Everything works locally without them.
 
