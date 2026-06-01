@@ -4,10 +4,14 @@
  */
 const API = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000';
 const PK = process.env.PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
+// Internal BI/ops surfaces (/store/analyst, /store/cockpit) fail CLOSED in production: when COCKPIT_KEY
+// is set they require it via x-cockpit-key. `medusa start` runs in production mode, so present it when set.
+const COCKPIT_KEY = process.env.COCKPIT_KEY || '';
 
 const headers: Record<string, string> = {
   'Content-Type': 'application/json',
   ...(PK ? { 'x-publishable-api-key': PK } : {}),
+  ...(COCKPIT_KEY ? { 'x-cockpit-key': COCKPIT_KEY } : {}),
 };
 
 let passed = 0;

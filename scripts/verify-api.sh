@@ -16,6 +16,9 @@ cd "$ROOT"
 
 export DATABASE_URL="${DATABASE_URL:-postgres://alterxiv:alterxiv@localhost:5432/alterxiv}"
 export PUBLISHABLE_KEY="${PUBLISHABLE_KEY:-pk_3597340b67d6e63689846700f8264afde0105aed898356d6d630df566afd3050}"
+# /store/analyst + /store/cockpit fail closed in production (medusa start runs prod). Set a key so the
+# booted server requires it AND the regression (a child of this script) presents it via x-cockpit-key.
+export COCKPIT_KEY="${COCKPIT_KEY:-verify-cockpit-key}"
 PORT="${PORT:-9000}"
 LOG="/tmp/alterxiv-verify-backend.log"
 BACKEND_PID=""
