@@ -44,12 +44,12 @@ export function CommandPalette() {
     const t = setTimeout(async () => {
       try {
         const res = await fetch(
-          `${BASE}/store/products?q=${encodeURIComponent(q)}&limit=6&fields=id,title,handle,thumbnail,metadata`,
+          `${BASE}/store/search?q=${encodeURIComponent(q)}&limit=6`,
           { headers: { 'x-publishable-api-key': PK } }
         );
         const d = await res.json();
-        setResults(d.products ?? []);
-        signal('search', undefined, q, { surface: 'command_palette', results: (d.products ?? []).length });
+        setResults(d.results ?? []);
+        signal('search', undefined, q, { surface: 'command_palette', results: (d.results ?? []).length });
       } catch {
         setResults([]);
       } finally {
@@ -143,9 +143,10 @@ export function CommandPalette() {
                         )}
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-sm text-neutral-200">{p.title}</span>
-                          {p.metadata?.chapter && (
-                            <span className="text-micro uppercase text-neutral-600">{p.metadata.chapter}</span>
-                          )}
+                          <span className="flex items-center gap-2 text-micro uppercase text-neutral-600">
+                            {p.chapter && <span className="text-altar-goldlight/70">{p.chapter}</span>}
+                            {p.reason && <span className="italic normal-case tracking-normal text-neutral-700">· {p.reason}</span>}
+                          </span>
                         </span>
                       </button>
                     ))}

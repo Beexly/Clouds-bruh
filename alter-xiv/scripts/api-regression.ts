@@ -195,6 +195,14 @@ async function run() {
     assert(typeof d.balance === 'number' && typeof d.multiplier === 'number', 'missing rewards fields');
   });
 
+  // ── Hybrid search (G01) ──────────────────────────────────────────────────
+  await check('GET /store/search — hybrid search returns ranked results + facets', async () => {
+    const d = await get('/store/search?q=armor&limit=5');
+    assert(Array.isArray(d.results) && d.results.length > 0, 'no search results');
+    assert(typeof d.results[0].score === 'number' && 'reason' in d.results[0], 'missing score/reason');
+    assert(d.facets && typeof d.facets === 'object', 'missing facets');
+  });
+
   // ── Conversational Shepherd (Wave D/11) ──────────────────────────────────
   await check('POST /store/shepherd — replies, grounded in live drops', async () => {
     const res = await fetch(`${API}/store/shepherd`, {
