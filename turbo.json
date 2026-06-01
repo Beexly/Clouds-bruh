@@ -6,6 +6,6 @@
     "seed": { "cache": false },
     "bootstrap": { "cache": false },
     "test": { "dependsOn": ["^build"] },
-    "lint": {}
+    "lint": { "dependsOn": ["^build"] }
   }
 }

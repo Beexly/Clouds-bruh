@@ -51,6 +51,12 @@ else
   else unset REDIS_URL || true; ok "No Redis — backend will use in-memory defaults (still valid)"; fi
 fi
 
+# ── 1b. Build workspace deps (the backend imports @alterxiv/shared, which resolves to dist) ──
+say "Building @alterxiv/shared (the backend loads its modules from the built dist)"
+( cd "$ROOT" && pnpm --filter @alterxiv/shared build ) >/dev/null 2>&1 \
+  && ok "Shared built" \
+  || die "Failed to build @alterxiv/shared — the backend cannot load its modules without it."
+
 cd "$ROOT/apps/backend"
 
 # ── 2. Migrate (timeout so it can never hang the run) ────────────────────────
