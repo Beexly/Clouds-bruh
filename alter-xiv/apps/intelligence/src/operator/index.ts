@@ -2,6 +2,7 @@ import { AGENTS } from '../agents';
 import { runAgent } from '../orchestrator/run-agent';
 import { Ledger } from '../memory/ledger';
 import { runIntrospection } from '../introspection';
+import { classifyRun, type WorkflowState } from './workflow';
 import type { AgentRun } from '@alterxiv/shared';
 
 /**
@@ -19,6 +20,7 @@ interface ValidatedStep {
   status: AgentRun['status'];
   escalated: boolean;
   gate: 'pass' | 'fail' | 'escalated';
+  workflow_state: WorkflowState;
   note: string;
   runId: string;
 }
@@ -59,6 +61,7 @@ function validate(run: AgentRun): ValidatedStep {
     status: run.status,
     escalated: run.escalated,
     gate,
+    workflow_state: classifyRun(run),
     note: `${def?.department ?? run.agent}: ${note}`,
     runId: run.id,
   };
@@ -74,7 +77,7 @@ export async function runDailyLoop(opts: { only?: string[] } = {}): Promise<Agen
 
   for (const agent of pipeline) {
     if (!AGENTS[agent]) {
-      steps.push({ agent, status: 'error', escalated: false, gate: 'fail', note: 'unknown department', runId: '' });
+      steps.push({ agent, status: 'error', escalated: false, gate: 'fail', workflow_state: 'failed', note: 'unknown department', runId: '' });
       continue;
     }
     try {
@@ -83,7 +86,7 @@ export async function runDailyLoop(opts: { only?: string[] } = {}): Promise<Agen
       steps.push(v);
       if (v.gate === 'escalated') inbox.push(`${agent}: ${run.decisions.filter((d) => d.startsWith('ESCALATE')).join('; ') || 'awaiting approval'}`);
     } catch (e: any) {
-      steps.push({ agent, status: 'error', escalated: false, gate: 'fail', note: `threw: ${e.message?.slice(0, 80)}`, runId: '' });
+      steps.push({ agent, status: 'error', escalated: false, gate: 'fail', workflow_state: 'failed', note: `threw: ${e.message?.slice(0, 80)}`, runId: '' });
     }
   }
 
