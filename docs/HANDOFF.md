@@ -82,10 +82,16 @@ customer for the authed round-trip and asserts unauth → 401. Verified locally:
   and `learning/loop.ts → refreshProductEmbedding` (currently a no-op) need a real embedding model.
   **Founder:** an embedding API key (Voyage/OpenAI). Then ORACLE recs become genuinely semantic with
   **no query-layer change** (the `<=> ::vector` seam already exists).
-- **Attribution loop:** the storefront never calls `/store/recommendations/attribute`, so per-rec
-  click/convert is never recorded. Return a `rec_id` from `/store/broadcast` + `/store/recommendations`
-  and POST it back on `recommendation_click` + `purchase`. Behavioral — verify on a running env.
-  **HANDOFF → Codex.**
+- **Attribution loop — clarified (traced this session):** the **block bandit already learns.**
+  `intelligence/learning/loop.ts → rewardBandit` rewards `bandit:{segment}:{block}` on every signal,
+  and the storefront already sends `{ block }` on `recommendation_impression`/`recommendation_click`,
+  so Broadcast block-ordering self-improves today (the audit undersold this). The *only* dead part is
+  the per-serve `recommendation.clicked/converted` columns: `forVisitor` persists a serve row but
+  discards its id, and the serve endpoints don't return a `rec_id`, so `/attribute` is never called.
+  Closing it (return `rec_id` from broadcast/recs → POST on click) is **additive but invisible**
+  (analytics/CTR-per-strategy integrity, not new visible learning) **and touches the homepage hot
+  path** — deliberately deferred over blind-shipping it. **HANDOFF → Codex** (low priority; do it when
+  the per-strategy CTR dataset is actually needed).
 
 ### 5. P2 — breathtaking craft
 - ✅ **next/image** migration — done (rails, PDP, cart, command-palette thumbnails; `remotePatterns` wildcard).
