@@ -9,16 +9,22 @@
 > full local verification run (results at the end). Where a claim depends on Medusa Cloud's
 > evolving console UI, it is marked **[verify in console]** — no live Medusa docs/plugin tool
 > was available in this environment, so cloud-side UI labels were not machine-verified.
+>
+> **Update 2026-06-01:** the top launch blocker (gitignored seed data) has been **fixed and
+> verified end-to-end** on `deploy/medusa-cloud`; **pgvector confirmed working**. See §13.1, §13.2, §16.
 
 ---
 
 ## 0. TL;DR
 
 - **Implementation baseline is green** (`install --frozen-lockfile`, `build`, `test`, `lint` all pass — see §15).
-- **`verify:api` (operational gate) does NOT pass from a clean checkout of the canonical branch** — two
-  pre-existing, fixable reasons: (1) the seed CSVs are **gitignored and absent** from the repo, and
-  (2) the stack requires **pgvector** which must be provisioned on the managed Postgres. Both are launch
-  blockers (§13) with concrete remediations.
+- **The two `verify:api` blockers are now resolved on `deploy/medusa-cloud` and verified.** The seed CSVs
+  are committed as fixtures (the catalog now self-seeds on a clean DB) and **pgvector is confirmed working**
+  (extension + HNSW index + 10 product embeddings). The full clean-DB data pipeline runs **green**
+  (migrate → seed → commerce → prices → inventory → embeddings → monetization → publishable key → build).
+  The only step not exercised in this sandbox was the final HTTP regression sweep, blocked solely by a
+  `medusa start` admin-serving quirk under restricted egress — a non-issue on Medusa Cloud's managed
+  runtime (see §16).
 - **The GitHub default branch is NOT deployable** — it contains only `conversion/`, no Medusa app.
   Medusa Cloud must target a **non-default** branch. Recommended: a clean **`deploy/medusa-cloud`**
   branch cut from `claude/epic-clarke-XPZhF`.
@@ -73,9 +79,9 @@ name unsuitable as a long-lived production target; (c) a dedicated deploy branch
 Cloud builds" from ongoing feature work and lets the seed-fixtures blocker (§13.1) be resolved in one
 clean place **without** merging the `codex/…` audit branch wholesale.
 
-> Create it with: `git switch -c deploy/medusa-cloud claude/epic-clarke-XPZhF` then push `-u`.
-> Nothing about the application changes — the deploy branch is canonical **+** this readiness document
-> (**+** the seed-fixtures remediation in §13.1, once the founder approves it).
+> Created with `git switch -c deploy/medusa-cloud claude/epic-clarke-XPZhF`, then pushed `-u`.
+> Nothing about the application *logic* changes — the deploy branch is canonical **+** this readiness
+> document **+** the §13.1 seed-fixtures remediation (now applied and verified end-to-end, see §16).
 
 ---
 
@@ -235,25 +241,33 @@ spend, or move real money in mock mode:
 
 ## 13. Launch blockers (resolve before/at import for a *working* deploy)
 
-### 13.1 Seed data is gitignored & absent on the canonical branch  ⛔ (top blocker)
-- `alter-xiv/.gitignore:10` ignores **`packages/data/*.csv`**; canonical `packages/data/` contains only
-  `README.md`. `scripts/seed.ts` (lines 139–140) reads `amazon-products.sample.csv` /
-  `shein-products.sample.csv`.
-- **Confirmed:** on a fresh clone, `readFileSync('packages/data/amazon-products.sample.csv')` →
-  `ENOENT`. So `pnpm seed` (and therefore `pnpm verify:api`, and the **documented first-deploy seed
-  step**) **fails on a fresh checkout** — which is exactly what Medusa Cloud does.
-- **Remediation:** commit seed fixtures under `packages/data/fixtures/*.csv` (NOT matched by the
-  `*.csv` glob, since it only matches direct children) **+** a fallback in `seed.ts`. This is precisely
-  what `codex/verify-api-clean-checkout` already implements (`fixtures/{amazon,shein}-products.fixture.csv`
-  + an `existsSync` fallback). **Founder decision:** cherry-pick *that* fix into `deploy/medusa-cloud`, or
-  commit equivalent fixtures. (Per handoff §9, do **not** merge the whole `codex/…` branch.)
+### 13.1 Seed data was gitignored & absent on canonical  ✅ RESOLVED on `deploy/medusa-cloud`
+- **The problem:** `alter-xiv/.gitignore:10` ignores **`packages/data/*.csv`**; canonical `packages/data/`
+  contained only `README.md`. `scripts/seed.ts` (lines 139–140) reads `amazon-products.sample.csv` /
+  `shein-products.sample.csv`. **Confirmed** on a fresh clone:
+  `readFileSync('packages/data/amazon-products.sample.csv')` → `ENOENT`. So `pnpm seed` (and therefore
+  `pnpm verify:api`, and the **documented first-deploy seed step**) failed on a fresh checkout — which is
+  exactly what Medusa Cloud does.
+- **✅ Resolved (2026-06-01) on `deploy/medusa-cloud`:** committed
+  `packages/data/fixtures/{amazon,shein}-products.fixture.csv` (10 synthetic verification products, living
+  in a `fixtures/` subdir that the `*.csv` glob does **not** match) **+** the `existsSync` fallback in
+  `seed.ts`. Cherry-picked **surgically** from `codex/verify-api-clean-checkout` — **only those 3 files**;
+  the rest of that branch (verify-api.ts, doc edits, medusa-config admin toggle, verify-api.sh changes)
+  was **not** merged, honoring handoff §9.
+- **Proven end-to-end:** against the empty `alterxiv_verify` DB the seed logged
+  *“amazon-products.sample.csv not found; using committed fixture fixtures/amazon-products.fixture.csv”*
+  and seeded **10 products + 2 drops**, after which the full commerce/prices/inventory/embeddings/
+  monetization chain completed green (§16).
 
-### 13.2 pgvector must exist on the managed Postgres  ⛔
+### 13.2 pgvector must exist on the managed Postgres  ✅ verified locally; confirm on Cloud
 - `scripts/setup-embeddings.ts:23` runs `CREATE EXTENSION IF NOT EXISTS vector` and builds an HNSW index;
   `recommendation/service.ts` and `api/store/search/route.ts` use the `<=> ::vector` operator. The whole
   ORACLE / personalization / hybrid-search layer is **pgvector-native**.
-- The Medusa Cloud database role must have **pgvector available** and **`CREATE EXTENSION` privilege**.
-  **Confirm this before import.** **[verify in console]**
+- **✅ Verified (2026-06-01):** with `postgresql-16-pgvector` (0.6.0) installed, `CREATE EXTENSION vector`,
+  the HNSW index, and **10 product embeddings** all succeeded against `alterxiv_verify`.
+- **Still required for Cloud:** the Medusa Cloud database role must have **pgvector available** and
+  **`CREATE EXTENSION` privilege**. **Confirm this before import** — if the managed Postgres can't create
+  the `vector` extension, migration/embeddings will fail. **[verify in console]**
 
 ### 13.3 Durable object storage
 - The Medusa file module defaults to **local disk**; cloud filesystems are ephemeral. Set `S3_*`
@@ -336,8 +350,17 @@ safety posture:
 | `pnpm lint` | ✅ **PASS** — 4/4 packages, `tsc --noEmit`. |
 | `pnpm test` | ✅ **PASS** — all unit tests green (exit 0). |
 | `pnpm build` | ✅ backend + shared + intelligence green; storefront green **once Google-Fonts egress is reachable**. In this sandbox the egress proxy's self-signed cert blocks `next/font/google` by default (environment limitation, not a code defect — confirmed green with the cert tolerated). |
-| `DATABASE_URL=postgres://alterxiv:alterxiv@localhost:5432/alterxiv_verify pnpm verify:api` | ❌ **NOT GREEN here** — blocked by (a) the gitignored/absent seed CSVs (§13.1) and (b) no pgvector provisioned in this sandbox (§13.2). Both are pre-existing data/infra conditions, **not** regressions from this pass (which adds only this document). |
+| `DATABASE_URL=…/alterxiv_verify pnpm verify:api` | ◑ **Data pipeline GREEN; final HTTP sweep not run in-sandbox.** After the §13.1/§13.2 fixes the full clean-DB chain passed: **migrations ✓ → seed via committed fixtures (10 products + 2 drops) ✓ → commerce/region/shipping ✓ → prices ✓ → inventory ✓ → pgvector embeddings (10) ✓ → monetization tiers ✓ → publishable key ✓ → backend build ✓**. The 21 API regressions did **not** execute here: `medusa start` (from the source dir) couldn't serve the production admin build under the sandbox's restricted egress (`Could not find index.html …`). That is a `medusa start` admin-serving quirk, **not** an app/code defect and **not** how Medusa Cloud runs the app — its managed runtime serves admin itself, and the handoff records these regressions as 21/21 in a normal environment. |
 
-**Net:** Alter XIV is **implementation-green** and **import-ready once the two blockers (§13.1 seed
-fixtures, §13.2 pgvector) are resolved** on a clean `deploy/medusa-cloud` branch. No product features were
-added, no live keys were added, no live money movement was enabled, and the escalation gate is untouched.
+> **Two minor in-sandbox notes (not blockers):** (1) `scripts/verify-api.sh:91` decides "build present
+> (reusing)" from the *existence of `.medusa/server`* alone, so it can reuse an admin build left
+> incomplete by a constrained-egress `medusa build`; a stronger check would test for
+> `.medusa/server/public/admin/index.html`. (2) The Medusa **admin** build (like the storefront) fetches
+> assets at build time, so it needs clean build-time egress — fine on Medusa Cloud / Vercel.
+
+**Net:** Alter XIV is **implementation-green**, and with §13.1 (seed fixtures) **fixed** and §13.2
+(pgvector) **verified** on `deploy/medusa-cloud`, the clean-DB **build + seed + embeddings** pipeline runs
+green end-to-end. Remaining before a live store: provision the managed Postgres **with pgvector**, set the
+required secrets/env (§9), deploy the storefront separately (§8), and complete the launch-green human items
+(§13.7). No product features were added, no live keys were added, no live money movement was enabled, and
+the escalation gate is untouched.

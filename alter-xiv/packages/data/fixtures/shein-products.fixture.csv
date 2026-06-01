@@ -1,0 +1,6 @@
+product_id,model_number,product_name,description,category_tree,root_category,final_price,main_image,rating,reviews_count
+A14-SHN-ARMOR-001,FX-ARMOR-VEST,Armor Puffer Vest,Synthetic local verification product for armor chapter seeding.,outerwear > vest > puffer,apparel,64.00,,4.6,22
+A14-SHN-STILL-001,FX-STILL-WRAP,Stillness Yoga Wrap,Synthetic local verification product for stillness chapter seeding.,wellness > yoga > wrap,wellness,42.00,,4.8,15
+A14-SHN-SIGNAL-001,FX-SIGNAL-CABLE,Signal Cable Kit,Synthetic local verification product for signal chapter seeding.,tech > cable > charger,accessories,19.00,,4.5,36
+A14-SHN-ALTAR-001,FX-ALTAR-TRAY,Altar Stone Tray,Synthetic local verification product for altar chapter seeding.,home > ritual > decor,home,27.00,,4.7,11
+A14-SHN-RELENTLESS-001,FX-RELENTLESS-SHORT,Relentless Gym Short,Synthetic local verification product for relentless chapter seeding.,performance > gym > shorts,apparel,34.00,,4.4,21
