@@ -15,7 +15,7 @@ do in the Cloud console** — seed the catalog, wire the storefront key, set sec
 few hardening items (Redis, object storage, perf). Very little of what's left is engineering.
 
 ```
-Platform engineering  ██████████████████░░  ~90%   ← verified: build · 52 tests · verify:api 22/22 · deployed
+Platform engineering  ██████████████████░░  ~90%   ← verified: build · 52 tests · verify:api 23/23 · deployed
 Launch configuration  █████████░░░░░░░░░░░  ~45%   ← founder/Cloud actions, each small
 Overall launch-ready  █████████████░░░░░░░  ~65%
 ```
@@ -30,11 +30,11 @@ Overall launch-ready  █████████████░░░░░░�
 | `pnpm lint` | ✅ | 4/4 packages, `tsc --noEmit` |
 | `pnpm test` | ✅ | **52 unit tests** green |
 | `pnpm build` | ✅ | backend builds; storefront builds on Cloud (sandbox only blocks Google-Fonts egress) |
-| `pnpm verify:api` | ✅ | **22/22 API regressions** — full chain: migrate → seed → **pgvector embeddings** → boot → regressions |
+| `pnpm verify:api` | ✅ | **23/23 API regressions** — full chain: migrate → seed → **pgvector embeddings** → boot → regressions, **incl. a complete checkout → order (test mode)** |
 | Live deployment | ✅ | backend Ready·Active, storefront Live (Medusa Cloud) |
 | Continuous integration | ✅ | `.github/workflows/ci.yml` re-runs lint · test · build · `verify:api` (pgvector+Redis services) on every push/PR |
 
-The 22 regressions exercise the **GSN-class intelligence layer end-to-end**: `for_you`/`graph_rec`
+The 23 regressions exercise the **GSN-class intelligence layer end-to-end**: `for_you`/`graph_rec`
 recommendations, dynamic pricing (within margin floor), predictive analyst (demand forecast + churn risk),
 ORACLE preference steering, hybrid (pgvector) search, conversational Shepherd, Altar Rewards, and a
 test-mode monetization round-trip. **This is functional, not mocked.**
@@ -46,11 +46,11 @@ test-mode monetization round-trip. **This is functional, not mocked.**
 | # | Category | Score | Status / evidence | Remaining |
 |---|---|---|---|---|
 | 1 | Deploy & stability | 90% | backend+storefront live on Cloud | attach **Redis** (kills in-memory event-bus warning) |
-| 2 | Build/test/ops verification | 100% | build · 52 tests · verify:api 22/22 ✅ | — |
-| 3 | Commerce core (browse→cart→checkout) | 90% | regressions green; test-mode checkout works (`pp_system_default`) | live payments (founder-gated) |
+| 2 | Build/test/ops verification | 100% | build · 52 tests · verify:api 23/23 ✅ | — |
+| 3 | Commerce core (browse→cart→checkout→**order**) | 92% | **full checkout → order placement verified** (test mode, `pp_system_default`) — regression 23/23 | live payments (founder-gated) |
 | 4 | **Catalog on the live store** | 25% | seed mechanism verified; **not yet run on Cloud** (demo fixtures only) | run **`medusa exec ../../scripts/bootstrap.ts`** against the Cloud DB; load real catalog |
 | 5 | Storefront ↔ backend wiring | 30% | storefront live but needs the publishable key | set `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` (printed by bootstrap) |
-| 6 | Intelligence layer | 75% | verified 22/22 locally | enable **pgvector** + run `setup-embeddings.ts` (recs/search); add `ANTHROPIC_API_KEY` (agents mock→live) |
+| 6 | Intelligence layer | 75% | verified 23/23 locally | enable **pgvector** + run `setup-embeddings.ts` (recs/search); add `ANTHROPIC_API_KEY` (agents mock→live) |
 | 7 | Security / secrets | 40% | config boots on fallbacks | set real `JWT_SECRET`,`COOKIE_SECRET`,`STORE_CORS`,`ADMIN_CORS`; **change the `secret` admin password** |
 | 8 | Payments | 50% | Stripe **test** ready & gated | go-live = founder approval + live key (escalation gate) |
 | 9 | Launch ops | 30% | on `.medusajs.site` | custom domain · legal/policies · transactional email · object storage (S3) · Lighthouse/perf |

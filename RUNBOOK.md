@@ -27,7 +27,7 @@ pnpm verify:api
    sales-channel) → prices → inventory → **ORACLE embeddings** → membership tiers,
 4. ensures + links a publishable API key and captures it,
 5. builds + boots the backend, waits for `/health`,
-6. runs the **22 API regressions** and reports PASS/FAIL.
+6. runs the **23 API regressions** (incl. full checkout → order) and reports PASS/FAIL.
 
 > In constrained/headless environments (no admin static bundle), set `MEDUSA_ADMIN_DISABLED=true` so the
 > server boots without the admin and the regressions still run. CI does exactly this.
@@ -40,7 +40,7 @@ DATABASE_URL=postgres://alterxiv:alterxiv@localhost:5432/alterxiv_verify pnpm ve
 ## Readiness gates (keep these separate)
 - **Implementation green** — `pnpm build` (4 pkgs) · `pnpm test` (52 unit) · `pnpm lint`
   (real `tsc --noEmit` across all 4 packages) · `git diff --check`.
-- **Operational green** — `pnpm verify:api` → 22/22 (migrate + seed + boot + API regression from clean).
+- **Operational green** — `pnpm verify:api` → 23/23 (migrate + seed + boot + API regression from clean).
   Re-run automatically by CI (`.github/workflows/ci.yml`) with pgvector + Redis services on every push/PR.
 - **Launch green** — human-only: Lighthouse on a deploy, live MinIO upload, Stripe live keys,
   tax/legal/domain, and founder approval for any publish/spend. Tracked in `CODEX_HANDOFF.md`.
@@ -51,7 +51,7 @@ pnpm build            # all apps
 pnpm test             # 52 unit tests (turbo)
 pnpm test:unit        # vitest only
 pnpm lint             # tsc --noEmit across packages
-pnpm test:regression  # 22 API regressions (needs a backend on :9000)
+pnpm test:regression  # 23 API regressions (needs a backend on :9000)
 pnpm bootstrap        # one-command store seed: catalog→commerce→prices→inventory→tiers→publishable key
 pnpm preflight        # live launch go/no-go (env + DB) → readiness %
 ```

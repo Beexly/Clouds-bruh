@@ -213,6 +213,49 @@ async function run() {
     assert(typeof d.reply === 'string' && d.reply.length > 0, 'empty shepherd reply');
   });
 
+  // ── Commerce money path: browse → cart → address → ship → pay → ORDER ─────
+  await check('POST /store/carts → complete — full checkout places an order (test mode)', async () => {
+    const { regions } = await get('/store/regions');
+    const region = regions.find((r: any) => r.currency_code === 'usd') ?? regions[0];
+    assert(region?.id, 'no region');
+
+    const cat = await get(`/store/products?limit=1&region_id=${region.id}&fields=id,*variants,*variants.calculated_price`);
+    const variantId = cat.products?.[0]?.variants?.[0]?.id;
+    assert(variantId, 'no purchasable variant in catalog');
+
+    const post = (path: string, body?: any) =>
+      fetch(`${API}${path}`, { method: 'POST', headers, body: body ? JSON.stringify(body) : undefined });
+
+    let res = await post('/store/carts', { region_id: region.id, items: [{ variant_id: variantId, quantity: 1 }] });
+    assert(res.ok, `create cart failed: ${res.status}`);
+    const cartId = (await res.json()).cart?.id;
+    assert(cartId, 'no cart id');
+
+    res = await post(`/store/carts/${cartId}`, {
+      email: 'buyer@alterxiv.test',
+      shipping_address: { first_name: 'Altar', last_name: 'Buyer', address_1: '1 Broadcast Way', city: 'New York', country_code: 'us', province: 'NY', postal_code: '10001' },
+    });
+    assert(res.ok, `set email/address failed: ${res.status}`);
+
+    const so = await get(`/store/shipping-options?cart_id=${cartId}`);
+    assert(Array.isArray(so.shipping_options) && so.shipping_options.length > 0, 'no shipping options (service zone / fulfillment misconfigured)');
+    res = await post(`/store/carts/${cartId}/shipping-methods`, { option_id: so.shipping_options[0].id });
+    assert(res.ok, `add shipping method failed: ${res.status}`);
+
+    res = await post('/store/payment-collections', { cart_id: cartId });
+    assert(res.ok, `create payment collection failed: ${res.status}`);
+    const pcId = (await res.json()).payment_collection?.id;
+    assert(pcId, 'no payment collection id');
+
+    res = await post(`/store/payment-collections/${pcId}/payment-sessions`, { provider_id: 'pp_system_default' });
+    assert(res.ok, `init payment session failed: ${res.status}`);
+
+    res = await post(`/store/carts/${cartId}/complete`);
+    assert(res.ok, `complete cart HTTP ${res.status}`);
+    const out = await res.json();
+    assert(out.type === 'order' && out.order?.id, `expected an order, got type=${out.type} ${JSON.stringify(out.error ?? '')}`);
+  });
+
   console.log(`\nResults: ${passed} passed, ${failed} failed\n`);
   if (failed > 0) process.exit(1);
 }

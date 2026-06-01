@@ -109,11 +109,11 @@ if port_up "$PORT"; then ok "Backend already running on :$PORT"; else
 fi
 
 # ── 5. API regression ────────────────────────────────────────────────────────
-say "Running the 21 API regressions"
+say "Running the 23 API regressions"
 cd "$ROOT"
 if MEDUSA_BACKEND_URL="http://localhost:$PORT" PUBLISHABLE_KEY="$PUBLISHABLE_KEY" npx tsx scripts/api-regression.ts; then
   ok "API regression GREEN"
-  echo; ok "verify:api PASSED — infra → migrate → seed → boot → 21 regressions all green."
+  echo; ok "verify:api PASSED — infra → migrate → seed → boot → 23 regressions all green."
 else
   die "API regression failed"
 fi
