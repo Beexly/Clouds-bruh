@@ -22,6 +22,18 @@ const RAIL_LABELS: Record<string, string> = {
   live_drops: 'Live Drops',
 };
 
+// Legible intelligence — each rail says *why* it surfaced for you. These describe the strategy
+// honestly (no fabricated per-item claims): the Broadcast explaining its own reasoning.
+const RAIL_REASONS: Record<string, string> = {
+  your_chapters: 'From the chapter you follow',
+  for_you: 'Tuned to your taste',
+  trending_in_chapter: 'Rising across the Broadcast',
+  complete_the_set: 'Completes what you’re building',
+  because_you_viewed: 'From what you just viewed',
+  graph_rec: 'Often kept together',
+  new_in_signal: 'Newly arrived',
+};
+
 interface Props {
   blockName: string;
   products: any[];
@@ -42,25 +54,32 @@ export function ProductRail({ blockName, products }: Props) {
   return (
     <section className="px-6 py-14">
       <div className="mx-auto max-w-7xl">
-        {/* cinematic rail header — editorial serif title + a corona rule that sweeps in */}
-        <div className="mb-8 flex items-end gap-5">
-          <h2 className="font-serif text-2xl italic leading-none text-firstlight md:text-3xl">
-            {RAIL_LABELS[blockName] ?? blockName}
-          </h2>
-          <span className="relative mb-1.5 h-px flex-1 overflow-hidden bg-white/10">
-            {!reduce && (
-              <motion.span
-                className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-corona/70 to-transparent"
-                initial={{ x: '-120%' }}
-                whileInView={{ x: '420%' }}
-                viewport={{ once: true }}
-                transition={{ duration: 1.6, delay: 0.2, ease: EASE }}
-              />
-            )}
-          </span>
-          <span className="mb-1 hidden text-micro uppercase tracking-[0.3em] text-neutral-600 sm:inline">
-            {String(products.length).padStart(2, '0')}
-          </span>
+        {/* cinematic rail header — editorial serif title, a legible "why", + a corona rule that sweeps in */}
+        <div className="mb-8">
+          <div className="flex items-end gap-5">
+            <h2 className="font-serif text-2xl italic leading-none text-firstlight md:text-3xl">
+              {RAIL_LABELS[blockName] ?? blockName}
+            </h2>
+            <span className="relative mb-1.5 h-px flex-1 overflow-hidden bg-white/10">
+              {!reduce && (
+                <motion.span
+                  className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-corona/70 to-transparent"
+                  initial={{ x: '-120%' }}
+                  whileInView={{ x: '420%' }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 1.6, delay: 0.2, ease: EASE }}
+                />
+              )}
+            </span>
+            <span className="mb-1 hidden text-micro uppercase tracking-[0.3em] text-neutral-600 sm:inline">
+              {String(products.length).padStart(2, '0')}
+            </span>
+          </div>
+          {RAIL_REASONS[blockName] && (
+            <p className="mt-2 text-micro uppercase tracking-[0.3em] text-neutral-600">
+              {RAIL_REASONS[blockName]}
+            </p>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 md:grid-cols-4">
