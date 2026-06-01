@@ -1,5 +1,5 @@
 # Lumera — BUILD PROGRESS
-**Overall:** ~98% (MASTER_PLAN complete; now beyond it)  ·  **Updated:** 2026-06-01
+**Overall:** ~98% (MASTER_PLAN complete; brand v2 shipped)  ·  **Launch readiness:** ~92% — remainder is founder ops, not code  ·  **Updated:** 2026-06-01
 **Bar:** the best overall website of 2026. **Constraint:** a company of one — it runs itself.
 
 > **Naming decision (2026-06-01):** the platform/marketplace is branded **Lumera**. Internal codename
@@ -10,8 +10,29 @@
 > hero, header, Shepherd) now resolve through one constant, `apps/storefront/src/lib/brand.ts`; the
 > intelligence agents' brand name was swept too. **Taxonomy confirmed horizontal** — products carry their
 > own categories from the seed; the five "chapters" are a cross-category curation overlay, not an
-> apparel lock. **Follow-up (not done, founder voice call):** generalize the 10 agent *voices* (some still
-> read faith/drop-house) to Lumera's general-marketplace voice when agents go live.
+> apparel lock. **Follow-up — done:** the agent *voices* and all user-facing storefront copy are now
+> generalized to Lumera's voice (see the Brand Guidelines v2 note below).
+
+> **Brand Guidelines v2 — implemented (2026-06-01):** the evidence-tagged brand book is now in code
+> (`docs/BRAND_GUIDELINES.md`, cross-linked from `BRAND.md`). **Palette:** desaturated/status-optimal —
+> Eclipse `#0B0B0D` · Corona `#E9D8A6` · First Light `#F4EEDD` · Signal `#6E5BD6` · Umbra `#54545A`
+> (Zhou et al. 2025: lower saturation → higher perceived luxury). **Wordmark:** lowercase grotesque,
+> eased ~0.1em tracking, medium weight, flat Corona — no gradients on type (glance-legibility, NN/g 2020).
+> **Favicon:** corona-ring mark replacing the old "XIV" text. **Voice (§9):** chapter subtitles relit off
+> scripture; checkout/error/product/command-palette copy neutralized; the concierge renamed **the Shepherd
+> → Polaris** (a guiding star in The Constellation) across the storefront, the `/store/shepherd` system
+> prompt, and the intelligence agent. **Prototypicality (§0 [DATA]):** added a visible header **Search**.
+> Chapters unchanged (slugs/routes/colors/personalization keys) — only display copy relit. All verified
+> (storefront + backend + intelligence tsc & tests) and pushed to `deploy/medusa-cloud`.
+
+> **Launch readiness — ~92% to public launch; engineering effectively complete.** Build is green and
+> live on Medusa Cloud (backend Ready/Active, storefront Live); the money path (checkout→order) and the
+> full API regression are verified against real Postgres+pgvector+Redis; security is fail-closed in prod;
+> the brand is shipped. The remaining ~8% is **founder operations, not code:** set Cloud env/secrets
+> (JWT/COOKIE/CORS, publishable key, `COCKPIT_KEY`); seed the Cloud catalog + enable pgvector; add
+> `ANTHROPIC_API_KEY` (flips Polaris + agents from mock → live); take Stripe live (currently test-mode);
+> wire a custom domain + `NEXT_PUBLIC_SITE_URL`; connect transactional email; run a hosted Lighthouse
+> pass. See "Needs founder" below and `CODEX_HANDOFF.md`.
 
 ## Status
 - ✅ MASTER_PLAN phases 0–11 effectively complete and verified.
