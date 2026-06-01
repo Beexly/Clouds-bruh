@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { LegalDoc, Section } from '../../../components/LegalDoc';
-import { BRAND } from '../../../lib/brand';
+import { BRAND, LEGAL_ENTITY } from '../../../lib/brand';
 
 export const metadata: Metadata = { title: 'Privacy Policy' };
 
@@ -8,7 +8,7 @@ export default function PrivacyPage() {
   return (
     <LegalDoc title="Privacy Policy" updated="[date]">
       <p>
-        This policy explains how {BRAND} (operated by [Company legal name], &quot;we&quot;) collects, uses, and
+        This policy explains how {BRAND} (operated by {LEGAL_ENTITY}, &quot;we&quot;) collects, uses, and
         protects your information when you use the Broadcast and make purchases.
       </p>
       <Section title="Information we collect">
@@ -45,7 +45,7 @@ export default function PrivacyPage() {
         </p>
       </Section>
       <Section title="Contact">
-        <p>[privacy@lumera.example] · [Company legal name, registered address].</p>
+        <p>[privacy@lumera.example] · {LEGAL_ENTITY} [registered address].</p>
       </Section>
     </LegalDoc>
   );

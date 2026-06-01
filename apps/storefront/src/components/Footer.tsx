@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { BRAND, EXPERIENCE } from '../lib/brand';
+import { BRAND, EXPERIENCE, PARENT, LEGAL_ENTITY } from '../lib/brand';
 
 const CHAPTERS = ['stillness', 'armor', 'signal', 'altar', 'relentless'] as const;
 
@@ -10,7 +10,7 @@ export function Footer() {
       <div className="mx-auto grid max-w-7xl gap-8 px-6 py-12 md:grid-cols-4">
         <div>
           <div className="font-sans text-xl font-medium lowercase tracking-[0.1em] text-foil">{BRAND}</div>
-          <p className="mt-2 text-micro uppercase text-neutral-600">{EXPERIENCE} · a Galaxy company</p>
+          <p className="mt-2 text-micro uppercase text-neutral-600">{EXPERIENCE} · a {PARENT} company</p>
         </div>
         <nav className="space-y-2 text-sm text-neutral-400">
           <div className="text-micro uppercase text-neutral-600">Shop</div>
@@ -31,7 +31,7 @@ export function Footer() {
         </div>
       </div>
       <div className="border-t border-white/[0.04] px-6 py-5 text-center text-micro uppercase text-neutral-700">
-        © {new Date().getFullYear()} {BRAND}. All rights reserved.
+        © {new Date().getFullYear()} {BRAND} · owned and operated by {LEGAL_ENTITY}. All rights reserved.
       </div>
     </footer>
   );

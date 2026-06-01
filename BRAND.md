@@ -17,6 +17,14 @@
 | **Orbit** | the creator program | makers who circle Lumera |
 | **ALTER** | a house label that sells on Lumera | one brand among many — *not* the platform |
 
+## Parent & attribution
+- **Brand-facing:** Lumera is endorsed as **"a Galaxy company"** — small, never competing (footer, micro · uppercase · muted).
+- **Legal:** the legal entity is **Galaxy Network**; legal copy reads **"Lumera is owned and operated by Galaxy Network"** (Terms + the footer copyright bar).
+- **Source of truth:** `apps/storefront/src/lib/brand.ts` → `PARENT` (`Galaxy`) and `LEGAL_ENTITY` (`Galaxy Network`). Don't hardcode the parent name anywhere else.
+
+## Provenance (the anti-mixing rule)
+Only **The Constellation**, conducted by the **Operator**, authors into this repo. Anything signed **"Eclipse · Galaxy Network"** is **not** a Lumera agent — in Lumera, *Eclipse* is the base palette color (`#0B0B0D`), and **Galaxy / Sports is a firewalled separate project** (`ALTER_TEMPORARY_HANDOFF_FOR_CHATGPT.md`: *"never import"*). Galaxy-lane artifacts — issues, branches, product candidates — do **not** belong in the Lumera repo; route product intake through **Curator**, human-approved (`docs/ARCHITECTURE.md` §3.4 / §5).
+
 ## The vocabulary (what people see)
 | Concept | Lumera word | Was (Alter XIV) | Note |
 |---|---|---|---|

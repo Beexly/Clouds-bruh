@@ -13,6 +13,13 @@ export const DESCRIPTION =
 export const MOTTO = 'Some things only happen once.';
 
 /**
+ * Corporate parent. The brand-facing endorsement is small and never competes: "a Galaxy company".
+ * "Galaxy Network" is the legal entity, used only in legal copy. See BRAND.md → Parent & attribution.
+ */
+export const PARENT = 'Galaxy';
+export const LEGAL_ENTITY = 'Galaxy Network';
+
+/**
  * The Lumera lexicon — light + celestial, faint cousins of the Galaxy ecosystem.
  * This is the DISPLAY layer. Internal data keys are unchanged (see BRAND.md):
  *   Lumens  ← credits · Luminance ← rewards · Ember/Luminary ← tiers disciple/patron
