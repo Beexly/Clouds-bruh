@@ -11,7 +11,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 /**
- * Alter XIV commerce core. Standard Medusa modules + our four custom intelligence modules.
+ * Lumera commerce core (internal codename Alter XIV). Standard Medusa modules + our four custom intelligence modules.
  * The custom modules are the nervous system; Medusa's built-ins are the skeleton.
  */
 export default defineConfig({

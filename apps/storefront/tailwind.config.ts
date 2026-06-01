@@ -1,8 +1,8 @@
 import type { Config } from 'tailwindcss';
 
 /**
- * ALTER XIV design system — "dark luminous editorial luxury."
- * Tokens, not one-off classes: a single scale for color, type, space, motion.
+ * Lumera design system — desaturated, status-optimal "dark luminous editorial luxury."
+ * Tokens, not one-off classes: a single scale for color, type, space, motion. See docs/BRAND_GUIDELINES.md.
  */
 const config: Config = {
   content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
