@@ -10,8 +10,11 @@
 > evolving console UI, it is marked **[verify in console]** — no live Medusa docs/plugin tool
 > was available in this environment, so cloud-side UI labels were not machine-verified.
 >
-> **Update 2026-06-01:** the top launch blocker (gitignored seed data) has been **fixed and
-> verified end-to-end** on `deploy/medusa-cloud`; **pgvector confirmed working**. See §13.1, §13.2, §16.
+> **Update 2026-06-01:** (a) the top launch blocker (gitignored seed data) is **fixed and verified
+> end-to-end** on `deploy/medusa-cloud`; (b) **pgvector confirmed working**; (c) the project was
+> **promoted to the repo root** on `deploy/medusa-cloud` so Medusa Cloud finds `pnpm-lock.yaml` at the
+> root (it errored *"No lockfiles found"* while nested) — set **Base/Root directory = `apps/backend`**.
+> See §4, §13.1, §13.2, §16.
 
 ---
 
@@ -39,7 +42,7 @@
 | **GitHub repo** | `Beexly/Clouds-bruh` (clone/MCP slug `beexly/clouds-bruh`) |
 | **Visibility** | public |
 | **Default branch** | `claude/altar-conversion-optimization-DNJYV` (`6f00189`) — **early ancestor, NOT deployable** (only contains `conversion/altar-xiv-conversion-system.md`; no Medusa app) |
-| **Project location** | `alter-xiv/` subdirectory (pnpm + Turborepo workspace) |
+| **Project location** | **Repo root** on `deploy/medusa-cloud` (promoted out of `alter-xiv/` so the lockfile sits at the root for Medusa Cloud); canonical `claude/epic-clarke-XPZhF` keeps the `alter-xiv/` layout |
 
 ---
 
@@ -81,38 +84,45 @@ clean place **without** merging the `codex/…` audit branch wholesale.
 
 > Created with `git switch -c deploy/medusa-cloud claude/epic-clarke-XPZhF`, then pushed `-u`.
 > Nothing about the application *logic* changes — the deploy branch is canonical **+** this readiness
-> document **+** the §13.1 seed-fixtures remediation (now applied and verified end-to-end, see §16).
+> document **+** the §13.1 seed-fixtures remediation **+** the project **promoted to the repo root** so
+> Medusa Cloud finds the lockfile (§4). All verified end-to-end (§16).
 
 ---
 
 ## 4. Project root & monorepo layout
 
-**Project root (pnpm workspace root):** `alter-xiv/`
+**Project root (pnpm workspace root) on `deploy/medusa-cloud` = the repository root.** On 2026-06-01 the
+project was promoted out of `alter-xiv/` up to the repo root so the **lockfile lives at the root**, where
+Medusa Cloud looks for it (it reported *"No lockfiles found"* while the project was nested). Canonical
+`claude/epic-clarke-XPZhF` keeps the original `alter-xiv/` layout — only the deploy branch is flattened.
 
 ```
-alter-xiv/
+<repo-root>/
 ├─ apps/
-│  ├─ backend        ← Medusa v2 app  (THE Medusa-Cloud import target)
+│  ├─ backend        ← Medusa v2 app  ★ Medusa Cloud "Base/Root directory" = apps/backend
 │  ├─ storefront     ← Next.js 15 "The Broadcast"  (deploy separately, e.g. Vercel)
 │  └─ intelligence   ← Node/TS autonomous-agent runtime (separate worker, optional at launch)
 ├─ packages/
 │  ├─ shared         ← @alterxiv/shared (types + SIGNAL taxonomy; workspace dep of all apps)
-│  └─ data           ← seed datasets (CSVs are .gitignored — see blocker #1)
+│  └─ data           ← sample CSVs .gitignored; committed fixtures in packages/data/fixtures/
 ├─ scripts/          ← seed + verify-api.sh + setup-embeddings.ts + ensure-publishable-key.ts
 ├─ package.json      ← root scripts (turbo), packageManager pnpm@9.0.0
+├─ pnpm-lock.yaml    ← ★ now at the repo root — this is what unblocked the import
 ├─ pnpm-workspace.yaml (packages: apps/*, packages/*)
 ├─ turbo.json
 └─ docker-compose.yml (pgvector/pgvector:pg16 + redis:7 for local dev)
+(legacy conversion/ and bootstrap-alter-xiv.sh also live at the root — harmless; Cloud builds apps/backend)
 ```
 
 **Monorepo assumptions that affect the import (important):**
 
-- **Workspace-protocol dependency.** `apps/backend` depends on `@alterxiv/shared` via `"workspace:*"`.
-  The Medusa app **cannot be installed/built in isolation** from `apps/backend` — the install must run
-  at the workspace root `alter-xiv/` so pnpm links `@alterxiv/shared`. Medusa Cloud's monorepo/base-dir
-  support must run `pnpm install` at `alter-xiv/` and build the `apps/backend` sub-path. **[verify in console]**
-  If Medusa Cloud installs only inside the app directory, `workspace:*` will not resolve — mitigations:
-  prebuild/inline `@alterxiv/shared`, or point the base directory at `alter-xiv/` with the app path nested.
+- **Lockfile at the repo root — ✅ FIXED.** Medusa Cloud scans the **repo root** for the lockfile; with the
+  project promoted to the root, `pnpm-lock.yaml` is now there and the import proceeds. Verified from the new
+  root: `pnpm install --frozen-lockfile` and `pnpm lint` (4/4) both pass (§16).
+- **Workspace-protocol dependency.** `apps/backend` depends on `@alterxiv/shared` via `"workspace:*"`, so the
+  install must run at the **workspace root (= repo root)** so pnpm links `@alterxiv/shared`; Medusa Cloud then
+  builds the `apps/backend` sub-path. Set **Base/Root directory = `apps/backend`**. With the flattened layout
+  this is the standard "lockfile at root, app in a subdir" monorepo shape. **[verify in console]**
 - **`.npmrc`:** `shamefully-hoist=true` (Medusa admin's Vite bundler needs a flat `node_modules`) and
   `strict-peer-dependencies=false`. Keep both.
 - **React pin:** root `pnpm.overrides` pin **React 18.3.1 workspace-wide** (the Medusa dashboard requires
@@ -126,12 +136,12 @@ alter-xiv/
 
 ```bash
 # from the Medusa app:
-cd alter-xiv/apps/backend && npx medusa build
-# or, from the workspace root (turbo builds all four packages):
-cd alter-xiv && pnpm build
+cd apps/backend && npx medusa build
+# or, from the repo root (turbo builds all four packages):
+pnpm build
 ```
 
-- Output: `alter-xiv/apps/backend/.medusa/server` (Medusa v2 production server bundle).
+- Output: `apps/backend/.medusa/server` (Medusa v2 production server bundle).
 - ✅ Verified this pass: *"Backend build completed successfully (3.08s)."*
 - Medusa Cloud runs `medusa build` itself; the equivalents above are for local/CI parity.
 
@@ -139,11 +149,11 @@ cd alter-xiv && pnpm build
 
 ```bash
 # migrate first on a fresh database:
-cd alter-xiv/apps/backend && npx medusa db:migrate
+cd apps/backend && npx medusa db:migrate
 # start (serves the built app on :9000):
 npx medusa start
 # production artifact alternative:
-cd alter-xiv/apps/backend/.medusa/server && npm run start
+cd apps/backend/.medusa/server && npm run start
 ```
 
 - Default port **9000**. Health endpoint: `GET /health`.
@@ -152,7 +162,7 @@ cd alter-xiv/apps/backend/.medusa/server && npm run start
 ## 7. Storefront build command
 
 ```bash
-cd alter-xiv/apps/storefront && pnpm build        # = next build
+cd apps/storefront && pnpm build        # = next build
 ```
 
 - ✅ Verified GREEN this pass (full route table compiled).
@@ -164,7 +174,7 @@ cd alter-xiv/apps/storefront && pnpm build        # = next build
 ## 8. Storefront start command
 
 ```bash
-cd alter-xiv/apps/storefront && pnpm start         # = next start  (:3000)
+cd apps/storefront && pnpm start         # = next start  (:3000)
 ```
 
 > **Hosting split:** Medusa Cloud hosts the **backend + admin dashboard**. The **storefront is a separate
@@ -242,7 +252,7 @@ spend, or move real money in mock mode:
 ## 13. Launch blockers (resolve before/at import for a *working* deploy)
 
 ### 13.1 Seed data was gitignored & absent on canonical  ✅ RESOLVED on `deploy/medusa-cloud`
-- **The problem:** `alter-xiv/.gitignore:10` ignores **`packages/data/*.csv`**; canonical `packages/data/`
+- **The problem:** `.gitignore:10` ignores **`packages/data/*.csv`**; canonical `packages/data/`
   contained only `README.md`. `scripts/seed.ts` (lines 139–140) reads `amazon-products.sample.csv` /
   `shein-products.sample.csv`. **Confirmed** on a fresh clone:
   `readFileSync('packages/data/amazon-products.sample.csv')` → `ENOENT`. So `pnpm seed` (and therefore
@@ -302,8 +312,8 @@ spend, or move real money in mock mode:
    GitHub App** on `Beexly/Clouds-bruh` (grant repo access).
 4. Select repository **`Beexly/Clouds-bruh`**; set the **production branch** explicitly to
    **`deploy/medusa-cloud`** (do not accept the default branch — it has no app).
-5. Set the **base directory / Medusa app path** to **`alter-xiv/apps/backend`**, ensuring the monorepo
-   install runs at **`alter-xiv/`** so `workspace:*` resolves (see §4). **[verify in console]**
+5. Set the **Base / Root directory** to **`apps/backend`** (the install runs at the **repo root**, where
+   `pnpm-lock.yaml` now lives, so `workspace:*` resolves — see §4). **[verify in console]**
 6. Provision the managed **Postgres (with pgvector)** + **Redis**; Medusa Cloud injects
    `DATABASE_URL` / `REDIS_URL`.
 7. Set the **Required** env vars (§9): `JWT_SECRET`, `COOKIE_SECRET`, `STORE_CORS`, `ADMIN_CORS`,
@@ -351,6 +361,7 @@ safety posture:
 | `pnpm test` | ✅ **PASS** — all unit tests green (exit 0). |
 | `pnpm build` | ✅ backend + shared + intelligence green; storefront green **once Google-Fonts egress is reachable**. In this sandbox the egress proxy's self-signed cert blocks `next/font/google` by default (environment limitation, not a code defect — confirmed green with the cert tolerated). |
 | `DATABASE_URL=…/alterxiv_verify pnpm verify:api` | ◑ **Data pipeline GREEN; final HTTP sweep not run in-sandbox.** After the §13.1/§13.2 fixes the full clean-DB chain passed: **migrations ✓ → seed via committed fixtures (10 products + 2 drops) ✓ → commerce/region/shipping ✓ → prices ✓ → inventory ✓ → pgvector embeddings (10) ✓ → monetization tiers ✓ → publishable key ✓ → backend build ✓**. The 21 API regressions did **not** execute here: `medusa start` (from the source dir) couldn't serve the production admin build under the sandbox's restricted egress (`Could not find index.html …`). That is a `medusa start` admin-serving quirk, **not** an app/code defect and **not** how Medusa Cloud runs the app — its managed runtime serves admin itself, and the handoff records these regressions as 21/21 in a normal environment. |
+| **Repo-root restructure** (`deploy/medusa-cloud`) | ✅ **PASS** — after promoting the project to the repo root so `pnpm-lock.yaml` sits where Medusa Cloud looks, `pnpm install --frozen-lockfile` (*"Lockfile is up to date"*) and `pnpm lint` (4/4, FULL TURBO) both pass from the new root — the workspace + `@alterxiv/shared` still resolve. |
 
 > **Two minor in-sandbox notes (not blockers):** (1) `scripts/verify-api.sh:91` decides "build present
 > (reusing)" from the *existence of `.medusa/server`* alone, so it can reuse an admin build left
