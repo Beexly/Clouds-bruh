@@ -17,17 +17,21 @@
 
 ## 🔴 BLOCKED — needs you / a verify-env / the logs
 
-### 1. GitHub Actions CI on PR #5 is red — but the Medusa Cloud deploy itself is ✅
-- My diff is **verified clean locally**: `pnpm install --frozen-lockfile` ✅, `pnpm lint` ✅,
-  `pnpm test` ✅ (56), `medusa build` ✅; Medusa Cloud builds backend + storefront ✅✅. So the red is
-  Actions-env / pre-existing, **not the diff**.
-- I can't pinpoint it from here: **no Actions-log tool in this environment, and no Docker** to run
-  `verify:api` (needs Postgres + pgvector + Redis). `verify:api` ran *further* after the shared-build
-  fix (19s→24s) then failed deeper (migrate/seed/boot).
-- **NEEDED (you or Codex):** paste the failing Actions logs (green-gates + verify:api) **or** confirm
-  whether `deploy/medusa-cloud` CI is also red (→ pre-existing) **or** run `verify:api` where Docker exists.
-- Note: Medusa Cloud deploys independently of Actions and is green — PR #5's deploy fix is functionally
-  ready regardless of the Actions gate.
+### 1. GitHub Actions CI on PR #5 — green-gates ✅ FIXED; verify:api ❌ (lone remaining gate)
+- **Root cause of both jobs was `pnpm/action-setup@v4`**: it errors when a `version:` input AND
+  package.json `packageManager` are both set ("Multiple versions of pnpm specified"). Removed the
+  redundant `version: 9` → **green-gates is now GREEN** (lint/test/build pass). Pre-existing config
+  bug, not my diff. Confirmed from the public Actions log (WebFetch reads annotations).
+- **`verify:api` now runs** the full ~100s (past pnpm-setup + the shared build + pgvector — note
+  `CREATE EXTENSION` IS handled in `setup-embeddings.ts:23`) and fails at a later step I **can't see**:
+  WebFetch only returns annotations, not step stdout, and there's no Docker here to reproduce. Added an
+  `if: failure()` step to the CI job to dump the otherwise-discarded `/tmp/alterxiv-verify-*.log` so the
+  **next run surfaces the real error in the Actions UI**.
+- **NEEDED:** read the `verify:api` step output on the next run (now self-dumping), **or** run
+  `verify:api` where Docker exists. Likely suspects: backend boot timeout (60s), a seed step, or one of
+  the 22 regression assertions. (My diff doesn't touch backend/seed/regression code.)
+- Note: Medusa Cloud deploys independently of Actions and is ✅✅ — PR #5's deploy fix is functionally
+  ready regardless of this gate.
 
 ### 2. P0 — money routes are unauthenticated (pre-launch blocker)
 - `/store/monetization/{subscribe,credits,wallet,gift-cards,entitlements}` take `customer_id` from the

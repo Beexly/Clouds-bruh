@@ -73,3 +73,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: verify:api
         run: pnpm verify:api
+      - name: Surface verify logs on failure
+        if: failure()
+        run: |
+          echo "===== migrate log (tail) ====="; tail -n 120 /tmp/alterxiv-verify-migrate.log 2>/dev/null || echo "(none)"
+          echo "===== backend boot log (tail) ====="; tail -n 200 /tmp/alterxiv-verify-backend.log 2>/dev/null || echo "(none)"
