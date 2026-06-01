@@ -1,5 +1,5 @@
 /**
- * Alter XIV — LAUNCH PREFLIGHT
+ * Lumera — LAUNCH PREFLIGHT
  *
  * A live go/no-go check against the actual deployment: env + database state.
  * Prints a checklist and a launch-readiness percentage.
@@ -72,6 +72,10 @@ async function main() {
   checks.push({ group: 'recommended', label: 'COCKPIT_KEY — required in prod to view cockpit/analyst', state: env('COCKPIT_KEY') === 'pass' ? 'pass' : 'warn' });
   const s3 = process.env.S3_FILE_URL && process.env.S3_ACCESS_KEY_ID && process.env.S3_SECRET_ACCESS_KEY;
   checks.push({ group: 'recommended', label: 'S3/object storage — durable media', state: s3 ? 'pass' : 'warn' });
+  const email =
+    process.env.NOTIFICATION_EMAIL_FROM &&
+    (process.env.RESEND_API_KEY || process.env.SENDGRID_API_KEY || process.env.NOTIFICATION_PROVIDER);
+  checks.push({ group: 'recommended', label: 'Transactional email — order confirmations', state: email ? 'pass' : 'warn' });
 
   await pool?.end().catch(() => {});
 
@@ -85,7 +89,7 @@ async function main() {
   const allBlockers = bPass === blockers.length;
 
   const line = '─'.repeat(56);
-  console.log(`\n  ALTER XIV — LAUNCH PREFLIGHT`);
+  console.log(`\n  LUMERA — LAUNCH PREFLIGHT`);
   console.log(`  ${url ? url.replace(/\/\/[^@]*@/, '//***@') : '(no DATABASE_URL)'}`);
   console.log(line);
   console.log(`  BLOCKERS (must pass to take an order)`);
