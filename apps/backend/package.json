@@ -12,10 +12,10 @@
   "dependencies": {
     "@alterxiv/shared": "workspace:*",
     "@medusajs/admin-sdk": "^2.15.5",
-    "@medusajs/cli": "latest",
+    "@medusajs/cli": "2.15.5",
     "@medusajs/dashboard": "^2.15.5",
-    "@medusajs/framework": "latest",
-    "@medusajs/medusa": "latest",
+    "@medusajs/framework": "2.15.5",
+    "@medusajs/medusa": "2.15.5",
     "ioredis": "^5.11.0",
     "pg": "^8.13.0",
     "react": "^19.0.0",
