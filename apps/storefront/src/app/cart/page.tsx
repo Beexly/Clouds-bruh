@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useCart } from '../../context/cart';
 import { PageSignal } from '../../components/PageSignal';
 import { RewardsPanel } from '../../components/RewardsPanel';
@@ -28,7 +29,7 @@ export default function CartPage() {
               {items.map((item: any) => (
                 <div key={item.id} className="flex items-start gap-4 py-6">
                   {item.thumbnail && (
-                    <img src={item.thumbnail} alt={item.title} className="h-20 w-16 object-cover bg-neutral-950" />
+                    <Image src={item.thumbnail} alt={item.title} width={64} height={80} className="h-20 w-16 object-cover bg-neutral-950" />
                   )}
                   <div className="flex-1">
                     <h3 className="text-sm text-neutral-200">{item.title}</h3>

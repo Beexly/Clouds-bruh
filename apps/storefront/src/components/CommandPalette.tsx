@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { signal } from '../lib/signal';
@@ -144,7 +145,7 @@ export function CommandPalette() {
                         className="flex w-full items-center gap-3 rounded-sm px-2 py-2 text-left transition hover:bg-white/[0.04]"
                       >
                         {p.thumbnail && (
-                          <img src={p.thumbnail} alt="" className="h-10 w-8 rounded-sm object-cover" />
+                          <Image src={p.thumbnail} alt="" width={32} height={40} className="h-10 w-8 rounded-sm object-cover" />
                         )}
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-sm text-neutral-200">{p.title}</span>
