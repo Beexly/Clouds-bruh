@@ -10,6 +10,15 @@ function pool() {
 }
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
+  // Internal BI surface (margins, demand/churn forecasts) — fail CLOSED in production. Open in dev.
+  const opsKey = process.env.COCKPIT_KEY;
+  const opsProvided = (req.query.key as string) || (req.headers['x-cockpit-key'] as string);
+  if (opsKey) {
+    if (opsProvided !== opsKey) return res.status(401).json({ error: 'unauthorized' });
+  } else if (process.env.NODE_ENV === 'production') {
+    return res.status(401).json({ error: 'unauthorized — set COCKPIT_KEY to expose analytics' });
+  }
+
   const question = (req.query.q as string)?.trim();
   if (!question) {
     return res.status(400).json({ error: 'Missing ?q= parameter. Example: ?q=which+chapter+has+the+best+margin' });

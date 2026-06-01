@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 
 const API = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000';
 const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
+// Server-only secret (NOT NEXT_PUBLIC) — gates the internal ops endpoint in production.
+const COCKPIT_KEY = process.env.COCKPIT_KEY || '';
 
 export const metadata: Metadata = { title: 'The Cockpit', robots: { index: false, follow: false } };
 
@@ -9,7 +11,7 @@ async function fetchCockpit() {
   try {
     const res = await fetch(`${API}/store/cockpit`, {
       cache: 'no-store',
-      headers: { 'x-publishable-api-key': PK },
+      headers: { 'x-publishable-api-key': PK, ...(COCKPIT_KEY ? { 'x-cockpit-key': COCKPIT_KEY } : {}) },
     });
     if (!res.ok) return null;
     return res.json();

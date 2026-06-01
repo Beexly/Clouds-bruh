@@ -94,15 +94,13 @@ MEDUSA_BACKEND_URL=https://<your-backend-url> PUBLISHABLE_KEY=<pk_…> pnpm test
 - ✅ **Analyst text-to-SQL is safe.** `/store/analyst` does **not** build SQL from user input — `matchQuery`
   selects from a fixed allowlist of predefined queries, executed inside a `BEGIN READ ONLY` transaction.
   No injection; writes are impossible. (Verified by reading `api/store/analyst/{route,bi}.ts`.)
-- ⚠️ **Internal endpoints are reachable on the public store API.** `/store/cockpit` (ops snapshot: agent
-  runs, approvals, audits) is gated by `COCKPIT_KEY` **only when that var is set** — unset (current deploy)
-  it serves openly, and the storefront cockpit page sends only the *publishable* key. `/store/analyst`
-  (chapter margins, demand/churn forecasts) has **no gate**. Since the publishable key is public, both are
-  effectively world-readable.
-  **Before public launch:** put `/store/cockpit` and `/store/analyst` behind real auth (an admin session,
-  or a server-side-injected secret — *not* a `NEXT_PUBLIC_*` value), or restrict them to the founder. This
-  is an architecture choice (the cockpit page fetches client-side today), so it's **flagged for your call**
-  rather than changed unilaterally — gating them now would break your own `/cockpit` dashboard.
+- ✅ **Internal endpoints now gated (fail-closed in production).** `/store/cockpit` (ops snapshot) and
+  `/store/analyst` (margins, demand/churn forecasts) require **`COCKPIT_KEY`** in production (`?key=` or
+  `x-cockpit-key`); unset-in-prod → `401`, so they are no longer world-readable. The `/cockpit` page is a
+  server component and now sends the key **server-side** (`process.env.COCKPIT_KEY`, never a
+  `NEXT_PUBLIC_*` value). Dev stays open so the 23 regressions pass; `verify:api` confirmed 23/23.
+  **Action:** set `COCKPIT_KEY` on the **backend** *and* the **storefront** server env to view the cockpit
+  in production (`pnpm preflight` flags it).
 
 ## Guardrails (unchanged, permanent)
 No live keys committed · no autonomous money movement · Stripe test-only until founder go-live · escalation

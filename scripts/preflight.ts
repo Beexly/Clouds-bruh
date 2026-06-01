@@ -69,6 +69,7 @@ async function main() {
   checks.push({ group: 'blocker', label: 'ADMIN_CORS set', state: env('ADMIN_CORS') });
   checks.push({ group: 'recommended', label: 'REDIS_URL set — prod event bus', state: env('REDIS_URL') === 'pass' ? 'pass' : 'warn' });
   checks.push({ group: 'recommended', label: 'ANTHROPIC_API_KEY — agents live', state: env('ANTHROPIC_API_KEY') === 'pass' ? 'pass' : 'warn' });
+  checks.push({ group: 'recommended', label: 'COCKPIT_KEY — required in prod to view cockpit/analyst', state: env('COCKPIT_KEY') === 'pass' ? 'pass' : 'warn' });
   const s3 = process.env.S3_FILE_URL && process.env.S3_ACCESS_KEY_ID && process.env.S3_SECRET_ACCESS_KEY;
   checks.push({ group: 'recommended', label: 'S3/object storage — durable media', state: s3 ? 'pass' : 'warn' });
 

@@ -29,10 +29,14 @@ async function q<T = any>(sql: string, params: any[] = []): Promise<T[]> {
  * open audits, and drop status. Gated by COCKPIT_KEY when set (?key= or x-cockpit-key).
  */
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
+  // Internal ops surface — fail CLOSED in production. Requires COCKPIT_KEY (?key= or x-cockpit-key).
+  // Open in non-production for local/dev convenience.
   const required = process.env.COCKPIT_KEY;
+  const provided = (req.query.key as string) || (req.headers['x-cockpit-key'] as string);
   if (required) {
-    const provided = (req.query.key as string) || (req.headers['x-cockpit-key'] as string);
     if (provided !== required) return res.status(401).json({ error: 'unauthorized' });
+  } else if (process.env.NODE_ENV === 'production') {
+    return res.status(401).json({ error: 'unauthorized — set COCKPIT_KEY to expose the cockpit' });
   }
 
   try {
