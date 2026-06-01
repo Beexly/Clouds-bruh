@@ -90,6 +90,20 @@ MEDUSA_BACKEND_URL=https://<your-backend-url> PUBLISHABLE_KEY=<pk_…> pnpm test
 
 ---
 
+## Security notes (pre-launch audit, this pass)
+- ✅ **Analyst text-to-SQL is safe.** `/store/analyst` does **not** build SQL from user input — `matchQuery`
+  selects from a fixed allowlist of predefined queries, executed inside a `BEGIN READ ONLY` transaction.
+  No injection; writes are impossible. (Verified by reading `api/store/analyst/{route,bi}.ts`.)
+- ⚠️ **Internal endpoints are reachable on the public store API.** `/store/cockpit` (ops snapshot: agent
+  runs, approvals, audits) is gated by `COCKPIT_KEY` **only when that var is set** — unset (current deploy)
+  it serves openly, and the storefront cockpit page sends only the *publishable* key. `/store/analyst`
+  (chapter margins, demand/churn forecasts) has **no gate**. Since the publishable key is public, both are
+  effectively world-readable.
+  **Before public launch:** put `/store/cockpit` and `/store/analyst` behind real auth (an admin session,
+  or a server-side-injected secret — *not* a `NEXT_PUBLIC_*` value), or restrict them to the founder. This
+  is an architecture choice (the cockpit page fetches client-side today), so it's **flagged for your call**
+  rather than changed unilaterally — gating them now would break your own `/cockpit` dashboard.
+
 ## Guardrails (unchanged, permanent)
 No live keys committed · no autonomous money movement · Stripe test-only until founder go-live · escalation
 gate intact (`apps/intelligence/src/orchestrator/run-agent.ts`) · brand integrity · verified-not-assumed.
