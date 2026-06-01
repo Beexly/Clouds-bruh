@@ -8,11 +8,11 @@ const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
 
 type Msg = { role: 'user' | 'assistant'; content: string };
 
-/** The Shepherd — conversational store. Advisory only; never checks out for you. */
+/** Polaris — the conversational guide (component + /store/shepherd route keep the internal codename). Advisory only; never checks out for you. */
 export function Shepherd() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([
-    { role: 'assistant', content: 'Be still. I am the Shepherd — ask me about a chapter, a drop, or what to wear into the week.' },
+    { role: 'assistant', content: 'I am Polaris — your guide through Lumera. Ask me about a chapter, a drop, or what to wear this week.' },
   ]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
@@ -37,7 +37,7 @@ export function Shepherd() {
         body: JSON.stringify({ messages: next.slice(-10) }),
       });
       const data = await res.json();
-      setMessages((m) => [...m, { role: 'assistant', content: data.reply ?? 'Be still — I will return shortly.' }]);
+      setMessages((m) => [...m, { role: 'assistant', content: data.reply ?? 'One moment — I will be right back.' }]);
     } catch {
       setMessages((m) => [...m, { role: 'assistant', content: 'The signal is faint. Try once more.' }]);
     } finally {
@@ -53,7 +53,7 @@ export function Shepherd() {
           setOpen((o) => !o);
           if (!open) signal('page_view', undefined, undefined, { surface: 'shepherd_open' });
         }}
-        aria-label="Speak with the Shepherd"
+        aria-label="Speak with Polaris"
         className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full border border-altar-gold/40 bg-obsidian/90 text-foil shadow-lg backdrop-blur transition-transform duration-300 hover:scale-105"
       >
         <span className="font-serif text-2xl leading-none">✦</span>
@@ -69,8 +69,8 @@ export function Shepherd() {
             className="fixed bottom-24 right-6 z-50 flex h-[28rem] w-[22rem] max-w-[calc(100vw-3rem)] flex-col overflow-hidden rounded-sm border border-white/10 bg-obsidian/95 backdrop-blur-xl"
           >
             <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-              <span className="text-label uppercase text-altar-goldlight">The Shepherd</span>
-              <button onClick={() => setOpen(false)} aria-label="Close the Shepherd" className="text-neutral-500 hover:text-neutral-200">✕</button>
+              <span className="text-label uppercase text-altar-goldlight">Polaris</span>
+              <button onClick={() => setOpen(false)} aria-label="Close Polaris" className="text-neutral-500 hover:text-neutral-200">✕</button>
             </div>
             <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
               {messages.map((m, i) => (
@@ -86,15 +86,15 @@ export function Shepherd() {
                   </span>
                 </div>
               ))}
-              {busy && <p className="text-micro uppercase text-neutral-600">the shepherd is listening…</p>}
+              {busy && <p className="text-micro uppercase text-neutral-600">Polaris is listening…</p>}
             </div>
             <div className="flex items-center gap-2 border-t border-white/10 p-3">
               <input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && send()}
-                placeholder="Ask the Shepherd…"
-                aria-label="Ask the Shepherd"
+                placeholder="Ask Polaris…"
+                aria-label="Ask Polaris"
                 className="flex-1 bg-transparent text-sm text-neutral-100 placeholder:text-neutral-600 focus:outline-none"
               />
               <button

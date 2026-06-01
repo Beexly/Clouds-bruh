@@ -9,8 +9,8 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-void px-6 text-center">
       <p className="text-micro uppercase text-neutral-600">Something broke</p>
-      <h1 className="mt-4 font-serif text-4xl text-neutral-100">Be still.</h1>
-      <p className="mt-3 text-sm text-neutral-500">The Broadcast faltered for a moment.</p>
+      <h1 className="mt-4 font-serif text-4xl text-neutral-100">Lights out.</h1>
+      <p className="mt-3 text-sm text-neutral-500">The Broadcast dropped for a moment.</p>
       <div className="mt-8 flex gap-4">
         <button
           onClick={reset}

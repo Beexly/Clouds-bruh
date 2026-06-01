@@ -151,7 +151,7 @@ export function CommandPalette() {
                       </button>
                     ))}
                     {!loading && q.trim() && results.length === 0 && (
-                      <p className="px-2 py-3 text-sm text-neutral-600">Nothing found. Be still.</p>
+                      <p className="px-2 py-3 text-sm text-neutral-600">Nothing found.</p>
                     )}
                   </div>
                 )}

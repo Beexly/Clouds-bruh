@@ -91,7 +91,6 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
   const price = priceCents(product);
   const priceLabel = priceStr(product);
   const variantId = product.variants?.[0]?.id;
-  const scripture = product.metadata?.scripture_ref;
   const rating = product.metadata?.rating;
   const reviews = product.metadata?.reviews_count;
   const earnUsd = price != null ? (price * 0.05) / 100 : 0;
@@ -170,7 +169,6 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
             {product.description && (
               <p className="mt-6 text-sm leading-relaxed text-neutral-400">{product.description}</p>
             )}
-            {scripture && <p className="mt-5 font-serif text-sm italic text-neutral-600">{scripture}</p>}
 
             <div className="mt-8">
               {variantId ? (
@@ -182,7 +180,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
 
             <div className="mt-8 space-y-2 border-t border-white/[0.06] pt-6 text-micro uppercase text-neutral-600">
               <p>Free standard shipping · drop-ship from the source</p>
-              <p>Cut true to size · be still, it is forged for you</p>
+              <p>Cut true to size · made for you</p>
             </div>
           </div>
         </div>

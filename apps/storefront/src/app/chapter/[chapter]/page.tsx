@@ -10,12 +10,12 @@ const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
 const CHAPTERS = ['stillness', 'armor', 'signal', 'altar', 'relentless'] as const;
 type Chapter = (typeof CHAPTERS)[number];
 
-const VERSE: Record<Chapter, string> = {
-  stillness: 'Be still, and know.',
-  armor: 'Put on the whole armor.',
-  signal: 'A voice in the wilderness.',
-  altar: 'Build here an altar.',
-  relentless: 'Press on toward the goal.',
+const CHAPTER_LINE: Record<Chapter, string> = {
+  stillness: 'Where the noise goes quiet.',
+  armor: 'Built to take the world.',
+  signal: 'Tuned to what comes next.',
+  altar: 'Made to be kept.',
+  relentless: "For the ones who don't stop.",
 };
 
 async function fetchChapterProducts(chapter: string) {
@@ -40,7 +40,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { chapter } = await params;
   const title = chapter.charAt(0).toUpperCase() + chapter.slice(1);
-  return { title, description: `The ${title} chapter — ${VERSE[chapter as Chapter] ?? ''}` };
+  return { title, description: `The ${title} chapter — ${CHAPTER_LINE[chapter as Chapter] ?? ''}` };
 }
 
 export default async function ChapterPage({ params }: { params: Promise<{ chapter: string }> }) {
@@ -57,14 +57,14 @@ export default async function ChapterPage({ params }: { params: Promise<{ chapte
           {chapter}
         </h1>
         <p className="mx-auto mt-5 max-w-md font-serif text-lg italic text-neutral-400">
-          {VERSE[chapter as Chapter]}
+          {CHAPTER_LINE[chapter as Chapter]}
         </p>
       </section>
       {products.length ? (
         <ProductRail blockName="trending_in_chapter" products={products} />
       ) : (
         <p className="pb-24 text-center text-micro uppercase text-neutral-600">
-          The altar is being prepared.
+          This chapter goes live soon.
         </p>
       )}
     </main>

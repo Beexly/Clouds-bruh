@@ -4,6 +4,9 @@
 > **light + celestial** — faint cousins of Galaxy, never heavy-handed. One coherent vocabulary, applied
 > to everything a person sees. (Internal code identifiers are intentionally *not* renamed — see the line
 > at the bottom.)
+>
+> **Visual + voice system:** see `docs/BRAND_GUIDELINES.md` (v2, evidence-tagged) — palette, wordmark,
+> motion, and voice, implemented in the storefront.
 
 ## The ecosystem
 | Term | Is | Root / why |
@@ -22,6 +25,7 @@
 | Loyalty levels (earned) | **Spark → Glow → Aurora → Zenith** | Seeker → Faithful → Anointed → Elect | ascending light, by lifetime Lumens |
 | Membership tiers (paid) | **Ember → Luminary** | Disciple → Patron | Luminary earns 2× Lumens |
 | The autonomous agent collective | **The Constellation** | CONGREGATION | ten agents = a field of stars; the **Operator** conducts them |
+| The conversational guide (concierge) | **Polaris** | the Shepherd | one guiding star in the Constellation; advisory only (component + `/store/shepherd` keep the codename) |
 | Curated collections | **Chapters** (Stillness · Armor · Signal · Altar · Relentless) | — | kept for now; a cross-category curation overlay, *not* an apparel lock. A future editorial pass may relight these. |
 
 ## Voice
@@ -40,5 +44,9 @@ these; renaming them would be cost with no brand value. The single display sourc
 - ✅ **Agent voices generalized** to Lumera's register (dark · luminous · editorial · spare). Faith/
   drop-house/scripture copy removed across the Constellation and the Shepherd; "sacred editorial" →
   "luminous editorial" throughout.
+- ✅ **Brand Guidelines v2 implemented** (`docs/BRAND_GUIDELINES.md`): desaturated palette
+  (Eclipse · Corona · First Light · Signal · Umbra), corona-ring favicon, lowercase grotesque
+  wordmark, flat foil. Remaining faith-coded storefront copy neutralized — chapter lines, the
+  checkout / error / product strings, and the concierge (**the Shepherd → Polaris**).
 - Optional (founder / editorial call): relight the five **Chapters** (Stillness · Armor · Signal · Altar ·
   Relentless) into a light/spectrum framing if you want the collection names fully on-lexicon too.

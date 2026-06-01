@@ -98,12 +98,11 @@ export default function CheckoutPage() {
       <main className="min-h-screen bg-black px-6 py-20 text-center">
         <h1 className="font-serif text-4xl text-neutral-100">Order Received</h1>
         <p className="mt-4 text-xs uppercase tracking-widest text-neutral-500">
-          Be still. The armor is being prepared.
+          We've got it. Your order is on its way.
         </p>
         {orderId && (
           <p className="mt-2 text-[10px] text-neutral-700 font-mono">{orderId}</p>
         )}
-        <p className="mt-2 text-[10px] text-neutral-700">Exodus 14:14</p>
         <a href="/" className="mt-10 block text-xs uppercase tracking-widest text-neutral-500 hover:text-neutral-300">
           ← Return to The Broadcast
         </a>
