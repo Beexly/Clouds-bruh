@@ -1,10 +1,10 @@
 # LUMERA — NORTH STAR (Vision v2)
 
-> ⚠️ **STATUS: DRAFT — not yet canonical (2026-06-01).** Committed to preserve work in an ephemeral
-> sandbox, **not** to declare it the source of truth. Still pending: (1) reconciliation with
-> `SPECIAL_ASSIGNMENT_AUDIT_HEAD_ca17ce3.md` — a prior audit that exists only in the founder's local
-> copy, not yet in any branch; (2) optional external/competitive benchmarking for the "best of 2026"
-> bar. Do not supersede `ARCHITECTURE.md` with this until reconciled.
+> ⚠️ **STATUS: DRAFT — prior audit reconciled; pending a lineage decision (2026-06-01).** The
+> founder's prior `AUDIT_HEAD` (Lane B, `epic-clarke@ca17ce3`) is now reconciled (§0.5): it's
+> **complementary, not contradictory** — these findings stand. **Blocking promotion to canonical:**
+> (1) the founder must choose the canonical branch lineage (§4 — two structurally-incompatible trees
+> exist); (2) optional external benchmarking. Do not supersede `ARCHITECTURE.md` until these resolve.
 
 > The path from *"deployed intelligent-commerce platform"* to **the best website of 2026** —
 > innovative, cutting-edge, breathtaking, first-of-its-kind. Grounded in a three-front code audit
@@ -20,6 +20,20 @@ the **scaffolding is genuinely production-grade**, but the **two marquee differe
 theater**, the **money layer is unsafe**, and the **experience is "very good editorial e-commerce,"
 not yet breathtaking.** So "best of 2026" is not *invent more* — it's **make it safe, make it true,
 make it felt, and execute craft to obsession.**
+
+## 0.5 Reconciliation with the prior audit (`AUDIT_HEAD`, 2026-05-31)
+The founder's prior audit ran on a **different lineage** (`claude/epic-clarke-XPZhF@ca17ce3` →
+`codex/verify-api-clean-checkout`) and is **complementary, not contradictory**:
+- It is a **build / operational-green** audit (install · build · 52 tests · lint · diff pass;
+  migration-hang fixed; `verify:api` was blocked only by missing seed CSVs → since fixed with
+  committed fixtures + a `*.sample.csv`→fixture fallback). It did **not** examine security, payments,
+  embedding-reality, or design.
+- My three-front audit is a **depth** audit at exactly those layers. They reinforce each other:
+  "52 tests pass / green" coexists with the critical money holes (§1) **precisely because** the tests
+  don't cover them (the "test honesty gap"). **Nothing here overturns §1 — the findings stand.**
+- It **adds** a prior roadmap, folded into the priorities below: **G06** ReviewProof + verified-purchase
+  gate · **G08** ExperimentPlan schema · **G09** wishlist persistence · **G10** OTel trace/event
+  taxonomy · **G13** Playwright/k6 gates · **G16** Radix/Zag interaction contract.
 
 ## 1. Honest scorecard — three independent audits (2026-06-01)
 | Layer | Verdict | The truth |
@@ -105,8 +119,16 @@ wired**) + personalization that *visibly* improves (requires P1).
   intelligence and not know. Add health signals.
 - **Test honesty gap.** Zero component / page / e2e tests; the headline "52 tests" are mostly
   lib + intelligence, **not** commerce-safety or rendering. Violates "verified, not assumed."
-- **Multi-agent sprawl.** The in-flight Codex repo reorg (everything → `alter-xiv/`) will collide
-  hard with feature branches. Sequence it deliberately. One source of truth — this doc.
+  Close it with **G13 (Playwright/k6 gates)** + **G10 (OTel trace/event taxonomy)**.
+- **🔴 Branch-lineage divergence — resolve before any further build.** Two structurally-incompatible
+  trees both claim to be the project. **Lane A** = `deploy/medusa-cloud` → this branch: flat layout
+  (`apps/ packages/ scripts/` at root), Lumera-branded, **what's actually deployed**, `verify-api.sh`
+  only. **Lane B** = `epic-clarke` → `codex/verify-api-clean-checkout`: **everything nested under
+  `alter-xiv/`**, the founder's local Codex lineage, adds the cross-platform `verify-api.ts` + fixtures
+  fallback + the `AUDIT_HEAD` roadmap. They share an ancestor but forked at the **directory-structure**
+  level — they **cannot be casually merged**. Choosing the canonical lane and porting the other's good
+  bits is the prerequisite to coherent progress. *(Verified by `git ls-tree`: Lane A root = `apps/…`;
+  Lane B root = `alter-xiv/`.)*
 - **Cold-start.** On a fresh deploy, `graph_rec` / `trending` fall back to `random()` — launch-day
   merchandising is random dressed as personalization until traffic + real embeddings land.
 
