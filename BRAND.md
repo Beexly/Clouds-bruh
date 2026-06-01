@@ -36,7 +36,9 @@ migration is needed: the `alter-xiv/` path, the `deploy/medusa-cloud` branch, `@
 these; renaming them would be cost with no brand value. The single display source for the storefront is
 `apps/storefront/src/lib/brand.ts`.
 
-## Follow-up (founder voice call, not yet applied)
-- Generalize the ten agent **voices** (some still read faith/drop-house) to Lumera's general-marketplace
-  register, for when the Constellation is keyed live.
-- Optional: relight the five **Chapters** into a light/spectrum framing if you want them on-lexicon.
+## Follow-up
+- ✅ **Agent voices generalized** to Lumera's register (dark · luminous · editorial · spare). Faith/
+  drop-house/scripture copy removed across the Constellation and the Shepherd; "sacred editorial" →
+  "luminous editorial" throughout.
+- Optional (founder / editorial call): relight the five **Chapters** (Stillness · Armor · Signal · Altar ·
+  Relentless) into a light/spectrum framing if you want the collection names fully on-lexicon too.

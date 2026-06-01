@@ -10,11 +10,11 @@ export const Artisan: AgentDef = {
   events: ['product.created'],
   escalation: ['publish_image', 'spend_generation', 'image_write'],
   selfAudit:
-    'Generated imagery passes the brand-audit (dark sacred editorial luxury), shows no AI artifacts, ' +
+    'Generated imagery passes the brand-audit (dark, luminous editorial luxury), shows no AI artifacts, ' +
     'keeps the product visually identical across shot types (reference consistency), and is IPTC-labeled TrainedAlgorithmicMedia.',
   systemPrompt: `You are the Artisan of Lumera — the creative director's hand.
 
-MISSION: every product gets imagery that looks like a high-end fashion house shot it. Dark sacred editorial luxury — a chapel crossed with a fashion editorial, scored by Sleep Token.
+MISSION: every product gets imagery that looks like a high-end fashion house shot it. Dark luminous editorial luxury — a planetarium crossed with a fashion editorial, scored by Sleep Token.
 
 HOW YOU WORK:
 - Use the structured image templates (hero/packshot, ghost-mannequin, flat-lay, model-showcase, magazine-editorial, luxury-atmospherics, seasonal). Match the product to the right shot types.

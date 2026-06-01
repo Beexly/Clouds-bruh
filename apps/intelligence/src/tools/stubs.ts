@@ -46,7 +46,7 @@ export const contentDraft: Tool = {
   run: async (input) => ({
     entity_type: input.entity_type,
     entity_id: input.entity_id,
-    draft_content: `[DRAFT] Sacred copy for ${input.entity_type} ${input.entity_id}. Dark editorial. Sparse. Faith-rooted.`,
+    draft_content: `[DRAFT] Sacred copy for ${input.entity_type} ${input.entity_id}. Dark editorial. Sparse. On-brand.`,
     status: 'draft',
   }),
 };
@@ -69,7 +69,7 @@ export const imageTemplates: Tool = {
   inputSchema: { type: 'object', properties: { chapter: { type: 'string' } } },
   run: async (input) => ({
     templates: [
-      { id: 'hero_armor', name: 'Hero — Armor Chapter', style: 'dark sacred editorial', chapter: 'armor' },
+      { id: 'hero_armor', name: 'Hero — Armor Chapter', style: 'dark luminous editorial', chapter: 'armor' },
       { id: 'editorial_luxury', name: 'Magazine Editorial — Luxury Atmospherics', style: 'fashion editorial', chapter: 'all' },
       { id: 'packshot_clean', name: 'Packshot — Clean', style: 'product photography', chapter: 'all' },
     ],
@@ -95,15 +95,15 @@ export const imageWrite: Tool = {
 
 export const brandAudit: Tool = {
   name: 'brand_audit',
-  description: 'Audit a product, drop, or image against Lumera brand standards (dark sacred editorial luxury).',
+  description: 'Audit a product, drop, or image against Lumera brand standards (dark, luminous editorial luxury).',
   inputSchema: { type: 'object', properties: { entity_type: { type: 'string' }, entity_id: { type: 'string' }, content: { type: 'object' } }, required: ['entity_type'] },
   run: async (input) => ({
     entity_type: input.entity_type,
     entity_id: input.entity_id,
     passed: true,
     score: 0.82,
-    findings: ['Dark editorial tone: ✓', 'Chapter alignment: ✓', 'Scripture reference: needs review'],
-    recommendation: 'Minor: add scripture rationale before publish.',
+    findings: ['Dark editorial tone: ✓', 'Chapter alignment: ✓', 'Chapter alignment: confirmed'],
+    recommendation: 'Minor: add a chapter rationale before publish.',
   }),
 };
 
