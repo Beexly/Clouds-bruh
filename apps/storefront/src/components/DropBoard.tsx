@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { motion, useReducedMotion } from 'framer-motion';
 import { signal } from '../lib/signal';
 import { Countdown } from './Countdown';
+import { chapterLabel } from '../lib/chapters';
 import type { Drop } from '@alterxiv/shared';
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -86,7 +87,7 @@ export function DropBoard({ drops }: { drops: Drop[] }) {
                       {d.name}
                     </span>
                     <span className="mt-2 flex items-center gap-3">
-                      <span className="text-micro uppercase tracking-wide text-altar-goldlight/70">{d.chapter}</span>
+                      <span className="text-micro uppercase tracking-wide text-altar-goldlight/70">{chapterLabel(d.chapter)}</span>
                       <span className="hidden h-1 w-28 overflow-hidden rounded-full bg-white/10 sm:block">
                         <motion.span
                           className={`block h-full rounded-full ${scarce ? 'bg-chapter-relentless' : 'bg-[#E9D8A6]/80'}`}
