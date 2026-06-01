@@ -1,11 +1,25 @@
 import { defineConfig, loadEnv } from '@medusajs/framework/utils';
 loadEnv(process.env.NODE_ENV || 'development', process.cwd());
 
+// Launch safety: never let production boot silently on the insecure fallback secrets below.
+if (process.env.NODE_ENV === 'production') {
+  for (const k of ['JWT_SECRET', 'COOKIE_SECRET'] as const) {
+    if (!process.env[k]) {
+      console.warn(`[alter-xiv] SECURITY WARNING: ${k} is not set — using an INSECURE default. Set it before launch.`);
+    }
+  }
+}
+
 /**
  * Alter XIV commerce core. Standard Medusa modules + our four custom intelligence modules.
  * The custom modules are the nervous system; Medusa's built-ins are the skeleton.
  */
 export default defineConfig({
+  // Admin can be disabled per-process (e.g. a Medusa Cloud "worker" instance, or any boot where the
+  // static admin bundle isn't built/needed). Server processes keep it on by default.
+  admin: {
+    disable: process.env.MEDUSA_ADMIN_DISABLED === 'true',
+  },
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     redisUrl: process.env.REDIS_URL,

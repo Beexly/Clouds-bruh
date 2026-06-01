@@ -12,6 +12,7 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "seed": "turbo run seed --filter=backend",
+    "bootstrap": "turbo run bootstrap --filter=backend",
     "test": "turbo run test",
     "test:unit": "vitest run",
     "test:regression": "tsx scripts/api-regression.ts",

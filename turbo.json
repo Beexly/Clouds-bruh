@@ -4,6 +4,7 @@
     "dev": { "cache": false, "persistent": true },
     "build": { "dependsOn": ["^build"], "outputs": ["dist/**", ".next/**", ".medusa/**"] },
     "seed": { "cache": false },
+    "bootstrap": { "cache": false },
     "test": { "dependsOn": ["^build"] },
     "lint": {}
   }

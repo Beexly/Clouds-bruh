@@ -6,6 +6,7 @@
     "dev": "medusa develop",
     "build": "medusa build",
     "seed": "medusa exec ../../scripts/seed.ts",
+    "bootstrap": "medusa exec ../../scripts/bootstrap.ts",
     "test": "vitest run",
     "lint": "tsc --noEmit -p tsconfig.json"
   },

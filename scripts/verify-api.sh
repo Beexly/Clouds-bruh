@@ -88,7 +88,15 @@ if [ -n "$CAPTURED_PK" ]; then PUBLISHABLE_KEY="$CAPTURED_PK"; ok "Publishable k
 
 # ── 4. Build + boot backend ──────────────────────────────────────────────────
 say "Building backend"
-[ -d ".medusa/server" ] && ok "Build present (reusing)" || { npx medusa build >/dev/null 2>&1 && ok "Build complete" || die "build failed"; }
+# Reuse only a COMPLETE build for the current mode. With the admin enabled the server needs
+# .medusa/server/public/admin/index.html; a partial build (e.g. an asset fetch failed) must rebuild,
+# not boot into a "Could not find index.html" crash. Admin-disabled boots need only the server bundle.
+if [ "${MEDUSA_ADMIN_DISABLED:-}" = "true" ]; then
+  _build_ok() { [ -d ".medusa/server" ]; }
+else
+  _build_ok() { [ -f ".medusa/server/public/admin/index.html" ]; }
+fi
+if _build_ok; then ok "Build present (reusing)"; else npx medusa build >/dev/null 2>&1; _build_ok && ok "Build complete" || die "build failed/incomplete"; fi
 
 say "Booting backend on :$PORT"
 if port_up "$PORT"; then ok "Backend already running on :$PORT"; else
