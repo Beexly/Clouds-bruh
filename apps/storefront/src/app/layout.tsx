@@ -6,6 +6,7 @@ import { SiteHeader } from '../components/SiteHeader';
 import { PageTransition } from '../components/PageTransition';
 import { Shepherd } from '../components/Shepherd';
 import { CommandPalette } from '../components/CommandPalette';
+import { Footer } from '../components/Footer';
 import { BRAND, EXPERIENCE, TAGLINE, DESCRIPTION } from '../lib/brand';
 
 // Editorial serif for the sacred voice; a quiet grotesque for the body.
@@ -59,6 +60,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div id="main">
             <PageTransition>{children}</PageTransition>
           </div>
+          <Footer />
           <Shepherd />
           <CommandPalette />
         </CartProvider>

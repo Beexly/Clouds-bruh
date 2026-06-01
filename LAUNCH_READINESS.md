@@ -53,7 +53,7 @@ test-mode monetization round-trip. **This is functional, not mocked.**
 | 6 | Intelligence layer | 75% | verified 23/23 locally | enable **pgvector** + run `setup-embeddings.ts` (recs/search); add `ANTHROPIC_API_KEY` (agents mock→live) |
 | 7 | Security / secrets | 40% | config boots on fallbacks | set real `JWT_SECRET`,`COOKIE_SECRET`,`STORE_CORS`,`ADMIN_CORS`; **change the `secret` admin password** |
 | 8 | Payments | 50% | Stripe **test** ready & gated | go-live = founder approval + live key (escalation gate) |
-| 9 | Launch ops | 30% | on `.medusajs.site` | custom domain · legal/policies · transactional email · object storage (S3) · Lighthouse/perf |
+| 9 | Launch ops | 40% | on `.medusajs.site`; **legal pages scaffolded** (privacy · terms · returns + footer — review-ready templates) | custom domain · complete the legal copy w/ counsel · transactional email · object storage (S3) · Lighthouse/perf |
 
 ---
 
