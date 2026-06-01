@@ -375,3 +375,35 @@ green end-to-end. Remaining before a live store: provision the managed Postgres 
 required secrets/env (§9), deploy the storefront separately (§8), and complete the launch-green human items
 (§13.7). No product features were added, no live keys were added, no live money movement was enabled, and
 the escalation gate is untouched.
+
+---
+
+## 17. Live Medusa Cloud import — status & resolutions (2026-06-01)
+
+Imported on Medusa Cloud (project **"Clouds bruh"**, environment **Production**, branch
+**`deploy/medusa-cloud`**). Observed state:
+
+- **Storefront:** ✅ live at `https://gegege.medusajs.site` (home + all five chapters + `/drops` + `/cart` → 200).
+- **Backend build:** ✅ succeeds. **Migrations:** ✅ complete (all modules up-to-date).
+- **Backend runtime:** boots to **"Server is ready"** as long as file storage is left on **local** (no S3).
+
+Issues hit during import and how each was resolved (all on `deploy/medusa-cloud`):
+
+| Cloud symptom | Cause | Resolution (commit) |
+|---|---|---|
+| *"No lockfiles found"* | pnpm workspace was nested under `alter-xiv/` | Project promoted to the **repo root** so `pnpm-lock.yaml` is at the root (`1d3931f`) |
+| *"Invalid comparator: latest"* | `@medusajs/{cli,framework,medusa}` pinned to `latest` | Pinned to **`^2.15.5`** (`edd68ab` → `7bda95f`) |
+| *"Access key ID and secret access key are required"* at boot | S3 file provider activated by a partial/leftover `S3_FILE_URL` without credentials | File guard now requires **`S3_FILE_URL` + `S3_ACCESS_KEY_ID` + `S3_SECRET_ACCESS_KEY`** together, else **local disk** (`6859e9f`) |
+
+> **Stale-deployment caveat:** Cloud's "Fix with AI" diagnoses a *specific* (often older) build. After any
+> env-var or code change, **trigger a fresh deployment and watch the newest one** — earlier failed builds
+> keep their original error.
+
+### Minimal Cloud env (backend)
+- **Required:** `JWT_SECRET`, `COOKIE_SECRET`, `STORE_CORS`, `ADMIN_CORS`, `MEDUSA_BACKEND_URL`
+  (`DATABASE_URL` / `REDIS_URL` are injected by Cloud).
+- **File storage:** leave **all `S3_*` unset** to use local disk (durable enough to launch; ephemeral across
+  redeploys), **or** set the *full* S3 set — `S3_FILE_URL`, `S3_ACCESS_KEY_ID`, `S3_SECRET_ACCESS_KEY`
+  (+ `S3_ENDPOINT` for MinIO) — for durable object storage. **Never put Medusa Cloud tokens/URLs in
+  `S3_*` fields.**
+- Keep Stripe in **test**; the escalation gate and no-live-money posture remain intact.
