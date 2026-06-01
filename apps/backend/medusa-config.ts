@@ -60,7 +60,10 @@ export default defineConfig({
     {
       resolve: '@medusajs/medusa/file',
       options: {
-        providers: process.env.S3_FILE_URL
+        // Activate S3/MinIO ONLY when fully credentialed (url + access key + secret); otherwise
+        // fall back to local disk. A half-set S3_FILE_URL (e.g. injected by the host) must never
+        // boot the S3 provider without credentials — that crashes startup.
+        providers: process.env.S3_FILE_URL && process.env.S3_ACCESS_KEY_ID && process.env.S3_SECRET_ACCESS_KEY
           ? [
               {
                 resolve: '@medusajs/medusa/file-s3',
