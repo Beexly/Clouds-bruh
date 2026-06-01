@@ -22,7 +22,7 @@ const CHAPTER_HINTS: Record<string, string[]> = {
   stillness: ['still', 'calm', 'rest', 'peace', 'quiet', 'linen', 'soft', 'meditat', 'slow'],
   armor: ['armor', 'armour', 'strength', 'strong', 'iron', 'guard', 'protect', 'tactical', 'jacket', 'heavy', 'shield'],
   signal: ['signal', 'voice', 'bold', 'bright', 'statement', 'loud', 'neon', 'speak'],
-  altar: ['altar', 'sacred', 'worship', 'gold', 'ceremony', 'ritual', 'holy', 'sanctuary'],
+  altar: ['altar', 'craft', 'crafted', 'handmade', 'heirloom', 'keepsake', 'gold', 'ceremony', 'ritual', 'artisan', 'fine'],
   relentless: ['relentless', 'drive', 'push', 'endure', 'run', 'train', 'performance', 'grind', 'sport'],
 };
 const CHAPTERS = ['stillness', 'armor', 'signal', 'altar', 'relentless'];

@@ -2,13 +2,13 @@ import type { MedusaRequest, MedusaResponse } from '@medusajs/framework';
 import { DROPS_MODULE } from '../../../modules/drops';
 
 /**
- * SHEPHERD — the conversational store. Advisory only: it guides, recommends, and answers in
+ * SHEPHERD (displayed as "Polaris") — the conversational guide. Advisory only: it guides, recommends, and answers in
  * the house voice; it never places orders, moves money, or publishes (those are escalations).
  * Live Claude when ANTHROPIC_API_KEY is set; otherwise a graceful, on-brand scripted reply so
  * the storefront is always usable. Grounded in live drops so it never invents inventory.
  */
 
-const SYSTEM = `You are the Shepherd of Lumera — a living marketplace for everything worth having,
+const SYSTEM = `You are Polaris — the guide for Lumera, a living marketplace for everything worth having,
 presented as "The Broadcast": a real-time, curated stream of drops across every category.
 Voice: dark, editorial, spare, premium. Confident and warm, never pushy, never cringe.
 You guide visitors through the Broadcast and its five chapters — Stillness, Armor, Signal, Altar,
@@ -24,7 +24,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   const userText = body.message ?? messages.filter((m) => m.role === 'user').slice(-1)[0]?.content ?? '';
   if (!userText) return res.status(400).json({ error: 'message (or messages[]) required' });
 
-  // Ground the Shepherd in live drops.
+  // Ground Polaris in live drops.
   let dropContext = '';
   try {
     const drops: any = req.scope.resolve(DROPS_MODULE);
