@@ -1,5 +1,5 @@
 # Lumera — BUILD PROGRESS
-**Overall:** ~98% (MASTER_PLAN complete; brand v2 shipped)  ·  **Launch readiness:** ~92% — remainder is founder ops, not code  ·  **Updated:** 2026-06-01
+**MASTER_PLAN:** phases 0–11 ✅ (phase 12 optional) · brand v2 shipped  ·  **Platform engineering: ~90% (verified)**  ·  **Launch-ready: ~65%** — the gap is founder Cloud config, not code (canonical breakdown in `LAUNCH_READINESS.md`)  ·  **Updated:** 2026-06-01
 **Bar:** the best overall website of 2026. **Constraint:** a company of one — it runs itself.
 
 > **Naming decision (2026-06-01):** the platform/marketplace is branded **Lumera**. Internal codename
@@ -25,10 +25,10 @@
 > Chapters unchanged (slugs/routes/colors/personalization keys) — only display copy relit. All verified
 > (storefront + backend + intelligence tsc & tests) and pushed to `deploy/medusa-cloud`.
 
-> **Launch readiness — ~92% to public launch; engineering effectively complete.** Build is green and
+> **Launch readiness — ~65% (platform engineering ~90% verified; launch config ~45%).** Build is green and
 > live on Medusa Cloud (backend Ready/Active, storefront Live); the money path (checkout→order) and the
 > full API regression are verified against real Postgres+pgvector+Redis; security is fail-closed in prod;
-> the brand is shipped. The remaining ~8% is **founder operations, not code:** set Cloud env/secrets
+> the brand is shipped. The remaining ~35% is **founder Cloud configuration, not code:** set Cloud env/secrets
 > (JWT/COOKIE/CORS, publishable key, `COCKPIT_KEY`); seed the Cloud catalog + enable pgvector; add
 > `ANTHROPIC_API_KEY` (flips Polaris + agents from mock → live); take Stripe live (currently test-mode);
 > wire a custom domain + `NEXT_PUBLIC_SITE_URL`; connect transactional email; run a hosted Lighthouse

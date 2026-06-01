@@ -1,10 +1,14 @@
-# ALTER XIV — LAUNCH READINESS
+# LUMERA — LAUNCH READINESS
 
-> Live dashboard for taking Alter XIV from *"deployed"* to *"taking real orders, on-brand, intelligence on."*
+> Live dashboard for taking Lumera from *"deployed"* to *"taking real orders, on-brand, intelligence on."*
 > Numbers are grounded in **verified** runs (below), not estimates. Updated 2026-06-01.
 >
 > **Deployment:** Medusa Cloud project **"Clouds bruh"** · env **Production** · branch **`deploy/medusa-cloud`**.
 > Backend **Ready·Active**, Storefront **Live** at `https://gegege.medusajs.site`.
+>
+> **Brand:** Lumera Brand Guidelines v2 implemented (`docs/BRAND_GUIDELINES.md`) — desaturated palette,
+> lowercase grotesque wordmark, corona-ring favicon, voice pass (concierge = **Polaris**). Zero
+> faith-coded user-facing copy remains; verified across storefront + backend + intelligence.
 
 ---
 
@@ -36,8 +40,8 @@ Overall launch-ready  █████████████░░░░░░�
 
 The 23 regressions exercise the **GSN-class intelligence layer end-to-end**: `for_you`/`graph_rec`
 recommendations, dynamic pricing (within margin floor), predictive analyst (demand forecast + churn risk),
-ORACLE preference steering, hybrid (pgvector) search, conversational Shepherd, Altar Rewards, and a
-test-mode monetization round-trip. **This is functional, not mocked.**
+ORACLE preference steering, hybrid (pgvector) search, the conversational concierge (Polaris), Luminance
+rewards, and a test-mode monetization round-trip. **This is functional, not mocked.**
 
 ---
 
@@ -71,7 +75,7 @@ test-mode monetization round-trip. **This is functional, not mocked.**
 **C. Harden for real traffic:**
 6. Attach **Redis** (Cloud injects `REDIS_URL`; config auto-enables the event bus + workflow engine).
 7. Durable media: set the full `S3_*` set (or MinIO) — local disk is ephemeral across redeploys.
-8. Custom domain, legal/returns/privacy pages, transactional email, Lighthouse/perf pass.
+8. Custom domain, legal/returns/privacy pages, **transactional email** (the order-confirmation subscriber is scaffolded mock-until-keyed — register a Resend/SendGrid provider in `medusa-config.ts` modules, then set `NOTIFICATION_EMAIL_FROM` + the provider key), Lighthouse/perf pass.
 
 **D. Go-live gates (founder approval — escalation gate):**
 9. Stripe **test → live**, launch a real drop, publish content, move money. Agents only ever DRAFT/STAGE these.
