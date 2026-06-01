@@ -46,7 +46,10 @@
   - **Connector control-plane health-check** (F01) — caught + fixed 14 real defects; 10 connectors
     implemented; registry invariant locked by test.
   - **PWA** (manifest/icon/theme), richer sitemap, resilience boundaries (error/loading).
-- 🔢 Tests: 46 unit (5 files) + 21 API-regression, all green.
+  - **Launch-completeness pass:** branded OG/Twitter share card (verified PNG render), `/account` hub +
+    header search/account prototypicality cues, order-confirmation email (mock-until-keyed), rebrand
+    regression tests.
+- 🔢 Tests: 56 unit (9 files) + 23 API-regression, all green.
 - ⛔ Blocked: 0  ·  🙋 Needs founder: see CODEX_HANDOFF.md (API keys unlock live agents; MinIO endpoint;
   hosted env for Lighthouse). Everything works locally without them.
 
