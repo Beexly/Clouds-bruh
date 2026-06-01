@@ -17,21 +17,22 @@
 
 ## 🔴 BLOCKED — needs you / a verify-env / the logs
 
-### 1. GitHub Actions CI on PR #5 — green-gates ✅ FIXED; verify:api ❌ (lone remaining gate)
-- **Root cause of both jobs was `pnpm/action-setup@v4`**: it errors when a `version:` input AND
-  package.json `packageManager` are both set ("Multiple versions of pnpm specified"). Removed the
-  redundant `version: 9` → **green-gates is now GREEN** (lint/test/build pass). Pre-existing config
-  bug, not my diff. Confirmed from the public Actions log (WebFetch reads annotations).
-- **`verify:api` now runs** the full ~100s (past pnpm-setup + the shared build + pgvector — note
-  `CREATE EXTENSION` IS handled in `setup-embeddings.ts:23`) and fails at a later step I **can't see**:
-  WebFetch only returns annotations, not step stdout, and there's no Docker here to reproduce. Added an
-  `if: failure()` step to the CI job to dump the otherwise-discarded `/tmp/alterxiv-verify-*.log` so the
-  **next run surfaces the real error in the Actions UI**.
-- **NEEDED:** read the `verify:api` step output on the next run (now self-dumping), **or** run
-  `verify:api` where Docker exists. Likely suspects: backend boot timeout (60s), a seed step, or one of
-  the 22 regression assertions. (My diff doesn't touch backend/seed/regression code.)
-- Note: Medusa Cloud deploys independently of Actions and is ✅✅ — PR #5's deploy fix is functionally
-  ready regardless of this gate.
+### 1. GitHub Actions CI on PR #5 — ✅ FIXED (both jobs; verified 23/23 locally)
+Two pre-existing bugs, both fixed (neither was in the original diff):
+1. **`pnpm/action-setup@v4`** errored on the dual `version:` + `packageManager` spec → *both* jobs died
+   at setup. Removed the redundant `version: 9` → **green-gates green** (lint/test/build).
+2. **`verify:api`** then ran and 5 regressions 401'd: `/store/analyst` (×4) + `/store/cockpit` fail
+   **closed in production** (`medusa start` runs prod) and the regression presented no key. Fixed:
+   `verify-api.sh` sets `COCKPIT_KEY` (inherited by the booted server *and* the regression child), and
+   `api-regression.ts` sends it via `x-cockpit-key`.
+   - Also: `turbo.json` `lint → dependsOn ^build`; `verify-api.sh` builds `@alterxiv/shared` before
+     `migrate` (it resolves only to `dist`).
+- **Verified locally 23/23** against system Postgres 16 + pgvector + Redis: infra → migrate → seed →
+  boot → 23 regressions, `verify:api PASSED` (EXIT 0). Pushed; the CI re-run should be green on both.
+- Local repro (gotchas learned): `sudo service postgresql start` + `redis-server --daemonize yes`;
+  create role `alterxiv/alterxiv` + db `alterxiv_verify`; then
+  `DATABASE_URL=…/alterxiv_verify MEDUSA_ADMIN_DISABLED=true pnpm verify:api`. Do **not** prefix
+  `pkill -f medusa` (it matches its own shell → self-kill), and the harness blocks foreground `sleep`.
 
 ### 2. P0 — money routes are unauthenticated (pre-launch blocker)
 - `/store/monetization/{subscribe,credits,wallet,gift-cards,entitlements}` take `customer_id` from the
