@@ -3,6 +3,7 @@ import { Cormorant_Garamond, Inter } from 'next/font/google';
 import './globals.css';
 import { CartProvider } from '../context/cart';
 import { Eclipse } from '../components/Eclipse';
+import { LightCursor } from '../components/LightCursor';
 import { SiteHeader } from '../components/SiteHeader';
 import { PageTransition } from '../components/PageTransition';
 import { Shepherd } from '../components/Shepherd';
@@ -58,6 +59,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(org) }} />
         <a href="#main" className="skip-link">Skip to content</a>
         <Eclipse />
+        <LightCursor />
         <CartProvider>
           <SiteHeader />
           <div id="main">
