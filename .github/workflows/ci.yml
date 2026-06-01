@@ -1,0 +1,79 @@
+name: CI
+
+# Green gates for Alter XIV. Medusa Cloud builds on deploy; this adds the checks Cloud
+# doesn't run — lint, unit tests, and the full verify:api operational pipeline — so
+# regressions are caught before they reach the live deployment.
+
+on:
+  push:
+    branches: [deploy/medusa-cloud, claude/epic-clarke-XPZhF]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  green-gates:
+    name: build · lint · test (52)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm test
+      - run: pnpm build
+
+  verify-api:
+    name: verify:api (migrate · seed · pgvector · boot · 22 regressions)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: alterxiv
+          POSTGRES_PASSWORD: alterxiv
+          POSTGRES_DB: alterxiv_verify
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U alterxiv"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      DATABASE_URL: postgres://alterxiv:alterxiv@localhost:5432/alterxiv_verify
+      REDIS_URL: redis://localhost:6379
+      # Boot without the admin static bundle so the operational pipeline runs headless.
+      MEDUSA_ADMIN_DISABLED: "true"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install psql client (idempotency check in verify-api.sh)
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+      - run: pnpm install --frozen-lockfile
+      - name: verify:api
+        run: pnpm verify:api

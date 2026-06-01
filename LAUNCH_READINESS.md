@@ -32,6 +32,7 @@ Overall launch-ready  █████████████░░░░░░�
 | `pnpm build` | ✅ | backend builds; storefront builds on Cloud (sandbox only blocks Google-Fonts egress) |
 | `pnpm verify:api` | ✅ | **22/22 API regressions** — full chain: migrate → seed → **pgvector embeddings** → boot → regressions |
 | Live deployment | ✅ | backend Ready·Active, storefront Live (Medusa Cloud) |
+| Continuous integration | ✅ | `.github/workflows/ci.yml` re-runs lint · test · build · `verify:api` (pgvector+Redis services) on every push/PR |
 
 The 22 regressions exercise the **GSN-class intelligence layer end-to-end**: `for_you`/`graph_rec`
 recommendations, dynamic pricing (within margin floor), predictive analyst (demand forecast + churn risk),
