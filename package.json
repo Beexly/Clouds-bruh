@@ -16,6 +16,7 @@
     "test": "turbo run test",
     "test:unit": "vitest run",
     "test:regression": "tsx scripts/api-regression.ts",
+    "preflight": "tsx scripts/preflight.ts",
     "lint": "turbo run lint",
     "verify:api": "bash scripts/verify-api.sh"
   },

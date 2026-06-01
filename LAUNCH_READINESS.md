@@ -77,8 +77,12 @@ test-mode monetization round-trip. **This is functional, not mocked.**
 
 ---
 
-## Smoke-test the LIVE deploy (no local infra needed)
-Point the API regression suite at the deployed backend after seeding:
+## Live checks (run against the deploy)
+**Readiness go/no-go** — inspects env + DB and prints this percentage *live* (read-only, safe anytime):
+```bash
+DATABASE_URL=<cloud-db-url> pnpm preflight     # ✅ READY / ❌ NOT READY + the exact blockers
+```
+**Smoke-test the API** after seeding:
 ```bash
 MEDUSA_BACKEND_URL=https://<your-backend-url> PUBLISHABLE_KEY=<pk_…> pnpm test:regression
 ```
