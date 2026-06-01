@@ -9,13 +9,17 @@
 export const CHAPTERS = ['stillness', 'armor', 'signal', 'altar', 'relentless'] as const;
 export type Chapter = (typeof CHAPTERS)[number];
 
-/** Display labels — relit off the Alter-XIV lexicon (esp. the faith-coded "Altar"). */
+/**
+ * Display labels — a cohesive astronomical "states of light" lexicon (Lumera = light), relit fully
+ * off the Alter-XIV vocabulary and mapped to each chapter's mood. Slugs stay; change a name here and
+ * it propagates everywhere (nav, tune chips, footer, command palette, rail tags, chapter pages).
+ */
 const LABEL: Record<string, string> = {
-  stillness: 'Stillness',
-  armor: 'Armor',
-  signal: 'Signal',
-  altar: 'Relic',
-  relentless: 'Relentless',
+  stillness: 'Penumbra', // the calm half-light
+  armor: 'Eclipse', // the shielding shadow — protection
+  signal: 'Flare', // the burst — what comes next
+  altar: 'Vesper', // the evening star — kept, without the faith coding
+  relentless: 'Meridian', // the sun's apex — drive
 };
 
 export function chapterLabel(slug: string): string {
