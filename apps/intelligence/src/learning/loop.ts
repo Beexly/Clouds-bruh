@@ -72,12 +72,24 @@ async function rewardBandit(event: SignalEvent, reward: number): Promise<void> {
     if (!block) return;
 
     const key = `bandit:${segment}:${block}`;
-    // Reward = increment alpha (successes) of the Beta(alpha, beta) arm. This MUST use the same
-    // Redis representation the ranker reads at serve time — a HASH with alpha/beta fields
-    // (recommendation/service.ts → rankBroadcastBlocks/reward). The previous string form
-    // (`set "α β"`) collided with that hash (WRONGTYPE, swallowed), silently disconnecting the
-    // Learning Loop from the bandit so conversions never moved the Broadcast ordering.
-    await r.hincrbyfloat(key, 'alpha', reward);
+    // Reward the Beta(alpha, beta) arm in the SAME Redis hash the ranker reads at serve time
+    // (recommendation/service.ts → rankBroadcastBlocks). Two correctness details:
+    //  1. Seed the Beta(1,1) prior first (HSETNX): HINCRBYFLOAT on a missing field starts from 0,
+    //     so a brand-new arm's first reward would read back as the 1,1 default — i.e. no learning.
+    //  2. The old loop stored these keys as strings ("α β"); HINCRBYFLOAT throws WRONGTYPE on them.
+    //     Migrate such legacy keys on contact (replace with a hash arm) rather than dropping rewards.
+    try {
+      await r.hsetnx(key, 'alpha', '1');
+      await r.hsetnx(key, 'beta', '1');
+      await r.hincrbyfloat(key, 'alpha', reward);
+    } catch (e: any) {
+      if (String(e?.message ?? '').includes('WRONGTYPE')) {
+        await r.del(key);
+        await r.hset(key, 'alpha', String(1 + reward), 'beta', '1');
+      } else {
+        throw e;
+      }
+    }
     await r.expire(key, 86400 * 30).catch(() => {}); // sliding 30d retention; non-fatal
 
     console.log(`[learning] Bandit reward: segment=${segment} block=${block} alpha +=${reward}`);
