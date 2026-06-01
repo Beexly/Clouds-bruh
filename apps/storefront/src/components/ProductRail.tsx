@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { signal } from '../lib/signal';
 import { priceStr } from '../lib/catalog';
@@ -86,11 +87,12 @@ function RailCard({ p, index, block, onAdd }: { p: any; index: number; block: st
       >
         <div className="relative aspect-[3/4] overflow-hidden rounded-sm bg-obsidian">
           {img ? (
-            <img
+            <Image
               src={img}
               alt={p.title}
-              className="h-full w-full object-cover transition-transform duration-700 ease-sacred group-hover:scale-[1.05]"
-              loading="lazy"
+              fill
+              sizes="(min-width: 768px) 25vw, (min-width: 640px) 33vw, 50vw"
+              className="object-cover transition-transform duration-700 ease-sacred group-hover:scale-[1.05]"
             />
           ) : (
             <div className="h-full w-full bg-neutral-900" />

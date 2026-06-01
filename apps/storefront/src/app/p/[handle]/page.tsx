@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { AddToCartButton } from '../../../components/AddToCartButton';
 import { PageSignal } from '../../../components/PageSignal';
 import { ProductRail } from '../../../components/ProductRail';
@@ -140,7 +141,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
           {/* Image */}
           <div className="relative aspect-[3/4] overflow-hidden rounded-sm bg-obsidian">
             {mainImg ? (
-              <img src={mainImg} alt={product.title} className="h-full w-full object-cover" />
+              <Image src={mainImg} alt={product.title} fill priority sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
             ) : (
               <div className="h-full w-full bg-neutral-900" />
             )}
