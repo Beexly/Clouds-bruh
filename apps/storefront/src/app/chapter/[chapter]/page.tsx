@@ -47,7 +47,7 @@ export default async function ChapterPage({ params }: { params: Promise<{ chapte
   const products = await fetchChapterProducts(chapter);
 
   return (
-    <main className="min-h-screen bg-void bg-sacred-grain">
+    <main className="min-h-screen bg-sacred-grain">
       <PageSignal type="chapter_enter" context={{ chapter }} />
       <section className="px-6 py-24 text-center">
         <p className="mb-3 text-micro uppercase text-neutral-600">Chapter</p>

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Cormorant_Garamond, Inter } from 'next/font/google';
 import './globals.css';
 import { CartProvider } from '../context/cart';
+import { Eclipse } from '../components/Eclipse';
 import { SiteHeader } from '../components/SiteHeader';
 import { PageTransition } from '../components/PageTransition';
 import { Shepherd } from '../components/Shepherd';
@@ -56,6 +57,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen bg-void font-sans text-neutral-100 antialiased">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(org) }} />
         <a href="#main" className="skip-link">Skip to content</a>
+        <Eclipse />
         <CartProvider>
           <SiteHeader />
           <div id="main">

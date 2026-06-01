@@ -121,7 +121,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
   };
 
   return (
-    <main className="min-h-screen bg-void bg-sacred-grain">
+    <main className="min-h-screen bg-sacred-grain">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <PageSignal type="product_view" context={{ chapter }} entityId={product.id} />
 

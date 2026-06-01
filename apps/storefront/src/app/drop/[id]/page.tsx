@@ -57,7 +57,7 @@ export default async function DropPage({ params }: { params: Promise<{ id: strin
   const live = drop.status === 'live';
 
   return (
-    <main className="min-h-screen bg-void bg-sacred-grain">
+    <main className="min-h-screen bg-sacred-grain">
       <PageSignal type="drop_view" context={{ chapter: drop.chapter }} entityId={drop.id} />
 
       <section className="px-6 pt-16 pb-8 text-center">
