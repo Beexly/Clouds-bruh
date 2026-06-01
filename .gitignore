@@ -5,6 +5,7 @@ dist/
 .turbo/
 *.log
 *.rdb
+*.tsbuildinfo
 .env
 .DS_Store
 packages/data/*.csv
