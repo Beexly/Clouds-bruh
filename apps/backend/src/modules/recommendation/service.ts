@@ -203,10 +203,22 @@ class RecommendationService extends MedusaService({ Recommendation }) {
       if (rows[0]) segment = rows[0].segment;
     } catch {}
     const key = `bandit:${segment}:${block}`;
-    if (reward > 0) {
-      await redis.hincrbyfloat(key, 'alpha', reward).catch(() => {});
-    } else {
-      await redis.hincrbyfloat(key, 'beta', 1).catch(() => {});
+    const field = reward > 0 ? 'alpha' : 'beta';
+    const amount = reward > 0 ? reward : 1;
+    try {
+      // Seed the Beta(1,1) prior first so a fresh arm's first reward rises above the prior, using
+      // the same hash representation the Learning Loop writes (apps/intelligence/src/learning/loop.ts).
+      await redis.hsetnx(key, 'alpha', '1');
+      await redis.hsetnx(key, 'beta', '1');
+      await redis.hincrbyfloat(key, field, amount);
+    } catch (e: any) {
+      // Legacy string arm from the old loop → replace with a hash so rewards aren't dropped (WRONGTYPE).
+      if (String(e?.message ?? '').includes('WRONGTYPE')) {
+        await redis.del(key).catch(() => {});
+        await redis
+          .hset(key, 'alpha', field === 'alpha' ? String(1 + amount) : '1', 'beta', field === 'beta' ? String(1 + amount) : '1')
+          .catch(() => {});
+      }
     }
   }
 
