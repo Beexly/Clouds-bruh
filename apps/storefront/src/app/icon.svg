@@ -1,5 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <rect width="64" height="64" rx="10" fill="#000000"/>
-  <text x="32" y="40" font-family="Georgia, 'Times New Roman', serif" font-size="20"
-        font-weight="300" letter-spacing="1" text-anchor="middle" fill="#C9A96E">XIV</text>
+  <!-- Lumera mark: thin Corona ring on Eclipse, one First-Light point at the edge (BRAND_GUIDELINES §2). Flat, no glow. -->
+  <rect width="64" height="64" rx="12" fill="#0B0B0D"/>
+  <circle cx="32" cy="32" r="17" fill="none" stroke="#E9D8A6" stroke-width="3.5"/>
+  <circle cx="32" cy="15" r="4" fill="#F4EEDD"/>
 </svg>

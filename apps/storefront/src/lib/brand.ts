@@ -9,6 +9,8 @@ export const EXPERIENCE = 'The Broadcast';
 export const TAGLINE = 'Everything worth having — broadcast live, and shaped to you.';
 export const DESCRIPTION =
   'Lumera is a living marketplace: every category, every drop, broadcast in real time and personalized to you.';
+/** The drop-culture line (BRAND_GUIDELINES §3) — used sparingly on drop/scarcity surfaces, not the homepage. */
+export const MOTTO = 'Some things only happen once.';
 
 /**
  * The Lumera lexicon — light + celestial, faint cousins of the Galaxy ecosystem.

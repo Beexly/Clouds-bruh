@@ -9,7 +9,7 @@ export function Footer() {
     <footer className="mt-24 border-t border-white/[0.06] bg-void/60">
       <div className="mx-auto grid max-w-7xl gap-8 px-6 py-12 md:grid-cols-4">
         <div>
-          <div className="font-serif text-xl font-light tracking-[0.2em] text-foil">{BRAND}</div>
+          <div className="font-sans text-xl font-medium lowercase tracking-[0.1em] text-foil">{BRAND}</div>
           <p className="mt-2 text-micro uppercase text-neutral-600">{EXPERIENCE} · a Galaxy company</p>
         </div>
         <nav className="space-y-2 text-sm text-neutral-400">

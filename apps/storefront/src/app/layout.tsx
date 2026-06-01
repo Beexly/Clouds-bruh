@@ -9,7 +9,7 @@ import { CommandPalette } from '../components/CommandPalette';
 import { Footer } from '../components/Footer';
 import { BRAND, EXPERIENCE, TAGLINE, DESCRIPTION } from '../lib/brand';
 
-// Editorial serif for the sacred voice; a quiet grotesque for the body.
+// Editorial serif for display accents; a quiet grotesque for the body.
 const serif = Cormorant_Garamond({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600'],
@@ -22,7 +22,7 @@ const sans = Inter({
   display: 'swap',
 });
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://alterxiv.com';
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://lumera.example';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#0a0a0a',
+  themeColor: '#0B0B0D',
   colorScheme: 'dark',
 };
 

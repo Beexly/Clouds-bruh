@@ -18,7 +18,7 @@ export function Hero() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.9, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-        className="font-serif text-6xl font-light tracking-[0.08em] text-foil md:text-8xl"
+        className="font-sans text-6xl font-medium lowercase tracking-[0.1em] text-foil md:text-8xl"
       >
         {BRAND}
       </motion.h1>

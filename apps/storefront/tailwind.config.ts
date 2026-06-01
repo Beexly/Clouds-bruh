@@ -15,21 +15,27 @@ const config: Config = {
         sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
       },
       colors: {
-        // The sacred palette.
-        obsidian: '#070707',
-        void: '#000000',
+        // Lumera palette — v2, desaturated / status-optimal. See docs/BRAND_GUIDELINES.md §4.
+        eclipse: '#0B0B0D', // base
+        corona: '#E9D8A6', // primary accent (premium/editorial)
+        firstlight: '#F4EEDD', // light / text on eclipse
+        signal: '#6E5BD6', // system accent (functional UI) — kept desaturated
+        umbra: '#54545A', // neutral
+        // Back-compat aliases → remapped to the Lumera palette so existing components inherit it.
+        obsidian: '#0B0B0D',
+        void: '#0B0B0D',
         altar: {
-          gold: '#C9A96E',
-          goldlight: '#E4CFA1',
-          cream: '#F0EAD6',
-          obsidian: '#0A0A0A',
+          gold: '#E9D8A6', // → Corona
+          goldlight: '#F4EEDD', // → First Light
+          cream: '#F4EEDD', // → First Light
+          obsidian: '#0B0B0D', // → Eclipse
         },
         chapter: {
-          stillness: '#8DA9B8', // cold dawn blue
-          armor: '#C9A96E',     // forged gold
-          signal: '#B5546E',    // ember rose
-          altar: '#9C8CC4',     // vespers violet
-          relentless: '#C2502E', // war iron
+          stillness: '#8DA9B8',
+          armor: '#C9A96E',
+          signal: '#B5546E',
+          altar: '#9C8CC4',
+          relentless: '#C2502E',
         },
       },
       letterSpacing: {
@@ -43,11 +49,11 @@ const config: Config = {
       backgroundImage: {
         // Subtle sacred textures (CSS-only; no asset deps).
         'sacred-grain':
-          'radial-gradient(circle at 50% 0%, rgba(201,169,110,0.06), transparent 60%)',
+          'radial-gradient(circle at 50% 0%, rgba(233,216,166,0.06), transparent 60%)',
         'altar-veil':
-          'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.65) 100%)',
+          'linear-gradient(180deg, rgba(11,11,13,0) 0%, rgba(11,11,13,0.65) 100%)',
         'gold-foil':
-          'linear-gradient(135deg, #C9A96E 0%, #E4CFA1 35%, #9c844f 55%, #E4CFA1 75%, #C9A96E 100%)',
+          'linear-gradient(135deg, #E9D8A6 0%, #F4EEDD 35%, #c9b886 55%, #F4EEDD 75%, #E9D8A6 100%)',
       },
       transitionTimingFunction: {
         sacred: 'cubic-bezier(0.22, 1, 0.36, 1)', // slow, reverent ease-out

@@ -13,7 +13,7 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <Link
           href="/"
-          className="font-serif text-2xl font-light tracking-[0.2em] text-foil transition-opacity hover:opacity-80"
+          className="font-sans text-2xl font-medium lowercase tracking-[0.1em] text-foil transition-opacity hover:opacity-80"
         >
           {BRAND}
         </Link>
