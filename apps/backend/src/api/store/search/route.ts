@@ -18,16 +18,17 @@ function pool() {
 }
 
 // Keyword → chapter affinity, to turn free text into a query vector in the chapter space.
-const CHAPTER_HINTS: Record<string, string[]> = {
+// Exported for regression tests (search.test.ts) — keep behavior identical when editing.
+export const CHAPTER_HINTS: Record<string, string[]> = {
   stillness: ['still', 'calm', 'rest', 'peace', 'quiet', 'linen', 'soft', 'meditat', 'slow'],
   armor: ['armor', 'armour', 'strength', 'strong', 'iron', 'guard', 'protect', 'tactical', 'jacket', 'heavy', 'shield'],
   signal: ['signal', 'voice', 'bold', 'bright', 'statement', 'loud', 'neon', 'speak'],
   altar: ['altar', 'craft', 'crafted', 'handmade', 'heirloom', 'keepsake', 'gold', 'ceremony', 'ritual', 'artisan', 'fine'],
   relentless: ['relentless', 'drive', 'push', 'endure', 'run', 'train', 'performance', 'grind', 'sport'],
 };
-const CHAPTERS = ['stillness', 'armor', 'signal', 'altar', 'relentless'];
+export const CHAPTERS = ['stillness', 'armor', 'signal', 'altar', 'relentless'];
 
-function queryVector(q: string): number[] {
+export function queryVector(q: string): number[] {
   const lower = q.toLowerCase();
   const scores = CHAPTERS.map((c) => CHAPTER_HINTS[c].reduce((s, kw) => s + (lower.includes(kw) ? 1 : 0), 0));
   const total = scores.reduce((s, v) => s + v, 0);

@@ -4,6 +4,7 @@ import { Membership } from './models/membership';
 import { CreditWallet } from './models/credit-wallet';
 import { CreditTransaction } from './models/credit-transaction';
 import { GiftCard } from './models/gift-card';
+import { resolveLoyaltyTier } from './loyalty';
 
 /**
  * MONETIZE — memberships/Patron tier (Autumn pattern) + Lumens (Flexprice pattern)
@@ -128,27 +129,16 @@ class MonetizationService extends MedusaService({
     const lifetimeEarned = txns.filter((t) => t.amount > 0).reduce((s, t) => s + t.amount, 0);
     const { is_patron, tier } = (await this.entitlementsFor(accountId).catch(() => ({ is_patron: false, tier: null }))) as any;
 
-    const TIERS = [
-      { name: 'Spark', at: 0 },
-      { name: 'Glow', at: 2500 },
-      { name: 'Aurora', at: 10000 },
-      { name: 'Zenith', at: 50000 },
-    ];
-    let current = TIERS[0];
-    let next: (typeof TIERS)[number] | null = null;
-    for (const t of TIERS) {
-      if (lifetimeEarned >= t.at) current = t;
-      else { next = t; break; }
-    }
+    const ladder = resolveLoyaltyTier(lifetimeEarned);
     return {
       account_id: accountId,
       balance: wallet.balance ?? 0,
       lifetime_earned: lifetimeEarned,
-      reward_tier: current.name,
+      reward_tier: ladder.current,
       membership_tier: tier ?? null,
       multiplier: is_patron ? 2 : 1,
-      next_tier: next?.name ?? null,
-      credits_to_next: next ? next.at - lifetimeEarned : 0,
+      next_tier: ladder.next,
+      credits_to_next: ladder.credits_to_next,
     };
   }
 }
