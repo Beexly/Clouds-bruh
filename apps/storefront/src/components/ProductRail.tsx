@@ -1,11 +1,14 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { signal } from '../lib/signal';
 import { priceStr } from '../lib/catalog';
+import { chapterLabel } from '../lib/chapters';
 import { useCart } from '../context/cart';
+
+const EASE = [0.22, 1, 0.36, 1] as const;
 
 const RAIL_LABELS: Record<string, string> = {
   the_drop: 'The Pieces',
@@ -26,6 +29,7 @@ interface Props {
 
 export function ProductRail({ blockName, products }: Props) {
   const { add } = useCart();
+  const reduce = useReducedMotion();
 
   useEffect(() => {
     if (products.length > 0) {
@@ -36,15 +40,30 @@ export function ProductRail({ blockName, products }: Props) {
   if (!products.length) return null;
 
   return (
-    <section className="px-6 py-12">
+    <section className="px-6 py-14">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-6 flex items-center gap-4">
-          <h2 className="text-label uppercase text-neutral-400">
+        {/* cinematic rail header — editorial serif title + a corona rule that sweeps in */}
+        <div className="mb-8 flex items-end gap-5">
+          <h2 className="font-serif text-2xl italic leading-none text-firstlight md:text-3xl">
             {RAIL_LABELS[blockName] ?? blockName}
           </h2>
-          <span className="h-px flex-1 rule-sacred" />
+          <span className="relative mb-1.5 h-px flex-1 overflow-hidden bg-white/10">
+            {!reduce && (
+              <motion.span
+                className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-corona/70 to-transparent"
+                initial={{ x: '-120%' }}
+                whileInView={{ x: '420%' }}
+                viewport={{ once: true }}
+                transition={{ duration: 1.6, delay: 0.2, ease: EASE }}
+              />
+            )}
+          </span>
+          <span className="mb-1 hidden text-micro uppercase tracking-[0.3em] text-neutral-600 sm:inline">
+            {String(products.length).padStart(2, '0')}
+          </span>
         </div>
-        <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-4">
+
+        <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-3 md:grid-cols-4">
           {products.slice(0, 8).map((p: any, i: number) => (
             <RailCard
               key={p.id}
@@ -74,10 +93,10 @@ function RailCard({ p, index, block, onAdd }: { p: any; index: number; block: st
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 14 }}
+      initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-40px' }}
-      transition={{ duration: 0.55, delay: (index % 4) * 0.05, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.55, delay: (index % 4) * 0.05, ease: EASE }}
       className="group"
     >
       <Link
@@ -99,9 +118,11 @@ function RailCard({ p, index, block, onAdd }: { p: any; index: number; block: st
           )}
           {/* veil for legibility */}
           <span className="pointer-events-none absolute inset-0 bg-altar-veil opacity-60" />
+          {/* corona hairline that ignites on hover */}
+          <span className="pointer-events-none absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 bg-corona/70 transition-transform duration-500 ease-sacred group-hover:scale-x-100" />
           {chapter && (
-            <span className="absolute left-3 top-3 text-micro uppercase text-altar-goldlight/80">
-              {chapter}
+            <span className="absolute left-3 top-3 text-micro uppercase tracking-wide text-altar-goldlight/80">
+              {chapterLabel(chapter)}
             </span>
           )}
           {badge && (

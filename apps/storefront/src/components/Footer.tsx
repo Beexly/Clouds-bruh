@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { BRAND, EXPERIENCE, PARENT, LEGAL_ENTITY } from '../lib/brand';
-
-const CHAPTERS = ['stillness', 'armor', 'signal', 'altar', 'relentless'] as const;
+import { CHAPTERS, chapterLabel } from '../lib/chapters';
 
 /** Site footer — brand, shop nav, and the legal surface every storefront needs. */
 export function Footer() {
@@ -16,7 +15,7 @@ export function Footer() {
           <div className="text-micro uppercase text-neutral-600">Shop</div>
           <Link href="/drops" className="block transition-colors hover:text-foil">Drops</Link>
           {CHAPTERS.map((c) => (
-            <Link key={c} href={`/chapter/${c}`} className="block capitalize transition-colors hover:text-foil">{c}</Link>
+            <Link key={c} href={`/chapter/${c}`} className="block transition-colors hover:text-foil">{chapterLabel(c)}</Link>
           ))}
         </nav>
         <nav className="space-y-2 text-sm text-neutral-400">

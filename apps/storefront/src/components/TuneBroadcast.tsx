@@ -3,10 +3,10 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { visitorId, signal } from '../lib/signal';
+import { CHAPTERS, chapterLabel } from '../lib/chapters';
 
 const BASE = process.env.NEXT_PUBLIC_MEDUSA_URL || 'http://localhost:9000';
 const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
-const CHAPTERS = ['stillness', 'armor', 'signal', 'altar', 'relentless'] as const;
 type State = 'neutral' | 'followed' | 'muted';
 
 /**
@@ -79,7 +79,7 @@ export function TuneBroadcast() {
                 }`}
               >
                 {s === 'followed' ? '♥ ' : s === 'muted' ? '· ' : ''}
-                {ch}
+                {chapterLabel(ch)}
               </motion.button>
             );
           })}

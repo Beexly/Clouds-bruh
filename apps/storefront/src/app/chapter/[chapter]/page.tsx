@@ -3,12 +3,10 @@ import type { Metadata } from 'next';
 import { ProductRail } from '../../../components/ProductRail';
 import { PageSignal } from '../../../components/PageSignal';
 import { getRegionId, PRODUCT_FIELDS } from '../../../lib/catalog';
+import { CHAPTERS, chapterLabel, type Chapter } from '../../../lib/chapters';
 
 const API = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000';
 const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
-
-const CHAPTERS = ['stillness', 'armor', 'signal', 'altar', 'relentless'] as const;
-type Chapter = (typeof CHAPTERS)[number];
 
 const CHAPTER_LINE: Record<Chapter, string> = {
   stillness: 'Where the noise goes quiet.',
@@ -39,7 +37,7 @@ export async function generateMetadata({
   params: Promise<{ chapter: string }>;
 }): Promise<Metadata> {
   const { chapter } = await params;
-  const title = chapter.charAt(0).toUpperCase() + chapter.slice(1);
+  const title = chapterLabel(chapter);
   return { title, description: `The ${title} chapter — ${CHAPTER_LINE[chapter as Chapter] ?? ''}` };
 }
 
@@ -53,8 +51,8 @@ export default async function ChapterPage({ params }: { params: Promise<{ chapte
       <PageSignal type="chapter_enter" context={{ chapter }} />
       <section className="px-6 py-24 text-center">
         <p className="mb-3 text-micro uppercase text-neutral-600">Chapter</p>
-        <h1 className="font-serif text-5xl font-light capitalize tracking-[0.1em] text-foil md:text-7xl">
-          {chapter}
+        <h1 className="font-serif text-5xl font-light tracking-[0.1em] text-foil md:text-7xl">
+          {chapterLabel(chapter)}
         </h1>
         <p className="mx-auto mt-5 max-w-md font-serif text-lg italic text-neutral-400">
           {CHAPTER_LINE[chapter as Chapter]}
