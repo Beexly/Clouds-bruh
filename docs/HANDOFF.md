@@ -5,7 +5,32 @@
 > **Lane:** build on **Lane A** (`deploy/medusa-cloud` → `claude/*`). Lane B (`epic-clarke` /
 > `codex/*`, `alter-xiv/`-nested) is recommended-frozen — founder to confirm, then port `verify-api.ts`.
 
-## ✅ Done this session (Lane A — on PR #5 → `deploy/medusa-cloud`)
+## ✅ Done — experience transformation (this session, PR #5 → `claude/amazing-edison-Cm7q6`)
+The *"painfully boring / not first-of-its-kind / 'ecosystem' still stuck"* feedback, answered. Each
+commit build-verified (tsc · 7/7 vitest · `next build` 16/16); the rebrand + new components confirmed
+live in the **deployed SSR HTML** (HTTP 200; literal "ecosystem" → **0**; Penumbra/Eclipse/Flare/Vesper/
+Meridian + "Your Light" + the Eclipse `<canvas>` all present).
+- **Full chapter rebrand** → luminous "states of light" lexicon (Stillness→Penumbra, Armor→Eclipse,
+  Signal→Flare, Altar→Vesper, Relentless→Meridian). Slugs unchanged (load-bearing); one source of truth
+  `lib/chapters.ts` → propagates to nav/footer/palette/rails/chapter pages. **Kills the old vocabulary.**
+- **Corona Reveal hero** — signature motion (arc draws the corona ring, first-light ignites, wordmark
+  rises, slow violet orbit); reduced-motion safe. (BRAND §6 — was specced-but-unbuilt.)
+- **Live DropBoard** — cinematic departure board (pulsing "N live now", scarcity bars fill on view).
+- **Cinematic ProductRail + legible rails** — each personalized rail states *why* it surfaced
+  ("Tuned to your taste", "Often kept together"…): silent personalization → **visible intelligence**
+  (honest strategy-level reasons, no fabricated per-item claims).
+- **"Your Light"** — taste as a tunable constellation (follow ignites a star + boosts it everywhere,
+  mute dims it); writes `/store/preferences`, refreshes the Broadcast. Personalization made *steerable*.
+- **The Eclipse** — a living, site-wide ambient field (breathing corona + violet penumbra + parallax
+  starfield, pointer/scroll-reactive) painted as additive light. ~30fps, pauses when hidden, single
+  still frame under reduced-motion, DPR-capped, **zero deps**. The brand thesis made ambient.
+- **First-light cursor** — pointer casts a screen-blended glow + focus ring that reacts to interactive
+  elements; augments (never hides) the native cursor; desktop/fine-pointer only, no-ops on touch/reduced-motion.
+- **⚠️ Verification ceiling (honest):** this container has **no browser** (Playwright CDN is
+  allowlist-blocked) and the live preview **403s WebFetch** — so **pixel-level QA needs the founder's
+  eye on the preview.** Everything is compile/SSR/content-verified; the *aesthetic* is not yet eyeballed.
+
+## ✅ Done — CI / security hardening (prior session, PR #5)
 - **OG deploy fix** — replaced dynamic `next/og` `ImageResponse` with a static `apps/storefront/public/og.png`
   (Medusa Cloud / OpenNext couldn't bundle `@vercel/og`). **Validated: Medusa preview ✅ Ready / ✅ Ready.**
 - **Bandit reconnect** — Learning Loop now writes the same Redis **hash** the ranker reads (was a
@@ -62,15 +87,24 @@ customer for the authed round-trip and asserts unauth → 401. Verified locally:
   and POST it back on `recommendation_click` + `purchase`. Behavioral — verify on a running env.
   **HANDOFF → Codex.**
 
-### 5. P2 — breathtaking craft (needs your eye on the preview)
-- **next/image** migration (raw `<img>` at `ProductRail.tsx:89`, `p/[handle]/page.tsx:143`;
-  `next.config.ts remotePatterns` already wildcard). Big LCP/CLS win — but watch OpenNext image
-  handling (it just bit us via `@vercel/og`); verify images load on the preview.
-- **Signature motion** — the corona reveal + totality countdown (specced in BRAND §6, **unbuilt**) on
-  the Hero + live DropBoard. This is the "first-of-its-kind" screenshot. Build + eyeball on the preview.
-- **Typography** — the build ships Cormorant Garamond serif in ~27 places vs the spec'd grotesque
-  (BRAND §5). Founder taste call: relax the spec or replace the type.
+### 5. P2 — breathtaking craft
+- ✅ **next/image** migration — done (rails, PDP, cart, command-palette thumbnails; `remotePatterns` wildcard).
+- ✅ **Signature motion** — Corona Reveal hero + live DropBoard shipped (see top block).
+- 🟡 **Founder's eye on the preview** — the one thing I cannot do here (no browser / preview 403s).
+  Please eyeball on the Storefront preview link in the PR: (a) the Eclipse field — too bright / too dim /
+  just-right; (b) the first-light cursor feel on desktop; (c) the Corona Reveal timing; (d) "Your Light"
+  on mobile (the 5 stars are absolutely-positioned in a 176px-tall field — confirm no overlap at 360px).
+- **Typography** — ships Cormorant Garamond serif in ~27 places vs the spec'd grotesque (BRAND §5).
+  Founder taste call: relax the spec or replace the type.
 - **Lighthouse / perf** pass on a hosted deploy (`cache:'no-store'` everywhere + home N+1 fan-out).
+
+### 6. R&D — next frontier toward "best of 2026" (candidates, ranked)
+- **View Transitions API** between routes (shared-element product→PDP morph) — replaces the plain fade
+  in `PageTransition.tsx`; Next App Router experimental flag. Makes navigation feel like one film.
+- **Editorial / bento homepage** — break the uniform-rail rhythm with one large "feature" piece +
+  satellites (magazine, not catalog). Highest-impact *structural* move; needs founder eye.
+- **Attribution loop closed** (see §4) — unlocks the bandit actually learning from clicks/convstns.
+- **Real embeddings** (see §4) — the recs become genuinely semantic. **Founder: embedding key.**
 
 ## 🧹 Safe cleanups (verified low-risk; flagged, not done — they're not my files)
 - Orphaned/unused (per audit): `apps/storefront/src/components/Reveal.tsx`,
