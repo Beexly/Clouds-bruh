@@ -1,10 +1,10 @@
 # LUMERA — NORTH STAR (Vision v2)
 
-> ⚠️ **STATUS: DRAFT — prior audit reconciled; pending a lineage decision (2026-06-01).** The
-> founder's prior `AUDIT_HEAD` (Lane B, `epic-clarke@ca17ce3`) is now reconciled (§0.5): it's
-> **complementary, not contradictory** — these findings stand. **Blocking promotion to canonical:**
-> (1) the founder must choose the canonical branch lineage (§4 — two structurally-incompatible trees
-> exist); (2) optional external benchmarking. Do not supersede `ARCHITECTURE.md` until these resolve.
+> ⚠️ **STATUS: DRAFT — lineage DECIDED (Lane A); promote once P0/P1 land in a verifiable env (2026-06-01).**
+> Prior `AUDIT_HEAD` (Lane B) reconciled (§0.5) — complementary; findings stand. **Canonical lineage =
+> Lane A** (`deploy/medusa-cloud` → live, Lumera-branded). **Lane B** (`epic-clarke`/`codex`,
+> `alter-xiv/`-nested) is **frozen** — diff it, port only portable wins (the `verify-api.ts` runner),
+> then retire. Founder delegated this call (2026-06-01). Optional external benchmarking still open.
 
 > The path from *"deployed intelligent-commerce platform"* to **the best website of 2026** —
 > innovative, cutting-edge, breathtaking, first-of-its-kind. Grounded in a three-front code audit
@@ -120,7 +120,7 @@ wired**) + personalization that *visibly* improves (requires P1).
 - **Test honesty gap.** Zero component / page / e2e tests; the headline "52 tests" are mostly
   lib + intelligence, **not** commerce-safety or rendering. Violates "verified, not assumed."
   Close it with **G13 (Playwright/k6 gates)** + **G10 (OTel trace/event taxonomy)**.
-- **🔴 Branch-lineage divergence — resolve before any further build.** Two structurally-incompatible
+- **✅ Branch-lineage divergence — DECIDED: Lane A canonical (2026-06-01); freeze Lane B.** Two structurally-incompatible
   trees both claim to be the project. **Lane A** = `deploy/medusa-cloud` → this branch: flat layout
   (`apps/ packages/ scripts/` at root), Lumera-branded, **what's actually deployed**, `verify-api.sh`
   only. **Lane B** = `epic-clarke` → `codex/verify-api-clean-checkout`: **everything nested under
