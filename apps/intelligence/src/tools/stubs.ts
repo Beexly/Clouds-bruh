@@ -46,7 +46,7 @@ export const contentDraft: Tool = {
   run: async (input) => ({
     entity_type: input.entity_type,
     entity_id: input.entity_id,
-    draft_content: `[DRAFT] Sacred copy for ${input.entity_type} ${input.entity_id}. Dark editorial. Sparse. On-brand.`,
+    draft_content: `[DRAFT] Luminous editorial copy for ${input.entity_type} ${input.entity_id}. Dark, sparse, on-brand.`,
     status: 'draft',
   }),
 };

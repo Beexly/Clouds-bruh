@@ -79,7 +79,7 @@ export const replyDraft: Tool = {
     required: ['question'],
   },
   run: async ({ question, context }) => ({
-    draft: `Be still — here is what I can share: ${context ?? 'I will look into this for you.'}`,
+    draft: `Here is what I can share: ${context ?? 'I will look into this for you.'}`,
     re: question,
     status: 'STAGED_FOR_APPROVAL',
     note: 'Support reply drafted; founder/agent sends, never the tool.',
