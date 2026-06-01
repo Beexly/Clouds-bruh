@@ -6,6 +6,7 @@ import { SiteHeader } from '../components/SiteHeader';
 import { PageTransition } from '../components/PageTransition';
 import { Shepherd } from '../components/Shepherd';
 import { CommandPalette } from '../components/CommandPalette';
+import { BRAND, EXPERIENCE, TAGLINE, DESCRIPTION } from '../lib/brand';
 
 // Editorial serif for the sacred voice; a quiet grotesque for the body.
 const serif = Cormorant_Garamond({
@@ -24,16 +25,15 @@ const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://alterxiv.com';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
-  title: { default: 'ALTER XIV — The Broadcast', template: '%s — ALTER XIV' },
-  description:
-    'Faith-rooted drop culture. Sacred objects, sacred armor. The Lord will fight for you; you need only be still. — Exodus 14:14',
+  title: { default: `${BRAND} — ${EXPERIENCE}`, template: `%s — ${BRAND}` },
+  description: DESCRIPTION,
   openGraph: {
     type: 'website',
-    title: 'ALTER XIV — The Broadcast',
-    description: 'Sacred objects, sacred armor. A living broadcast of drops.',
-    siteName: 'ALTER XIV',
+    title: `${BRAND} — ${EXPERIENCE}`,
+    description: TAGLINE,
+    siteName: BRAND,
   },
-  twitter: { card: 'summary_large_image', title: 'ALTER XIV — The Broadcast' },
+  twitter: { card: 'summary_large_image', title: `${BRAND} — ${EXPERIENCE}` },
 };
 
 export const viewport: Viewport = {
@@ -45,9 +45,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const org = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'ALTER XIV',
+    name: BRAND,
     url: SITE,
-    slogan: 'The Lord will fight for you; you need only be still.',
+    slogan: TAGLINE,
   };
   return (
     <html lang="en" className={`dark ${serif.variable} ${sans.variable}`}>

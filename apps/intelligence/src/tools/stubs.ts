@@ -7,7 +7,7 @@ import type { Tool } from './index';
 
 export const datasetQuery: Tool = {
   name: 'dataset_query',
-  description: 'Query the Alter XIV product catalog and signal data for curation insights.',
+  description: 'Query the Lumera product catalog and signal data for curation insights.',
   inputSchema: { type: 'object', properties: { q: { type: 'string' }, chapter: { type: 'string' } } },
   run: async ({ q, chapter }) => ({
     query: q,
@@ -37,7 +37,7 @@ export const productDraft: Tool = {
 
 export const contentDraft: Tool = {
   name: 'content_draft',
-  description: 'Draft SEO copy, meta descriptions, product copy in Alter XIV brand voice. Returns draft content.',
+  description: 'Draft SEO copy, meta descriptions, product copy in Lumera brand voice. Returns draft content.',
   inputSchema: {
     type: 'object',
     properties: { entity_type: { type: 'string' }, entity_id: { type: 'string' }, type: { type: 'string' } },
@@ -65,7 +65,7 @@ export const schemaWrite: Tool = {
 
 export const imageTemplates: Tool = {
   name: 'image_templates',
-  description: 'List available Higgsfield image templates for Alter XIV (hero, packshot, editorial, etc.)',
+  description: 'List available Higgsfield image templates for Lumera (hero, packshot, editorial, etc.)',
   inputSchema: { type: 'object', properties: { chapter: { type: 'string' } } },
   run: async (input) => ({
     templates: [
@@ -95,7 +95,7 @@ export const imageWrite: Tool = {
 
 export const brandAudit: Tool = {
   name: 'brand_audit',
-  description: 'Audit a product, drop, or image against Alter XIV brand standards (dark sacred editorial luxury).',
+  description: 'Audit a product, drop, or image against Lumera brand standards (dark sacred editorial luxury).',
   inputSchema: { type: 'object', properties: { entity_type: { type: 'string' }, entity_id: { type: 'string' }, content: { type: 'object' } }, required: ['entity_type'] },
   run: async (input) => ({
     entity_type: input.entity_type,

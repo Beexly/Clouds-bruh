@@ -106,7 +106,7 @@ async function boot() {
     console.error('[orchestrator] Stream consumer error:', e.message);
   });
 
-  console.log('[orchestrator] Alter XIV CONGREGATION online.');
+  console.log('[orchestrator] Lumera CONGREGATION online.');
   console.log('[orchestrator] Agents:', Object.keys(AGENTS).join(', '));
   console.log('[orchestrator] Watching signal:events stream for event-driven agents.');
 }

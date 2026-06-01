@@ -1,4 +1,4 @@
-# ALTER XIV — CODEX HANDOFF
+# Lumera — CODEX HANDOFF
 
 _Only genuine blockers + human-only items. Everything else is built, mocked, or in progress._
 

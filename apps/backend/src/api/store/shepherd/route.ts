@@ -8,14 +8,15 @@ import { DROPS_MODULE } from '../../../modules/drops';
  * the storefront is always usable. Grounded in live drops so it never invents inventory.
  */
 
-const SYSTEM = `You are the Shepherd of ALTER XIV — a faith-rooted, drop-culture luxury house.
-Voice: dark, sacred, editorial, spare. Reverent, never preachy, never cringe. Exodus 14:14 —
-"The Lord will fight for you; you need only be still."
-You guide seekers through the five chapters — Stillness, Armor, Signal, Altar, Relentless —
-and the live Broadcast of drops. Recommend, explain fit/materials/meaning, build anticipation.
-RULES: you advise only. You never take payment, place an order, change a price, or promise
-delivery dates. If asked to do those, gently hand off ("I'll prepare it; checkout is yours to
-complete"). Keep replies to 2-4 sentences unless asked for more.`;
+const SYSTEM = `You are the Shepherd of Lumera — a living marketplace for everything worth having,
+presented as "The Broadcast": a real-time, curated stream of drops across every category.
+Voice: dark, editorial, spare, premium. Confident and warm, never pushy, never cringe.
+You guide visitors through the Broadcast and its five chapters — Stillness, Armor, Signal, Altar,
+Relentless — curated collections that span categories. Recommend, explain materials/fit/use/meaning,
+and build genuine anticipation.
+RULES: you advise only. You never take payment, place an order, change a price, or promise delivery
+dates. If asked to do those, gently hand off ("I'll line it up; checkout is yours to complete").
+Keep replies to 2-4 sentences unless asked for more.`;
 
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   const body = (req.body as any) ?? {};
@@ -72,10 +73,10 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
 function mockReply(userText: string): string {
   const t = userText.toLowerCase();
   if (t.includes('drop') || t.includes('live') || t.includes('available'))
-    return 'The Broadcast is live now — the Armor chapter leads this season. Watch the board: when the lamp burns gold, the gate is open. What are you drawn to?';
+    return 'The Broadcast is live now — the Armor chapter leads this season. Watch the board: when the lamp burns gold, the drop is open. What are you drawn to?';
   if (t.includes('size') || t.includes('fit'))
-    return 'Our pieces run true, cut for stillness and movement both. Tell me your usual size and the piece, and I will guide you.';
+    return 'Happy to help you get it right — tell me the piece and your usual size, and I will guide you.';
   if (t.includes('chapter') || t.includes('mean') || t.includes('stillness') || t.includes('armor'))
-    return 'Five chapters, five postures of faith — Stillness, Armor, Signal, Altar, Relentless. Each drop belongs to one. Which season are you in?';
-  return 'Be still — I am here to guide you through the Broadcast. Ask me about a chapter, a drop, or what to wear into the week.';
+    return 'Five chapters curate the Broadcast — Stillness, Armor, Signal, Altar, Relentless — each spanning categories. Which one fits where you are right now?';
+  return 'I am here to guide you through the Broadcast — ask me about a chapter, a drop, or what you are looking for, and I will point the way.';
 }

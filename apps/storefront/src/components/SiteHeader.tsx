@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useCart } from '../context/cart';
 import { signal } from '../lib/signal';
+import { BRAND } from '../lib/brand';
 
 const CHAPTERS = ['stillness', 'armor', 'signal', 'altar', 'relentless'] as const;
 
@@ -14,7 +15,7 @@ export function SiteHeader() {
           href="/"
           className="font-serif text-2xl font-light tracking-[0.2em] text-foil transition-opacity hover:opacity-80"
         >
-          ALTER&nbsp;XIV
+          {BRAND}
         </Link>
         <nav className="hidden items-center gap-7 text-micro uppercase text-neutral-500 md:flex">
           <Link href="/drops" className="py-1 transition-colors duration-300 hover:text-altar-goldlight">

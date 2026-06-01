@@ -10,7 +10,7 @@ function pool(): Pool {
 }
 
 const SCHEMA_CONTEXT = `
-Alter XIV commerce DB (READ-ONLY):
+Lumera commerce DB (READ-ONLY):
 - product(id, title, handle, status, metadata jsonb [chapter, sku, source, brand], deleted_at)
 - product_variant(id, product_id, title)
 - price(id, price_set_id, amount int [cents], currency_code)

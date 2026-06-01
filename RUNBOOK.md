@@ -1,9 +1,9 @@
-# ALTER XIV — RUNBOOK
+# Lumera — RUNBOOK
 
 How to bring the system up and verify it from a clean checkout. Three explicit readiness
 gates — don't conflate them.
 
-> **Already deployed.** Alter XIV is live on **Medusa Cloud** (branch `deploy/medusa-cloud`): backend
+> **Already deployed.** Lumera is live on **Medusa Cloud** (branch `deploy/medusa-cloud`): backend
 > Ready·Active, storefront at `https://gegege.medusajs.site`. For the live store + go-live checklist see
 > **`LAUNCH_READINESS.md`**, run **`pnpm preflight`** for a live go/no-go, and **`pnpm bootstrap`** to seed
 > a fresh deploy into a real store.

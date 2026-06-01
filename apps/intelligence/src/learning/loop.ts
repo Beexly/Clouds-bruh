@@ -24,7 +24,7 @@ function redis(): Redis | null {
 }
 
 /**
- * THE LEARNING LOOP — what makes Alter XIV self-improving.
+ * THE LEARNING LOOP — what makes Lumera self-improving.
  * Called for every SIGNAL event. Routes reward to three places:
  *   1. bandit — reward the Broadcast block / recommendation that led to the action
  *   2. embeddings — queue a refresh for purchased products + this visitor's vector
