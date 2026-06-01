@@ -72,19 +72,15 @@ async function rewardBandit(event: SignalEvent, reward: number): Promise<void> {
     if (!block) return;
 
     const key = `bandit:${segment}:${block}`;
-    // Increment alpha (successes) in the Beta(alpha, beta) distribution
-    const current = await r.get(key);
-    let alpha = 1, beta = 1;
-    if (current) {
-      const [a, b] = current.split(' ').map(Number);
-      alpha = a || 1;
-      beta = b || 1;
-    }
-    // Reward = increment alpha by reward weight
-    const newAlpha = alpha + reward;
-    await r.set(key, `${newAlpha} ${beta}`, 'EX', 86400 * 30);
+    // Reward = increment alpha (successes) of the Beta(alpha, beta) arm. This MUST use the same
+    // Redis representation the ranker reads at serve time — a HASH with alpha/beta fields
+    // (recommendation/service.ts → rankBroadcastBlocks/reward). The previous string form
+    // (`set "α β"`) collided with that hash (WRONGTYPE, swallowed), silently disconnecting the
+    // Learning Loop from the bandit so conversions never moved the Broadcast ordering.
+    await r.hincrbyfloat(key, 'alpha', reward);
+    await r.expire(key, 86400 * 30).catch(() => {}); // sliding 30d retention; non-fatal
 
-    console.log(`[learning] Bandit reward: segment=${segment} block=${block} alpha ${alpha}→${newAlpha} (reward=${reward})`);
+    console.log(`[learning] Bandit reward: segment=${segment} block=${block} alpha +=${reward}`);
   } catch (e: any) {
     console.warn('[learning] rewardBandit error:', e.message?.slice(0, 80));
   }
@@ -232,10 +228,12 @@ async function analyseTopBlocks(): Promise<Record<string, string>> {
     let bestTheta = 0;
     for (const block of blocks) {
       const key = `bandit:${segment}:${block}`;
-      const val = await r.get(key).catch(() => null);
-      if (val) {
-        const [alpha, beta] = val.split(' ').map(Number);
-        const theta = (alpha || 1) / ((alpha || 1) + (beta || 1));
+      // Read the same hash the ranker + reward writer use (alpha/beta fields), not a string.
+      const raw = await r.hgetall(key).catch(() => null);
+      if (raw && (raw.alpha != null || raw.beta != null)) {
+        const alpha = parseFloat(raw.alpha ?? '1') || 1;
+        const beta = parseFloat(raw.beta ?? '1') || 1;
+        const theta = alpha / (alpha + beta);
         if (theta > bestTheta) {
           bestTheta = theta;
           bestBlock = block;
