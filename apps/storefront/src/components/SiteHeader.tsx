@@ -49,6 +49,17 @@ export function SiteHeader() {
             <span className="hidden text-micro uppercase md:inline">Search</span>
           </button>
           <Link
+            href="/account"
+            aria-label="Account"
+            className="group flex items-center gap-2 text-neutral-400 transition-colors hover:text-neutral-100"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 21c0-4 4-6 8-6s8 2 8 6" />
+            </svg>
+            <span className="hidden text-micro uppercase md:inline">Account</span>
+          </Link>
+          <Link
             href="/cart"
             className="group relative flex items-center gap-2 text-neutral-400 transition-colors hover:text-neutral-100"
           >
