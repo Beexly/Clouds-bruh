@@ -6,7 +6,8 @@
     "dev": "tsx watch src/orchestrator/index.ts",
     "build": "tsc",
     "test": "vitest run",
-    "operator": "tsx src/operator/index.ts"
+    "operator": "tsx src/operator/index.ts",
+    "lint": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@alterxiv/shared": "workspace:*",

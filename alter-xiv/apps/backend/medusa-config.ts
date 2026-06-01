@@ -23,9 +23,15 @@ export default defineConfig({
     { resolve: './src/modules/personalization' },
     { resolve: './src/modules/recommendation' },
     { resolve: './src/modules/monetization' },
-    // Redis-backed event bus + workflow engine in production:
-    { resolve: '@medusajs/medusa/event-bus-redis', options: { redisUrl: process.env.REDIS_URL } },
-    { resolve: '@medusajs/medusa/workflow-engine-redis', options: { redis: { url: process.env.REDIS_URL } } },
+    // Redis-backed event bus + workflow engine ONLY when REDIS_URL is set. Without it Medusa
+    // falls back to its in-memory defaults, so `db:migrate`, seed, and boot work on a clean
+    // checkout with no Redis available (and never hang waiting on a Redis connection).
+    ...(process.env.REDIS_URL
+      ? [
+          { resolve: '@medusajs/medusa/event-bus-redis', options: { redisUrl: process.env.REDIS_URL } },
+          { resolve: '@medusajs/medusa/workflow-engine-redis', options: { redis: { url: process.env.REDIS_URL } } },
+        ]
+      : []),
     // Payment: pp_system_default always enabled; Stripe activated when key present
     {
       resolve: '@medusajs/medusa/payment',

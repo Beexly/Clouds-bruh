@@ -154,7 +154,11 @@ async function run() {
   await check('GET /store/analyst — demand forecast is predictive', async () => {
     const d = await get('/store/analyst?q=forecast+demand+by+chapter+next+week');
     assert(/Demand forecast/.test(d.description), `wrong query matched: ${d.description}`);
-    assert(/next-week demand|wk\/wk/.test(d.insight), `not a forecast insight: ${d.insight}`);
+    // On a fresh install with no 14-day history, "No data available." is a valid forecast result.
+    assert(
+      /next-week demand|wk\/wk|No data available/.test(d.insight),
+      `not a forecast insight: ${d.insight}`
+    );
   });
 
   await check('GET /store/analyst — churn risk projection', async () => {

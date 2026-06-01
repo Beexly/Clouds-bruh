@@ -4,7 +4,10 @@
   "version": "0.1.0",
   "description": "Alter XIV — intelligent drop-culture commerce platform. The Broadcast.",
   "packageManager": "pnpm@9.0.0",
-  "workspaces": ["apps/*", "packages/*"],
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
@@ -12,7 +15,8 @@
     "test": "turbo run test",
     "test:unit": "vitest run",
     "test:regression": "tsx scripts/api-regression.ts",
-    "lint": "turbo run lint"
+    "lint": "turbo run lint",
+    "verify:api": "bash scripts/verify-api.sh"
   },
   "devDependencies": {
     "turbo": "^2.1.0",

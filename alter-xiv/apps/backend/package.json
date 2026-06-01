@@ -6,7 +6,8 @@
     "dev": "medusa develop",
     "build": "medusa build",
     "seed": "medusa exec ../../scripts/seed.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "lint": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "@alterxiv/shared": "workspace:*",
