@@ -256,7 +256,7 @@ const CHECKS: Array<{ type: Audit['type']; run: () => Promise<Audit[]> }> = [
     },
   },
 
-  // ── Integrity: Altar Credits wallet reconciliation (ledger must equal balance) ──
+  // ── Integrity: Lumens wallet reconciliation (ledger must equal balance) ──
   {
     type: 'integrity',
     run: async () => {

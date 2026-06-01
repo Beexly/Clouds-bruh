@@ -6,7 +6,7 @@ const MONETIZATION_MODULE = 'monetization';
 const TIERS = [
   {
     key: 'disciple',
-    name: 'Disciple',
+    name: 'Ember',
     description: 'Early access to drops and member pricing.',
     price_cents: 900,
     interval: 'month',
@@ -14,8 +14,8 @@ const TIERS = [
   },
   {
     key: 'patron',
-    name: 'Patron',
-    description: 'The inner sanctuary — first access, patron pricing, free shipping, and Altar Credits each month.',
+    name: 'Luminary',
+    description: 'The inner circle — first access, member pricing, free shipping, and Lumens each month.',
     price_cents: 2500,
     interval: 'month',
     entitlements: ['early_access', 'patron_pricing', 'free_shipping', 'monthly_credits', 'patron_drops'],

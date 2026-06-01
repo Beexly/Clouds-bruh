@@ -34,7 +34,7 @@ export default async function orderPlaced({ event, container }: SubscriberArgs<{
       }
     }
 
-    // Altar Rewards: grant credits for the purchase (Patron earns 2×). Keyed to the customer
+    // Luminance: grant credits for the purchase (Patron earns 2×). Keyed to the customer
     // if identified, else the anonymous visitor so guests still accrue toward their wallet.
     const orderTotalCents = (order.items ?? []).reduce(
       (s: number, i: any) => s + (i.unit_price ?? 0) * (i.quantity ?? 1),
@@ -45,7 +45,7 @@ export default async function orderPlaced({ event, container }: SubscriberArgs<{
       try {
         const monetization = container.resolve('monetization') as any;
         const awarded = await monetization.awardForPurchase(account, orderTotalCents);
-        console.log(`[order-placed] Altar Rewards: granted ${awarded} credits to ${account}`);
+        console.log(`[order-placed] Luminance: granted ${awarded} credits to ${account}`);
       } catch (e: any) {
         console.warn('[order-placed] reward grant failed:', e.message?.slice(0, 60));
       }

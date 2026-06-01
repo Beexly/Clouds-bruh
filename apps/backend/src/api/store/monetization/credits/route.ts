@@ -1,7 +1,7 @@
 import type { MedusaRequest, MedusaResponse } from '@medusajs/framework';
 import { MONETIZATION_MODULE } from '../../../../modules/monetization';
 
-/** POST { customer_id, amount, ref? } — purchase Altar Credits (test mode). */
+/** POST { customer_id, amount, ref? } — purchase Lumens (test mode). */
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   const { customer_id, amount, ref } = (req.body as any) ?? {};
   if (!customer_id || !amount || amount <= 0) {

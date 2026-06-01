@@ -6,7 +6,7 @@ import { CreditTransaction } from './models/credit-transaction';
 import { GiftCard } from './models/gift-card';
 
 /**
- * MONETIZE — memberships/Patron tier (Autumn pattern) + Altar Credits (Flexprice pattern)
+ * MONETIZE — memberships/Patron tier (Autumn pattern) + Lumens (Flexprice pattern)
  * + gift cards. All money flows are Stripe test-mode / pp_system_default only; nothing here
  * moves real money. Subscriptions mirror to Stripe when STRIPE_API_KEY is set, else stay local.
  */
@@ -56,7 +56,7 @@ class MonetizationService extends MedusaService({
     return { tier: keys[0], entitlements, is_patron: keys.includes('patron') };
   }
 
-  // ---- Altar Credits (Flexprice: wallet + append-only ledger) ----
+  // ---- Lumens (Flexprice: wallet + append-only ledger) ----
 
   async walletFor(customerId: string) {
     const [w] = await this.listCreditWallets({ customer_id: customerId });
@@ -69,7 +69,7 @@ class MonetizationService extends MedusaService({
     const wallet = await this.walletFor(customerId);
     const delta = kind === 'debit' ? -Math.abs(amount) : Math.abs(amount);
     const balanceAfter = (wallet.balance ?? 0) + delta;
-    if (balanceAfter < 0) throw new Error('Insufficient Altar Credits');
+    if (balanceAfter < 0) throw new Error('Insufficient Lumens');
     await this.updateCreditWallets([{ selector: { id: wallet.id }, data: { balance: balanceAfter } as any }]);
     await this.createCreditTransactions([
       { customer_id: customerId, kind, amount: delta, balance_after: balanceAfter, reason: reason ?? null, ref: ref ?? null } as any,
@@ -108,7 +108,7 @@ class MonetizationService extends MedusaService({
     return { redeemed: gc.initial_balance, wallet_balance: balanceAfter };
   }
 
-  // ---- Altar Rewards (loyalty: earn credits on purchase, Patron multiplier) ----
+  // ---- Luminance (loyalty: earn credits on purchase, Patron multiplier) ----
 
   /** Grant reward credits for a purchase. Patron tier earns 2×. Returns credits awarded. */
   async awardForPurchase(accountId: string, orderTotalCents: number) {
@@ -129,10 +129,10 @@ class MonetizationService extends MedusaService({
     const { is_patron, tier } = (await this.entitlementsFor(accountId).catch(() => ({ is_patron: false, tier: null }))) as any;
 
     const TIERS = [
-      { name: 'Seeker', at: 0 },
-      { name: 'Faithful', at: 2500 },
-      { name: 'Anointed', at: 10000 },
-      { name: 'Elect', at: 50000 },
+      { name: 'Spark', at: 0 },
+      { name: 'Glow', at: 2500 },
+      { name: 'Aurora', at: 10000 },
+      { name: 'Zenith', at: 50000 },
     ];
     let current = TIERS[0];
     let next: (typeof TIERS)[number] | null = null;

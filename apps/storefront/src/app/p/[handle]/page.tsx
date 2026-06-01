@@ -164,7 +164,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
             )}
             {earnUsd > 0 && (
               <p className="mt-4 text-xs text-altar-goldlight/80">
-                Earn ${earnUsd.toFixed(2)} in Altar credit with this offering.
+                Earn ${earnUsd.toFixed(2)} in Lumens with this offering.
               </p>
             )}
             {product.description && (

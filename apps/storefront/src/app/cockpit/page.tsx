@@ -104,7 +104,7 @@ export default async function Cockpit() {
 
           {/* Recent agent runs */}
           <section className="rounded-sm border border-white/[0.07] p-5">
-            <h2 className="mb-4 text-label uppercase text-neutral-400">Congregation — Recent Runs</h2>
+            <h2 className="mb-4 text-label uppercase text-neutral-400">The Constellation — Recent Runs</h2>
             <ul className="space-y-2">
               {runs.map((r, i) => (
                 <li key={i} className="flex items-center justify-between text-sm">

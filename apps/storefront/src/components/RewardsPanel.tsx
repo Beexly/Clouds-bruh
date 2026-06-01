@@ -15,7 +15,7 @@ interface Rewards {
 }
 
 /**
- * Altar Rewards — the loyalty surface. Shows balance, tier, and a Fogg-model nudge toward the
+ * Luminance — the loyalty surface. Shows balance, tier, and a Fogg-model nudge toward the
  * next blessing. `cartTotalCents` previews what this purchase will earn (motivation at the
  * highest-intent moment). Credits are cents (1 credit = 1¢).
  */
@@ -41,8 +41,8 @@ export function RewardsPanel({ cartTotalCents = 0 }: { cartTotalCents?: number }
   return (
     <div className="rounded-sm border border-altar-gold/20 bg-altar-gold/[0.04] p-5">
       <div className="flex items-center justify-between">
-        <span className="text-micro uppercase text-altar-goldlight">Altar Rewards · {r.reward_tier}</span>
-        <span className="text-sm tabular-nums text-neutral-200">${(r.balance / 100).toFixed(2)} credit</span>
+        <span className="text-micro uppercase text-altar-goldlight">Luminance · {r.reward_tier}</span>
+        <span className="text-sm tabular-nums text-neutral-200">{r.balance.toLocaleString()} Lumens</span>
       </div>
 
       {r.next_tier && (
@@ -51,7 +51,7 @@ export function RewardsPanel({ cartTotalCents = 0 }: { cartTotalCents?: number }
             <div className="h-full bg-altar-gold/70" style={{ width: `${pctToNext}%` }} />
           </div>
           <p className="mt-2 text-micro uppercase text-neutral-500">
-            ${(r.credits_to_next / 100).toFixed(2)} more to {r.next_tier}
+            {r.credits_to_next.toLocaleString()} Lumens to {r.next_tier}
           </p>
         </>
       )}
@@ -59,8 +59,8 @@ export function RewardsPanel({ cartTotalCents = 0 }: { cartTotalCents?: number }
       {willEarn > 0 && (
         <p className="mt-3 text-xs text-neutral-400">
           This order earns{' '}
-          <span className="text-altar-goldlight">${(willEarn / 100).toFixed(2)}</span> in credit
-          {r.multiplier > 1 ? ` (×${r.multiplier} patron)` : ''}.
+          <span className="text-altar-goldlight">{willEarn.toLocaleString()}</span> Lumens
+          {r.multiplier > 1 ? ` (×${r.multiplier} Luminary)` : ''}.
         </p>
       )}
     </div>

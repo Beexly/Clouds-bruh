@@ -1,6 +1,6 @@
 import { model } from '@medusajs/framework/utils';
 
-/** Append-only Altar Credits ledger: grants, purchases, debits, credit-notes. */
+/** Append-only Lumens ledger: grants, purchases, debits, credit-notes. */
 export const CreditTransaction = model.define('credit_transaction', {
   id: model.id().primaryKey(),
   customer_id: model.text(),

@@ -1,7 +1,7 @@
 import type { MedusaRequest, MedusaResponse } from '@medusajs/framework';
 import { MONETIZATION_MODULE } from '../../../../modules/monetization';
 
-/** GET ?customer_id= — Altar Credits balance + recent ledger. */
+/** GET ?customer_id= — Lumens balance + recent ledger. */
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   const customerId = req.query.customer_id as string;
   if (!customerId) return res.status(400).json({ error: 'customer_id is required' });

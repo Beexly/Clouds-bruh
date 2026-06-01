@@ -187,11 +187,11 @@ async function run() {
     assert(Array.isArray(d.approval_inbox), 'missing approval_inbox');
   });
 
-  // ── Altar Rewards loyalty (Wave H) ───────────────────────────────────────
+  // ── Luminance loyalty (Wave H) ───────────────────────────────────────
   await check('GET /store/rewards — returns tier + next-blessing state', async () => {
     const d = await get(`/store/rewards?visitor_id=rewards-reg-${Date.now()}`);
-    assert(d.reward_tier === 'Seeker', `fresh account should be Seeker, got ${d.reward_tier}`);
-    assert(d.next_tier === 'Faithful' && d.credits_to_next === 2500, 'wrong next-tier math');
+    assert(d.reward_tier === 'Spark', `fresh account should be Spark, got ${d.reward_tier}`);
+    assert(d.next_tier === 'Glow' && d.credits_to_next === 2500, 'wrong next-tier math');
     assert(typeof d.balance === 'number' && typeof d.multiplier === 'number', 'missing rewards fields');
   });
 

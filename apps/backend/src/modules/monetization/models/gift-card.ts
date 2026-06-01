@@ -1,6 +1,6 @@
 import { model } from '@medusajs/framework/utils';
 
-/** Altar-branded gift card (a sealed offering). Redeems into the recipient's credit wallet. */
+/** Lumera gift card (a sealed offering). Redeems into the recipient's credit wallet. */
 export const GiftCard = model.define('gift_card', {
   id: model.id().primaryKey(),
   code: model.text().unique(),

@@ -1,6 +1,6 @@
 const MONETIZATION_MODULE = 'monetization';
 
-/** Verify Altar Rewards: Patron 2× earn + tier progression. Run via medusa exec. */
+/** Verify Luminance: Patron 2× earn + tier progression. Run via medusa exec. */
 export default async function verifyRewards({ container }: { container: any }) {
   const svc: any = container.resolve(MONETIZATION_MODULE);
   const account = `reward-verify-${Date.now()}`;
