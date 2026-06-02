@@ -1,13 +1,14 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { signal } from '../lib/signal';
+import { CHAPTERS, chapterLabel } from '../lib/chapters';
 
 const BASE = process.env.NEXT_PUBLIC_MEDUSA_URL || 'http://localhost:9000';
 const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
-const CHAPTERS = ['stillness', 'armor', 'signal', 'altar', 'relentless'] as const;
 
 /** Cmd/Ctrl-K command palette — search products + chapters. Debounced, sacred, keyboard-first. */
 export function CommandPalette() {
@@ -65,7 +66,9 @@ export function CommandPalette() {
   }, [q]);
 
   const chapterMatches = q.trim()
-    ? CHAPTERS.filter((c) => c.includes(q.toLowerCase()))
+    ? CHAPTERS.filter(
+        (c) => c.includes(q.toLowerCase()) || chapterLabel(c).toLowerCase().includes(q.toLowerCase()),
+      )
     : CHAPTERS;
 
   function go(href: string) {
@@ -123,7 +126,7 @@ export function CommandPalette() {
                         }}
                         className="rounded-full border border-white/10 px-3 py-1 text-micro uppercase text-neutral-400 transition hover:border-altar-gold/40 hover:text-altar-goldlight"
                       >
-                        {c}
+                        {chapterLabel(c)}
                       </button>
                     ))}
                   </div>
@@ -144,12 +147,12 @@ export function CommandPalette() {
                         className="flex w-full items-center gap-3 rounded-sm px-2 py-2 text-left transition hover:bg-white/[0.04]"
                       >
                         {p.thumbnail && (
-                          <img src={p.thumbnail} alt="" className="h-10 w-8 rounded-sm object-cover" />
+                          <Image src={p.thumbnail} alt="" width={32} height={40} className="h-10 w-8 rounded-sm object-cover" />
                         )}
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-sm text-neutral-200">{p.title}</span>
                           <span className="flex items-center gap-2 text-micro uppercase text-neutral-600">
-                            {p.chapter && <span className="text-altar-goldlight/70">{p.chapter}</span>}
+                            {p.chapter && <span className="text-altar-goldlight/70">{chapterLabel(p.chapter)}</span>}
                             {p.reason && <span className="italic normal-case tracking-normal text-neutral-700">· {p.reason}</span>}
                           </span>
                         </span>

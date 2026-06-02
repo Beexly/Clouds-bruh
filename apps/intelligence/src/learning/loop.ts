@@ -72,19 +72,27 @@ async function rewardBandit(event: SignalEvent, reward: number): Promise<void> {
     if (!block) return;
 
     const key = `bandit:${segment}:${block}`;
-    // Increment alpha (successes) in the Beta(alpha, beta) distribution
-    const current = await r.get(key);
-    let alpha = 1, beta = 1;
-    if (current) {
-      const [a, b] = current.split(' ').map(Number);
-      alpha = a || 1;
-      beta = b || 1;
+    // Reward the Beta(alpha, beta) arm in the SAME Redis hash the ranker reads at serve time
+    // (recommendation/service.ts → rankBroadcastBlocks). Two correctness details:
+    //  1. Seed the Beta(1,1) prior first (HSETNX): HINCRBYFLOAT on a missing field starts from 0,
+    //     so a brand-new arm's first reward would read back as the 1,1 default — i.e. no learning.
+    //  2. The old loop stored these keys as strings ("α β"); HINCRBYFLOAT throws WRONGTYPE on them.
+    //     Migrate such legacy keys on contact (replace with a hash arm) rather than dropping rewards.
+    try {
+      await r.hsetnx(key, 'alpha', '1');
+      await r.hsetnx(key, 'beta', '1');
+      await r.hincrbyfloat(key, 'alpha', reward);
+    } catch (e: any) {
+      if (String(e?.message ?? '').includes('WRONGTYPE')) {
+        await r.del(key);
+        await r.hset(key, 'alpha', String(1 + reward), 'beta', '1');
+      } else {
+        throw e;
+      }
     }
-    // Reward = increment alpha by reward weight
-    const newAlpha = alpha + reward;
-    await r.set(key, `${newAlpha} ${beta}`, 'EX', 86400 * 30);
+    await r.expire(key, 86400 * 30).catch(() => {}); // sliding 30d retention; non-fatal
 
-    console.log(`[learning] Bandit reward: segment=${segment} block=${block} alpha ${alpha}→${newAlpha} (reward=${reward})`);
+    console.log(`[learning] Bandit reward: segment=${segment} block=${block} alpha +=${reward}`);
   } catch (e: any) {
     console.warn('[learning] rewardBandit error:', e.message?.slice(0, 80));
   }
@@ -232,10 +240,12 @@ async function analyseTopBlocks(): Promise<Record<string, string>> {
     let bestTheta = 0;
     for (const block of blocks) {
       const key = `bandit:${segment}:${block}`;
-      const val = await r.get(key).catch(() => null);
-      if (val) {
-        const [alpha, beta] = val.split(' ').map(Number);
-        const theta = (alpha || 1) / ((alpha || 1) + (beta || 1));
+      // Read the same hash the ranker + reward writer use (alpha/beta fields), not a string.
+      const raw = await r.hgetall(key).catch(() => null);
+      if (raw && (raw.alpha != null || raw.beta != null)) {
+        const alpha = parseFloat(raw.alpha ?? '1') || 1;
+        const beta = parseFloat(raw.beta ?? '1') || 1;
+        const theta = alpha / (alpha + beta);
         if (theta > bestTheta) {
           bestTheta = theta;
           bestBlock = block;

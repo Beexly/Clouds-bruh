@@ -4,10 +4,14 @@
  */
 const API = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000';
 const PK = process.env.PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
+// Internal BI/ops surfaces (/store/analyst, /store/cockpit) fail CLOSED in production: when COCKPIT_KEY
+// is set they require it via x-cockpit-key. `medusa start` runs in production mode, so present it when set.
+const COCKPIT_KEY = process.env.COCKPIT_KEY || '';
 
 const headers: Record<string, string> = {
   'Content-Type': 'application/json',
   ...(PK ? { 'x-publishable-api-key': PK } : {}),
+  ...(COCKPIT_KEY ? { 'x-cockpit-key': COCKPIT_KEY } : {}),
 };
 
 let passed = 0;
@@ -32,6 +36,31 @@ async function get(path: string) {
   const res = await fetch(`${API}${path}`, { headers });
   assert(res.ok, `HTTP ${res.status} on GET ${path}`);
   return res.json();
+}
+
+/** Register + log in a throwaway customer; returns a bearer token + customer id for the
+ *  authenticated /store/monetization/* routes (which now derive customer_id from the session). */
+async function authedCustomer(): Promise<{ token: string; customerId: string }> {
+  const email = `regression-${Date.now()}@example.com`;
+  const password = 'Regression123!';
+  const reg = await fetch(`${API}/auth/customer/emailpass/register`, {
+    method: 'POST', headers, body: JSON.stringify({ email, password }),
+  });
+  assert(reg.ok, `register failed: HTTP ${reg.status}`);
+  const regToken = (await reg.json()).token as string;
+  const created = await fetch(`${API}/store/customers`, {
+    method: 'POST', headers: { ...headers, Authorization: `Bearer ${regToken}` },
+    body: JSON.stringify({ email }),
+  });
+  assert(created.ok, `create customer failed: HTTP ${created.status}`);
+  const customerId = (await created.json()).customer?.id as string;
+  const login = await fetch(`${API}/auth/customer/emailpass`, {
+    method: 'POST', headers, body: JSON.stringify({ email, password }),
+  });
+  assert(login.ok, `login failed: HTTP ${login.status}`);
+  const token = (await login.json()).token as string;
+  assert(!!token && !!customerId, 'missing token or customer id');
+  return { token, customerId };
 }
 
 async function run() {
@@ -138,16 +167,24 @@ async function run() {
     assert(Array.isArray(d.tiers) && d.tiers.some((t: any) => t.key === 'patron'), 'patron tier missing');
   });
 
-  await check('POST subscribe + purchase credits — test mode round-trip', async () => {
-    const cust = `regression-${Date.now()}`;
+  await check('POST subscribe + purchase credits — authed test-mode round-trip', async () => {
+    const { token } = await authedCustomer();
+    const ah = { ...headers, Authorization: `Bearer ${token}` };
     const sub = await (await fetch(`${API}/store/monetization/subscribe`, {
-      method: 'POST', headers, body: JSON.stringify({ customer_id: cust, tier_key: 'patron' }),
+      method: 'POST', headers: ah, body: JSON.stringify({ tier_key: 'patron' }),
     })).json();
     assert(sub.is_patron === true, 'subscribe did not grant patron');
     const credits = await (await fetch(`${API}/store/monetization/credits`, {
-      method: 'POST', headers, body: JSON.stringify({ customer_id: cust, amount: 1000 }),
+      method: 'POST', headers: ah, body: JSON.stringify({ amount: 1000 }),
     })).json();
     assert(credits.balance === 1000, `credit balance ${credits.balance} != 1000`);
+  });
+
+  await check('POST /store/monetization/subscribe — 401 without auth (money routes are locked)', async () => {
+    const res = await fetch(`${API}/store/monetization/subscribe`, {
+      method: 'POST', headers, body: JSON.stringify({ customer_id: 'attacker', tier_key: 'patron' }),
+    });
+    assert(res.status === 401, `expected 401 unauth, got ${res.status}`);
   });
 
   // ── Predictive BI (Wave D / Phase 9) ─────────────────────────────────────

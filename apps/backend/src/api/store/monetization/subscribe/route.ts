@@ -1,12 +1,12 @@
-import type { MedusaRequest, MedusaResponse } from '@medusajs/framework';
+import type { AuthenticatedMedusaRequest, MedusaResponse } from '@medusajs/framework';
 import { MONETIZATION_MODULE } from '../../../../modules/monetization';
 
-/** POST { customer_id, tier_key } — subscribe to a membership tier (Stripe test mode / local). */
-export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
-  const { customer_id, tier_key } = (req.body as any) ?? {};
-  if (!customer_id || !tier_key) {
-    return res.status(400).json({ error: 'customer_id and tier_key are required' });
-  }
+/** POST { tier_key } — subscribe the AUTHENTICATED customer to a membership tier (Stripe test mode / local). */
+export const POST = async (req: AuthenticatedMedusaRequest, res: MedusaResponse) => {
+  const customer_id = req.auth_context?.actor_id;
+  const { tier_key } = (req.body as any) ?? {};
+  if (!customer_id) return res.status(401).json({ error: 'authentication required' });
+  if (!tier_key) return res.status(400).json({ error: 'tier_key is required' });
   try {
     const svc: any = req.scope.resolve(MONETIZATION_MODULE);
     const entitlements = await svc.subscribe(customer_id, tier_key);

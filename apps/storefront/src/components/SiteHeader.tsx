@@ -1,36 +1,45 @@
 'use client';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useCart } from '../context/cart';
 import { signal } from '../lib/signal';
 import { BRAND } from '../lib/brand';
-
-const CHAPTERS = ['stillness', 'armor', 'signal', 'altar', 'relentless'] as const;
+import { CHAPTERS, chapterLabel } from '../lib/chapters';
 
 export function SiteHeader() {
   const { lineCount } = useCart();
+  const pathname = usePathname();
   return (
     <header className="sticky top-0 z-50 border-b border-white/[0.06] bg-void/80 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-        <Link
-          href="/"
-          className="font-sans text-2xl font-medium lowercase tracking-[0.1em] text-foil transition-opacity hover:opacity-80"
-        >
-          {BRAND}
+        <Link href="/" aria-label={BRAND} className="group flex items-center gap-2.5 transition-opacity hover:opacity-90">
+          {/* corona mark — the ring + first-light point */}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden className="shrink-0">
+            <circle cx="12" cy="12" r="9.5" stroke="#E9D8A6" strokeWidth="1.5" />
+            <circle cx="12" cy="2.5" r="2" fill="#F4EEDD" />
+          </svg>
+          <span className="font-sans text-2xl font-medium lowercase tracking-[0.1em] text-foil">{BRAND}</span>
         </Link>
         <nav className="hidden items-center gap-7 text-micro uppercase text-neutral-500 md:flex">
           <Link href="/drops" className="py-1 transition-colors duration-300 hover:text-altar-goldlight">
             Drops
           </Link>
-          {CHAPTERS.map((ch) => (
-            <Link
-              key={ch}
-              href={`/chapter/${ch}`}
-              onClick={() => signal('chapter_enter', ch, undefined, { chapter: ch })}
-              className="relative py-1 transition-colors duration-300 hover:text-altar-goldlight"
-            >
-              {ch}
-            </Link>
-          ))}
+          {CHAPTERS.map((ch) => {
+            const active = pathname === `/chapter/${ch}`;
+            return (
+              <Link
+                key={ch}
+                href={`/chapter/${ch}`}
+                onClick={() => signal('chapter_enter', ch, undefined, { chapter: ch })}
+                className={`relative py-1 transition-colors duration-300 hover:text-altar-goldlight ${
+                  active ? 'text-altar-goldlight' : ''
+                }`}
+              >
+                {chapterLabel(ch)}
+                {active && <span className="absolute -bottom-px left-0 h-px w-full bg-corona/70" aria-hidden />}
+              </Link>
+            );
+          })}
         </nav>
         <div className="flex items-center gap-5">
           <button

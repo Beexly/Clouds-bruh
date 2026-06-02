@@ -29,7 +29,7 @@ async function fetchDrops() {
 export default async function DropsPage() {
   const drops = await fetchDrops();
   return (
-    <main className="min-h-screen bg-void bg-sacred-grain">
+    <main className="min-h-screen bg-sacred-grain">
       <PageSignal type="page_view" context={{ page: 'drops' }} />
       <section className="px-6 pt-16 pb-6 text-center">
         <p className="text-micro uppercase text-neutral-600">The Broadcast</p>

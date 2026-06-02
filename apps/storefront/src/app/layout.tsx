@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from 'next';
 import { Cormorant_Garamond, Inter } from 'next/font/google';
 import './globals.css';
 import { CartProvider } from '../context/cart';
+import { Eclipse } from '../components/Eclipse';
+import { LightCursor } from '../components/LightCursor';
 import { SiteHeader } from '../components/SiteHeader';
 import { PageTransition } from '../components/PageTransition';
 import { Shepherd } from '../components/Shepherd';
@@ -33,8 +35,9 @@ export const metadata: Metadata = {
     title: `${BRAND} — ${EXPERIENCE}`,
     description: TAGLINE,
     siteName: BRAND,
+    images: [{ url: '/og.png', width: 1200, height: 630, alt: `${BRAND} — ${EXPERIENCE}` }],
   },
-  twitter: { card: 'summary_large_image', title: `${BRAND} — ${EXPERIENCE}` },
+  twitter: { card: 'summary_large_image', title: `${BRAND} — ${EXPERIENCE}`, images: ['/og.png'] },
 };
 
 export const viewport: Viewport = {
@@ -55,6 +58,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen bg-void font-sans text-neutral-100 antialiased">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(org) }} />
         <a href="#main" className="skip-link">Skip to content</a>
+        <Eclipse />
+        <LightCursor />
         <CartProvider>
           <SiteHeader />
           <div id="main">

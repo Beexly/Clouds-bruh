@@ -77,7 +77,7 @@ export default async function Home() {
   const visitorId = (await cookies()).get('axiv_vid')?.value ?? 'ssr';
 
   return (
-    <main className="min-h-screen bg-void bg-sacred-grain">
+    <main className="min-h-screen bg-sacred-grain">
       <PageSignal type="page_view" context={{ page: 'home' }} />
       <Hero />
       <TuneBroadcast />

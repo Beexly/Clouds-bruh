@@ -2,10 +2,12 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { cookies } from 'next/headers';
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { AddToCartButton } from '../../../components/AddToCartButton';
 import { PageSignal } from '../../../components/PageSignal';
 import { ProductRail } from '../../../components/ProductRail';
 import { getRegionId, PRODUCT_FIELDS, priceCents, priceStr } from '../../../lib/catalog';
+import { chapterLabel } from '../../../lib/chapters';
 
 const API = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000';
 const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
@@ -65,7 +67,7 @@ export async function generateMetadata({ params }: { params: Promise<{ handle: s
   if (!product) return { title: 'Product Not Found' };
   const chapter = product.metadata?.chapter ?? '';
   const pc = priceCents(product);
-  const desc = [product.description?.slice(0, 120), chapter, pc != null ? `$${(pc / 100).toFixed(2)}` : '']
+  const desc = [product.description?.slice(0, 120), chapterLabel(chapter), pc != null ? `$${(pc / 100).toFixed(2)}` : '']
     .filter(Boolean)
     .join(' · ');
   return {
@@ -120,7 +122,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
   };
 
   return (
-    <main className="min-h-screen bg-void bg-sacred-grain">
+    <main className="min-h-screen bg-sacred-grain">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <PageSignal type="product_view" context={{ chapter }} entityId={product.id} />
 
@@ -131,16 +133,16 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
           {chapter && (
             <>
               <span className="mx-2">·</span>
-              <Link href={`/chapter/${chapter}`} className="hover:text-altar-goldlight">{chapter}</Link>
+              <Link href={`/chapter/${chapter}`} className="hover:text-altar-goldlight">{chapterLabel(chapter)}</Link>
             </>
           )}
         </nav>
 
-        <div className="grid gap-12 md:grid-cols-2">
+        <div className="grid gap-12 md:grid-cols-2 md:items-start">
           {/* Image */}
-          <div className="relative aspect-[3/4] overflow-hidden rounded-sm bg-obsidian">
+          <div className="relative aspect-[3/4] animate-fade-up overflow-hidden rounded-sm bg-obsidian ring-1 ring-white/[0.06]">
             {mainImg ? (
-              <img src={mainImg} alt={product.title} className="h-full w-full object-cover" />
+              <Image src={mainImg} alt={product.title} fill priority sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
             ) : (
               <div className="h-full w-full bg-neutral-900" />
             )}
@@ -152,8 +154,13 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
           </div>
 
           {/* Details */}
-          <div className="flex flex-col py-2">
-            {chapter && <p className="mb-3 text-micro uppercase text-altar-goldlight/70">{chapter}</p>}
+          <div className="flex flex-col py-2 animate-fade-up [animation-delay:120ms]">
+            {chapter && (
+              <p className="mb-3 flex items-center gap-2 text-micro uppercase text-altar-goldlight/70">
+                <span className="inline-block h-1 w-1 rounded-full bg-corona" />
+                {chapterLabel(chapter)}
+              </p>
+            )}
             <h1 className="font-serif text-4xl font-light leading-tight text-neutral-100">{product.title}</h1>
             <p className="mt-5 font-serif text-3xl text-neutral-200">{priceLabel}</p>
             {rating && (

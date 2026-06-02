@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { LegalDoc, Section } from '../../../components/LegalDoc';
+import { LEGAL_ENTITY } from '../../../lib/brand';
 
 export const metadata: Metadata = { title: 'Returns & Shipping' };
 
@@ -31,7 +32,7 @@ export default function ReturnsPage() {
         <p>If something arrives damaged or incorrect, contact us within [7] days with a photo and we will make it right at no cost to you.</p>
       </Section>
       <Section title="Contact">
-        <p>[returns@lumera.example] · [Company legal name, registered address].</p>
+        <p>[returns@lumera.example] · {LEGAL_ENTITY} [registered address].</p>
       </Section>
     </LegalDoc>
   );

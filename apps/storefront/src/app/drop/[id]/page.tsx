@@ -5,6 +5,7 @@ import { ProductRail } from '../../../components/ProductRail';
 import { PageSignal } from '../../../components/PageSignal';
 import { Countdown } from '../../../components/Countdown';
 import { getRegionId, PRODUCT_FIELDS } from '../../../lib/catalog';
+import { chapterLabel } from '../../../lib/chapters';
 
 const API = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000';
 const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
@@ -42,7 +43,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const { id } = await params;
   const drop = await fetchDrop(id);
   if (!drop) return { title: 'Drop' };
-  return { title: drop.name, description: `${drop.chapter} · ${drop.units_remaining}/${drop.units_total} remaining` };
+  return { title: drop.name, description: `${chapterLabel(drop.chapter)} · ${drop.units_remaining}/${drop.units_total} remaining` };
 }
 
 export default async function DropPage({ params }: { params: Promise<{ id: string }> }) {
@@ -57,12 +58,12 @@ export default async function DropPage({ params }: { params: Promise<{ id: strin
   const live = drop.status === 'live';
 
   return (
-    <main className="min-h-screen bg-void bg-sacred-grain">
+    <main className="min-h-screen bg-sacred-grain">
       <PageSignal type="drop_view" context={{ chapter: drop.chapter }} entityId={drop.id} />
 
       <section className="px-6 pt-16 pb-8 text-center">
         <Link href={`/chapter/${drop.chapter}`} className="text-micro uppercase text-altar-goldlight/70 hover:text-altar-goldlight">
-          {drop.chapter}
+          {chapterLabel(drop.chapter)}
         </Link>
         <h1 className="mt-3 font-serif text-5xl font-light tracking-[0.06em] text-foil md:text-6xl">{drop.name}</h1>
         <p className="mt-2 text-micro uppercase text-neutral-600">{drop.series}</p>
