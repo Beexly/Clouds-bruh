@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "medusa develop",
     "build": "medusa build",
+    "predeploy": "bash ../../scripts/predeploy.sh",
     "seed": "medusa exec ../../scripts/seed.ts",
     "bootstrap": "medusa exec ../../scripts/bootstrap.ts",
     "test": "vitest run",
