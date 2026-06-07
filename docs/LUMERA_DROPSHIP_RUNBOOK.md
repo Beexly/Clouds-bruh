@@ -76,6 +76,14 @@ pnpm launch:proof
 7. Use `Need Sample` for apparel, expensive items, new suppliers, or unknown quality.
 8. Use `Design Variant` for founder-created Printify/Printful products.
 
+## Paid Order Routing
+
+- `order.placed` creates deterministic `lumera_vendor_order` records grouped by vendor.
+- `staged_for_approval` means live vendor submission is disabled.
+- `ready_for_vendor_submission` means live flags are enabled, but no supplier order has been accepted yet.
+- `blocked_missing_supplier_sku` means the product was not publish-ready for vendor fulfillment.
+- Only a provider connector response may set a real submitted/confirmed status and vendor order ID.
+
 ## Claude Code Recovery Rules
 
 - If `pnpm vendor:preflight` fails, do not edit code unless the failure is a code exception. Return exact missing env keys.

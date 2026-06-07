@@ -1,6 +1,6 @@
 import type { SubscriberArgs, SubscriberConfig } from '@medusajs/framework';
 import { Modules } from '@medusajs/framework/utils';
-import { ensureLumeraTables, pool } from '../lib/lumera-db';
+import { persistVendorOrderDrafts } from '../lib/lumera-order-routing';
 
 export default async function orderPlaced({ event, container }: SubscriberArgs<{ id: string }>) {
   const orderId = event.data?.id;
@@ -64,42 +64,9 @@ export default async function orderPlaced({ event, container }: SubscriberArgs<{
       }
     }
 
-    await ensureLumeraTables();
-    const grouped = new Map<string, any[]>();
-    for (const item of order.items ?? []) {
-      const vendor = item.metadata?.fulfillment_provider ?? item.metadata?.vendor ?? order.metadata?.fulfillment_provider ?? 'manual';
-      grouped.set(vendor, [...(grouped.get(vendor) ?? []), item]);
-    }
-    for (const [vendor, items] of grouped.entries()) {
-      const vendorOrderId = `VO-${vendor}-${orderId}-${Date.now()}`.slice(0, 120);
-      const status = process.env.VENDOR_LIVE_MODE === 'true' && process.env.AUTO_SUBMIT_VENDOR_ORDERS === 'true'
-        ? 'submitted'
-        : 'staged_for_approval';
-      await pool().query(
-        `INSERT INTO lumera_vendor_order (id, order_id, vendor, vendor_order_id, status, payload)
-         VALUES ($1,$2,$3,$4,$5,$6)
-         ON CONFLICT (id) DO UPDATE SET status=EXCLUDED.status, payload=EXCLUDED.payload, updated_at=now()`,
-        [
-          vendorOrderId,
-          orderId,
-          vendor,
-          status === 'submitted' ? vendorOrderId : null,
-          status,
-          JSON.stringify({
-            source: 'order.placed',
-            live_submission_enabled: status === 'submitted',
-            delay_consent_required_after_days: 30,
-            items: items.map((item: any) => ({
-              product_id: item.product_id,
-              variant_id: item.variant_id,
-              quantity: item.quantity ?? 1,
-              unit_price: item.unit_price ?? 0,
-              supplier_sku: item.metadata?.supplier_sku,
-            })),
-          }),
-        ]
-      );
-      console.log(`[order-placed] Vendor order ${status}: ${vendorOrderId}`);
+    const vendorDrafts = await persistVendorOrderDrafts(order);
+    for (const draft of vendorDrafts) {
+      console.log(`[order-placed] Vendor order ${draft.status}: ${draft.id}`);
     }
 
     // Emit SIGNAL purchase event so ORACLE can attribute conversion reward

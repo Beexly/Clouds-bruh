@@ -39,6 +39,7 @@ Each proof layer must be reported separately. Do not blend local code health wit
 ## Fulfillment
 
 - Paid orders create staged vendor orders.
+- Live flags create `ready_for_vendor_submission`, not `submitted`, until the provider connector returns an accepted vendor order ID.
 - Vendor webhooks are recorded and verified.
 - Tracking, cancel, retry, return, and delay-consent states are visible in fulfillment admin.
 
