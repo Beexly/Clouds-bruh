@@ -12,6 +12,8 @@ const commandSteps = [
 ] as const;
 
 async function main() {
+  const blockers: string[] = [];
+
   for (const [label, args] of commandSteps) {
     console.log(`\n[launch-proof] ${label}`);
     const result = spawnSync(`${pnpm} ${args.join(' ')}`, { stdio: 'inherit', shell: true });
@@ -20,20 +22,28 @@ async function main() {
     }
   }
 
+  console.log('\n[launch-proof] owner action proof');
+  const ownerActions = spawnSync(`${pnpm} owner:actions`, { stdio: 'inherit', shell: true });
+  if (ownerActions.status !== 0) {
+    blockers.push('owner action ledger has missing production env values or unconfirmed founder approvals');
+  }
+
   console.log('\n[launch-proof] legal placeholder proof');
   const legalFailures = await legalPlaceholderFailures();
   if (legalFailures.length) {
-    console.log('\nBLOCKED');
-    legalFailures.forEach((failure) => console.log(`- ${failure}`));
-    throw new Error('legal placeholders detected');
+    blockers.push(...legalFailures);
   }
 
   console.log('\n[launch-proof] no fake review proof');
-  const fakeReviewFailures = await fakeReviewFailures();
-  if (fakeReviewFailures.length) {
+  const reviewFailures = await fakeReviewFailures();
+  if (reviewFailures.length) {
+    blockers.push(...reviewFailures);
+  }
+
+  if (blockers.length) {
     console.log('\nBLOCKED');
-    fakeReviewFailures.forEach((failure) => console.log(`- ${failure}`));
-    throw new Error('fake review risk detected');
+    blockers.forEach((failure) => console.log(`- ${failure}`));
+    throw new Error('launch proof blockers detected');
   }
 
   console.log('\n[launch-proof] all launch proof gates passed.');

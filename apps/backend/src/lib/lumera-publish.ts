@@ -4,6 +4,7 @@ import { candidateToProductTruth } from '@alterxiv/shared';
 export interface PublishResult {
   ok: boolean;
   status: 'published' | 'drafted' | 'blocked';
+  operation?: 'created' | 'updated' | 'blocked';
   product_id?: string;
   message: string;
   payload?: Record<string, unknown>;
@@ -15,6 +16,7 @@ export async function publishCandidateToMedusa(candidate: ProductCandidate, publ
     return {
       ok: false,
       status: 'blocked',
+      operation: 'blocked',
       message: `Candidate is blocked: ${blocked.join(', ')}`,
       payload: { blockers: blocked },
     };
@@ -25,19 +27,22 @@ export async function publishCandidateToMedusa(candidate: ProductCandidate, publ
     return {
       ok: false,
       status: 'blocked',
+      operation: 'blocked',
       message: 'Missing MEDUSA_ADMIN_API_TOKEN; generated product payload but did not publish.',
       payload: buildProductPayload(candidate, publish),
     };
   }
 
   const base = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000';
-  const res = await fetch(`${base}/admin/products`, {
+  const headers = adminHeaders(token);
+  const productPayload = buildProductPayload(candidate, publish);
+  const existing = await findExistingLumeraProduct(base, headers, candidate);
+  const operation = existing ? 'updated' : 'created';
+  const endpoint = existing ? `${base}/admin/products/${existing.id}` : `${base}/admin/products`;
+  const res = await fetch(endpoint, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(buildProductPayload(candidate, publish)),
+    headers,
+    body: JSON.stringify(productPayload),
   });
 
   const body = (await res.json().catch(() => ({}))) as any;
@@ -45,17 +50,21 @@ export async function publishCandidateToMedusa(candidate: ProductCandidate, publ
     return {
       ok: false,
       status: 'blocked',
-      message: `Medusa product publish failed: ${res.status}`,
-      payload: body,
+      operation: 'blocked',
+      message: `Medusa product ${operation} failed: ${res.status}`,
+      payload: { ...body, operation, matched_existing_product: existing },
     };
   }
 
   return {
     ok: true,
     status: publish ? 'published' : 'drafted',
+    operation,
     product_id: body.product?.id,
-    message: publish ? 'Product published through Medusa Admin API.' : 'Product draft created through Medusa Admin API.',
-    payload: body,
+    message: publish
+      ? `Product ${operation} and published through Medusa Admin API.`
+      : `Product draft ${operation} through Medusa Admin API.`,
+    payload: { ...body, operation, matched_existing_product: existing },
   };
 }
 
@@ -68,9 +77,9 @@ export function buildProductPayload(candidate: ProductCandidate, publish = true)
     ? optionTitles.map((title) => ({ title, values: Array.from(new Set(candidate.variants.map((v) => v.option_values[title]).filter(Boolean))) }))
     : [{ title: 'Default', values: ['Default'] }];
 
-  return {
+  const payload: Record<string, unknown> = {
     title: candidate.title,
-    subtitle: `${candidate.supplier_name} · ${candidate.warehouse_region}`,
+    subtitle: `${candidate.supplier_name} - ${candidate.warehouse_region}`,
     description: candidate.description,
     handle: candidate.handle,
     status: publish ? 'published' : 'draft',
@@ -105,6 +114,48 @@ export function buildProductPayload(candidate: ProductCandidate, publish = true)
       curation_score: candidate.score,
       compliance_review: candidate.compliance,
     },
+  };
+
+  const salesChannelId = process.env.LUMERA_SALES_CHANNEL_ID || process.env.MEDUSA_SALES_CHANNEL_ID;
+  const shippingProfileId = process.env.LUMERA_SHIPPING_PROFILE_ID || process.env.MEDUSA_SHIPPING_PROFILE_ID;
+  if (salesChannelId) payload.sales_channels = [{ id: salesChannelId }];
+  if (shippingProfileId) payload.shipping_profile_id = shippingProfileId;
+  return payload;
+}
+
+export async function findExistingLumeraProduct(
+  base: string,
+  headers: Record<string, string>,
+  candidate: ProductCandidate
+): Promise<{ id: string; handle?: string } | null> {
+  const products = await fetchProducts(base, headers, candidate.handle);
+  const exact =
+    products.find((product) => product.metadata?.lumera_candidate_id === candidate.id) ??
+    products.find((product) => product.metadata?.supplier_sku === candidate.supplier_sku) ??
+    products.find((product) => product.handle === candidate.handle);
+  if (exact?.id) return { id: String(exact.id), handle: exact.handle };
+  return null;
+}
+
+async function fetchProducts(base: string, headers: Record<string, string>, handle: string) {
+  const query = new URLSearchParams({
+    limit: '100',
+    fields: 'id,handle,metadata',
+    handle,
+  });
+  const url = `${base}/admin/products?${query.toString()}`;
+  const res = await fetch(url, { headers }).catch(() => null);
+  if (!res?.ok) return [] as Array<{ id?: string; handle?: string; metadata?: Record<string, unknown> }>;
+  const body = (await res.json().catch(() => ({}))) as any;
+  return Array.isArray(body.products)
+    ? (body.products as Array<{ id?: string; handle?: string; metadata?: Record<string, unknown> }>)
+    : [];
+}
+
+function adminHeaders(token: string) {
+  return {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${token}`,
   };
 }
 

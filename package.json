@@ -19,6 +19,7 @@
     "preflight": "tsx scripts/preflight.ts",
     "vendor:preflight": "tsx scripts/vendor-preflight.ts",
     "vendor:test": "tsx scripts/vendor-test.ts",
+    "owner:actions": "tsx scripts/owner-actions.ts",
     "curation:e2e": "tsx scripts/curation-e2e.ts",
     "fulfillment:sandbox": "tsx scripts/fulfillment-sandbox.ts",
     "launch:proof": "tsx scripts/launch-proof.ts",

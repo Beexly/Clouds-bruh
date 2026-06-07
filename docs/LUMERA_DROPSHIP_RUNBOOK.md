@@ -32,6 +32,8 @@ STORE_CORS=
 ADMIN_CORS=
 NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=
 MEDUSA_ADMIN_API_TOKEN=
+LUMERA_SALES_CHANNEL_ID=
+LUMERA_SHIPPING_PROFILE_ID=
 COCKPIT_KEY=
 ```
 
@@ -56,6 +58,7 @@ VENDOR_DRAFT_ORDER_PROOF=false
 pnpm preflight
 pnpm vendor:preflight
 pnpm vendor:test
+pnpm owner:actions
 pnpm curate -- --force
 pnpm curation:e2e
 pnpm fulfillment:sandbox

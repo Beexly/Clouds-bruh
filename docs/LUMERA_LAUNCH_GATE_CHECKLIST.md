@@ -11,8 +11,9 @@ Each proof layer must be reported separately. Do not blend local code health wit
 ## Commerce Environment
 
 - `pnpm preflight` passes all blockers.
+- `pnpm owner:actions` shows zero missing owner-only launch actions.
 - Publishable key is copied to the storefront.
-- Region, sales channel, shipping option, and payment provider are configured.
+- Region, sales channel, shipping profile, shipping option, and payment provider are configured.
 - Redis and S3 are configured for production intelligence/media durability.
 
 ## Vendor Readiness
