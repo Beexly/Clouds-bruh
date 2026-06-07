@@ -55,7 +55,7 @@ const notifySupplier = createStep(
     const vendor = process.env.DEFAULT_FULFILLMENT_VENDOR || 'manual';
     const canSubmit = process.env.VENDOR_LIVE_MODE === 'true' && process.env.AUTO_SUBMIT_VENDOR_ORDERS === 'true';
     const vendorOrderId = `VO-${Date.now()}-${Math.floor(Math.random() * 9999)}`;
-    const status = canSubmit ? 'submitted' : 'staged_for_approval';
+    const status = canSubmit ? 'ready_for_vendor_submission' : 'staged_for_approval';
     await pool().query(
       `INSERT INTO lumera_vendor_order (id, order_id, vendor, vendor_order_id, status, payload)
        VALUES ($1,$2,$3,$4,$5,$6)`,
@@ -63,18 +63,20 @@ const notifySupplier = createStep(
         vendorOrderId,
         input.cartId,
         vendor,
-        canSubmit ? vendorOrderId : null,
+        null,
         status,
         JSON.stringify({
           drop_id: input.dropId,
           qty: input.qty,
           cart_id: input.cartId,
-          live_submission_enabled: canSubmit,
+          live_submission_ready: canSubmit,
+          live_submission_enabled: false,
+          blockers: canSubmit ? ['provider_connector_ack_required'] : [],
         }),
       ]
     );
     console.log(`[notify-supplier] Vendor order ${status}: ref=${vendorOrderId}, drop=${input.dropId}, qty=${input.qty}`);
-    return new StepResponse({ supplierRef: vendorOrderId, accepted: canSubmit, status }, { ...input, vendorOrderId });
+    return new StepResponse({ supplierRef: vendorOrderId, accepted: false, status }, { ...input, vendorOrderId });
   },
   async (ctx: { dropId: string; qty: number; cartId: string; vendorOrderId: string } | undefined) => {
     if (!ctx) return;
