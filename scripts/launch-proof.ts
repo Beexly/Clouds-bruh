@@ -9,6 +9,7 @@ const commandSteps = [
   ['vendor adapter test', ['vendor:test']],
   ['curation e2e', ['curation:e2e']],
   ['fulfillment sandbox', ['fulfillment:sandbox']],
+  ['vendor order submitter gate', ['vendor-orders:submit']],
 ] as const;
 
 async function main() {

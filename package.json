@@ -22,6 +22,7 @@
     "owner:actions": "tsx scripts/owner-actions.ts",
     "curation:e2e": "tsx scripts/curation-e2e.ts",
     "fulfillment:sandbox": "tsx scripts/fulfillment-sandbox.ts",
+    "vendor-orders:submit": "tsx scripts/vendor-order-submit.ts",
     "launch:proof": "tsx scripts/launch-proof.ts",
     "curate": "tsx scripts/curate.ts",
     "publish:approved": "tsx scripts/publish-approved.ts",

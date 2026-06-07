@@ -64,6 +64,7 @@ pnpm owner:actions -- --live
 pnpm curate -- --force
 pnpm curation:e2e
 pnpm fulfillment:sandbox
+pnpm vendor-orders:submit
 pnpm launch:proof
 ```
 
@@ -87,6 +88,7 @@ Use `pnpm preflight -- --live` and `pnpm owner:actions -- --live` only when prov
 - `ready_for_vendor_submission` means live flags are enabled, but no supplier order has been accepted yet.
 - `blocked_missing_supplier_sku` means the product was not publish-ready for vendor fulfillment.
 - Only a provider connector response may set a real submitted/confirmed status and vendor order ID.
+- `pnpm vendor-orders:submit` processes only `ready_for_vendor_submission` and `retry_staged` records, and exits without submitting anything unless `VENDOR_LIVE_MODE=true` and `AUTO_SUBMIT_VENDOR_ORDERS=true`.
 
 ## Claude Code Recovery Rules
 

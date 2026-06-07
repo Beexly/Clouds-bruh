@@ -13,6 +13,7 @@
     "curate": "pnpm curate -- --force",
     "publish_approved": "pnpm publish:approved",
     "fulfillment_sandbox": "pnpm fulfillment:sandbox",
+    "vendor_orders_submit": "pnpm vendor-orders:submit",
     "curation_e2e": "pnpm curation:e2e",
     "launch_proof": "pnpm launch:proof"
   },
