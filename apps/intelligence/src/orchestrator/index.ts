@@ -66,6 +66,51 @@ async function consumeRedisStream() {
   }
 }
 
+async function consumeAgentJobs() {
+  const STREAM = 'lumera:agent-jobs';
+  const GROUP = 'congregation-jobs';
+  await redisReader.xgroup('CREATE', STREAM, GROUP, '$', 'MKSTREAM').catch(() => {});
+
+  while (true) {
+    try {
+      const results = await redisReader.xreadgroup(
+        'GROUP', GROUP, 'job-orchestrator',
+        'COUNT', '5', 'BLOCK', '2000',
+        'STREAMS', STREAM, '>'
+      ) as any;
+      if (!results) continue;
+      for (const [, entries] of results) {
+        for (const [msgId, fields] of entries) {
+          const obj: Record<string, string> = {};
+          for (let i = 0; i < fields.length; i += 2) obj[fields[i]] = fields[i + 1];
+          const payload = safeJson(obj.payload);
+          const agentName = String(payload.type ?? '').replace(/^agent:/, '');
+          if (AGENTS[agentName]) {
+            runAgent(agentName, payload.trigger ?? 'event', payload)
+              .catch((e: Error) => console.error(`[orchestrator] job ${agentName} error:`, e.message?.slice(0, 80)));
+          } else {
+            console.warn(`[orchestrator] unknown job agent: ${agentName || '(missing)'}`);
+          }
+          await redisReader.xack(STREAM, GROUP, msgId).catch(() => {});
+        }
+      }
+    } catch (e: any) {
+      if (!e.message?.includes('NOGROUP')) {
+        console.warn('[orchestrator] job stream read error:', e.message?.slice(0, 60));
+        await new Promise(r => setTimeout(r, 3000));
+      }
+    }
+  }
+}
+
+function safeJson(raw?: string) {
+  try {
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
+}
+
 async function boot() {
   // 1. Register cron-scheduled agents
   for (const def of Object.values(AGENTS)) {
@@ -105,10 +150,14 @@ async function boot() {
   consumeRedisStream().catch((e: Error) => {
     console.error('[orchestrator] Stream consumer error:', e.message);
   });
+  consumeAgentJobs().catch((e: Error) => {
+    console.error('[orchestrator] Job consumer error:', e.message);
+  });
 
   console.log('[orchestrator] Lumera CONGREGATION online.');
   console.log('[orchestrator] Agents:', Object.keys(AGENTS).join(', '));
   console.log('[orchestrator] Watching signal:events stream for event-driven agents.');
+  console.log('[orchestrator] Watching lumera:agent-jobs stream for backend-scheduled work.');
 }
 
 boot().catch((e) => { console.error(e); process.exit(1); });

@@ -1,13 +1,13 @@
-# ALTER XIV — ARCHITECTURE & BUILD BLUEPRINT
+# LUMERA — ARCHITECTURE & BUILD BLUEPRINT
 > The intelligent commerce platform. Modeled on Galaxy Sports Network's standard: introspective, dynamic, personalized, self-improving.
-> **Brand:** dark sacred editorial luxury · Exodus 14:14 · "The Broadcast" drop-culture channel.
+> **Brand:** dark luminous editorial luxury · "The Broadcast" live-commerce channel.
 > **This document is the source of truth.** Claude Code and Codex build from this. Nothing ships ugly or unverified.
 
 ---
 
 ## 0. THE THESIS
 
-Most stores are catalogs with a checkout. Alter XIV is a **living system** that watches, learns, personalizes, and runs itself. Five qualities define it — the same ones driving Galaxy Sports Network to be the best site of 2026:
+Most stores are catalogs with a checkout. Lumera is a **living system** that watches, learns, personalizes, and runs itself. Five qualities define it — the same ones driving Galaxy Sports Network to be the best site of 2026:
 
 | Quality | What it means here | Subsystem that delivers it |
 |---|---|---|
@@ -144,7 +144,7 @@ Each finding is either **auto-corrected** (safe: fix metadata, regenerate an off
 
 ## 4. DATA MODELS (build these first — hard to reverse)
 
-Defined in `packages/shared/src/types.ts` and realized as Medusa module models. Product schema merges the best of the real Amazon/Walmart/Shein datasets + Alter XIV's faith/drop fields.
+Defined in `packages/shared/src/types.ts` and realized as Medusa module models. Product schema merges marketplace data patterns with Lumera curation/drop fields.
 
 ```ts
 // PRODUCT (extends Medusa product with custom fields via metadata/module)

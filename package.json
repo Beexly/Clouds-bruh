@@ -1,8 +1,8 @@
 {
-  "name": "alter-xiv",
+  "name": "lumera",
   "private": true,
   "version": "0.1.0",
-  "description": "Alter XIV — intelligent drop-culture commerce platform. The Broadcast.",
+  "description": "Lumera — autonomous luxury commerce platform. The Broadcast.",
   "packageManager": "pnpm@9.0.0",
   "workspaces": [
     "apps/*",
@@ -17,6 +17,15 @@
     "test:unit": "vitest run",
     "test:regression": "tsx scripts/api-regression.ts",
     "preflight": "tsx scripts/preflight.ts",
+    "vendor:preflight": "tsx scripts/vendor-preflight.ts",
+    "vendor:test": "tsx scripts/vendor-test.ts",
+    "curation:e2e": "tsx scripts/curation-e2e.ts",
+    "fulfillment:sandbox": "tsx scripts/fulfillment-sandbox.ts",
+    "launch:proof": "tsx scripts/launch-proof.ts",
+    "curate": "tsx scripts/curate.ts",
+    "publish:approved": "tsx scripts/publish-approved.ts",
+    "fulfillment:drill": "tsx scripts/fulfillment-drill.ts",
+    "launch:preflight": "tsx scripts/launch-preflight.ts",
     "lint": "turbo run lint",
     "verify:api": "bash scripts/verify-api.sh"
   },

@@ -1,7 +1,7 @@
 {
   "name": "storefront",
   "version": "0.1.0",
-  "description": "The Broadcast — Alter XIV storefront",
+  "description": "The Broadcast — Lumera storefront",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

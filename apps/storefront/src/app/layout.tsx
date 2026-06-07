@@ -22,7 +22,7 @@ const sans = Inter({
   display: 'swap',
 });
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://alterxiv.com';
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://lumera.example';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),

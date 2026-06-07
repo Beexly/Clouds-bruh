@@ -35,7 +35,7 @@ async function get(path: string) {
 }
 
 async function run() {
-  console.log(`\nALTER XIV — API Regression\n  Backend: ${API}\n  Key: ${PK ? PK.slice(0, 12) + '...' : '(none)'}\n`);
+  console.log(`\nLUMERA — API Regression\n  Backend: ${API}\n  Key: ${PK ? PK.slice(0, 12) + '...' : '(none)'}\n`);
 
   await check('GET /health', async () => {
     const res = await fetch(`${API}/health`);

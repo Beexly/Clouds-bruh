@@ -1,5 +1,5 @@
 /**
- * Alter XIV — LAUNCH PREFLIGHT
+ * Lumera — LAUNCH PREFLIGHT
  *
  * A live go/no-go check against the actual deployment: env + database state.
  * Prints a checklist and a launch-readiness percentage.
@@ -72,6 +72,15 @@ async function main() {
   checks.push({ group: 'recommended', label: 'COCKPIT_KEY — required in prod to view cockpit/analyst', state: env('COCKPIT_KEY') === 'pass' ? 'pass' : 'warn' });
   const s3 = process.env.S3_FILE_URL && process.env.S3_ACCESS_KEY_ID && process.env.S3_SECRET_ACCESS_KEY;
   checks.push({ group: 'recommended', label: 'S3/object storage — durable media', state: s3 ? 'pass' : 'warn' });
+  const vendorLive = process.env.VENDOR_LIVE_MODE === 'true';
+  const vendorGroup: 'blocker' | 'recommended' = vendorLive ? 'blocker' : 'recommended';
+  const vendorState = (keys: string[]): State => keys.every((k) => process.env[k]) ? 'pass' : vendorLive ? 'fail' : 'warn';
+  checks.push({ group: vendorGroup, label: 'Printify credentials — POD/house-label lane', state: vendorState(['PRINTIFY_TOKEN', 'PRINTIFY_SHOP_ID']) });
+  checks.push({ group: vendorGroup, label: 'Printful credentials — premium POD lane', state: vendorState(['PRINTFUL_TOKEN', 'PRINTFUL_STORE_ID']) });
+  checks.push({ group: vendorGroup, label: 'CJ credentials — broad dropship lane', state: vendorState(['CJ_API_KEY', 'CJ_ACCESS_TOKEN']) });
+  const stripeLive = Boolean(process.env.STRIPE_API_KEY && !process.env.STRIPE_API_KEY.startsWith('sk_test'));
+  checks.push({ group: vendorLive ? 'blocker' : 'recommended', label: 'Stripe live key when VENDOR_LIVE_MODE=true', state: vendorLive ? (stripeLive ? 'pass' : 'fail') : 'warn' });
+  checks.push({ group: vendorLive ? 'blocker' : 'recommended', label: 'Medusa admin API token — publish approved products', state: env('MEDUSA_ADMIN_API_TOKEN') === 'pass' || env('MEDUSA_ADMIN_TOKEN') === 'pass' ? 'pass' : vendorLive ? 'fail' : 'warn' });
 
   await pool?.end().catch(() => {});
 
@@ -85,7 +94,7 @@ async function main() {
   const allBlockers = bPass === blockers.length;
 
   const line = '─'.repeat(56);
-  console.log(`\n  ALTER XIV — LAUNCH PREFLIGHT`);
+  console.log(`\n  LUMERA — LAUNCH PREFLIGHT`);
   console.log(`  ${url ? url.replace(/\/\/[^@]*@/, '//***@') : '(no DATABASE_URL)'}`);
   console.log(line);
   console.log(`  BLOCKERS (must pass to take an order)`);

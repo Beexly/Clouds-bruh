@@ -1,4 +1,12 @@
 import type { Metadata } from 'next';
+import {
+  approveCandidate,
+  approveDraftCandidate,
+  designVariant,
+  rejectCandidate,
+  requestSample,
+  runCuration,
+} from './actions';
 
 const API = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000';
 const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
@@ -20,6 +28,19 @@ async function fetchCockpit() {
   }
 }
 
+async function fetchCurationBoard() {
+  try {
+    const res = await fetch(`${API}/admin/lumera/curation-board`, {
+      cache: 'no-store',
+      headers: { ...(COCKPIT_KEY ? { 'x-cockpit-key': COCKPIT_KEY } : {}) },
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } catch {
+    return null;
+  }
+}
+
 function Stat({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="rounded-sm border border-white/[0.07] bg-white/[0.02] p-4">
@@ -31,9 +52,9 @@ function Stat({ label, value }: { label: string; value: string | number }) {
 
 /** The Founder's Cockpit — the company, running itself. You approve; it operates. */
 export default async function Cockpit() {
-  const d = await fetchCockpit();
+  const [d, board] = await Promise.all([fetchCockpit(), fetchCurationBoard()]);
 
-  if (!d) {
+  if (!d && !board) {
     return (
       <main className="min-h-screen bg-void px-6 py-24 text-center">
         <p className="text-micro uppercase text-neutral-600">The Cockpit</p>
@@ -43,11 +64,11 @@ export default async function Cockpit() {
     );
   }
 
-  const op = d.operator;
-  const audits: any[] = d.audits_7d ?? [];
-  const drops: any[] = d.drops ?? [];
-  const inbox: any[] = d.approval_inbox ?? [];
-  const runs: any[] = d.recent_runs ?? [];
+  const op = d?.operator;
+  const audits: any[] = d?.audits_7d ?? [];
+  const drops: any[] = d?.drops ?? [];
+  const inbox: any[] = d?.approval_inbox ?? [];
+  const runs: any[] = d?.recent_runs ?? [];
   const warns = audits.find((a) => a.severity === 'warn')?.count ?? 0;
   const errors = audits.find((a) => a.severity === 'error' || a.severity === 'critical')?.count ?? 0;
 
@@ -80,10 +101,110 @@ export default async function Cockpit() {
 
         {/* Stats */}
         <section className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Stat label="Signals · 7d" value={d.signals_7d?.total ?? 0} />
-          <Stat label="Purchases · 7d" value={d.signals_7d?.purchases ?? 0} />
+          <Stat label="Signals · 7d" value={d?.signals_7d?.total ?? 0} />
+          <Stat label="Purchases · 7d" value={d?.signals_7d?.purchases ?? 0} />
           <Stat label="Audit warnings" value={`${warns + errors}`} />
           <Stat label="Approvals waiting" value={inbox.length} />
+        </section>
+
+        <section className="mb-8 border border-altar-gold/20 bg-black/25 p-5">
+          <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-label uppercase text-altar-goldlight">Curation Board</h2>
+              <p className="mt-1 text-sm text-neutral-500">Pick the items. The gates decide whether they can publish.</p>
+            </div>
+            <form action={runCuration}>
+              <button className="border border-altar-gold/40 px-4 py-3 text-micro uppercase text-altar-goldlight transition hover:border-altar-gold">
+                Curate Now
+              </button>
+            </form>
+          </div>
+
+          {board ? (
+            <>
+              <div className="mb-5 grid gap-2 sm:grid-cols-3">
+                {board.connections?.slice(0, 3).map((c: any) => (
+                  <div key={c.id} className="border border-white/[0.07] bg-white/[0.02] p-3">
+                    <p className="text-micro uppercase text-neutral-500">{c.label}</p>
+                    <p className={`mt-1 text-xs ${c.connected ? 'text-altar-goldlight' : 'text-neutral-600'}`}>
+                      {c.mode} {c.can_submit_orders ? '· order-ready' : '· gated'}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <div className="space-y-4">
+                {(board.candidates ?? []).map((candidate: any) => {
+                  const margin = Math.round((candidate.score?.gross_margin ?? 0) * 100);
+                  const blocked = ['compliance_blocked', 'margin_blocked', 'shipping_blocked', 'media_blocked', 'supplier_blocked'].includes(candidate.status);
+                  return (
+                    <article key={candidate.id} className="grid gap-4 border border-white/[0.07] p-4 md:grid-cols-[112px_1fr]">
+                      <div className="aspect-square overflow-hidden bg-neutral-950">
+                        {candidate.image_url ? (
+                          <img src={candidate.image_url} alt="" className="h-full w-full object-cover" />
+                        ) : null}
+                      </div>
+                      <div>
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                          <div>
+                            <p className="text-micro uppercase text-altar-goldlight">{candidate.chapter} · {candidate.vendor}</p>
+                            <h3 className="mt-1 font-serif text-xl text-neutral-100">{candidate.title}</h3>
+                            <p className="mt-1 text-xs text-neutral-500">{candidate.supplier_name} · {candidate.warehouse_region}</p>
+                          </div>
+                          <div className="text-left sm:text-right">
+                            <p className="font-serif text-2xl text-neutral-100">{candidate.score?.total ?? 0}</p>
+                            <p className="text-micro uppercase text-neutral-600">{candidate.status}</p>
+                          </div>
+                        </div>
+
+                        <div className="mt-4 grid gap-2 text-xs text-neutral-400 sm:grid-cols-4">
+                          <p>Margin <span className="text-neutral-100">{margin}%</span></p>
+                          <p>Retail <span className="text-neutral-100">${(candidate.retail_cents / 100).toFixed(2)}</span></p>
+                          <p>Ship <span className="text-neutral-100">{candidate.lead_time_days}d</span></p>
+                          <p>Stock <span className="text-neutral-100">{candidate.stock}</span></p>
+                        </div>
+
+                        {candidate.score?.blockers?.length > 0 && (
+                          <p className="mt-3 text-xs text-chapter-relentless">
+                            Blocked: {candidate.score.blockers.slice(0, 3).join(', ')}
+                          </p>
+                        )}
+
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          <form action={approveCandidate}>
+                            <input type="hidden" name="id" value={candidate.id} />
+                            <button
+                              disabled={blocked}
+                              className="border border-altar-gold/40 px-3 py-2 text-micro uppercase text-altar-goldlight disabled:border-neutral-800 disabled:text-neutral-700"
+                            >
+                              Approve + Publish
+                            </button>
+                          </form>
+                          <form action={approveDraftCandidate}>
+                            <input type="hidden" name="id" value={candidate.id} />
+                            <button className="border border-white/10 px-3 py-2 text-micro uppercase text-neutral-400">Approve Draft</button>
+                          </form>
+                          <form action={requestSample}>
+                            <input type="hidden" name="id" value={candidate.id} />
+                            <button className="border border-white/10 px-3 py-2 text-micro uppercase text-neutral-400">Need Sample</button>
+                          </form>
+                          <form action={designVariant}>
+                            <input type="hidden" name="id" value={candidate.id} />
+                            <button className="border border-white/10 px-3 py-2 text-micro uppercase text-neutral-400">Design Variant</button>
+                          </form>
+                          <form action={rejectCandidate}>
+                            <input type="hidden" name="id" value={candidate.id} />
+                            <button className="border border-white/10 px-3 py-2 text-micro uppercase text-neutral-600">Reject</button>
+                          </form>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            <p className="text-sm text-neutral-600">Curation board unavailable. Backend ops API may be gated.</p>
+          )}
         </section>
 
         <div className="grid gap-6 md:grid-cols-2">

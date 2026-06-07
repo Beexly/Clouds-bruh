@@ -1,4 +1,5 @@
 import { createWorkflow, createStep, StepResponse, WorkflowResponse } from '@medusajs/framework/workflows-sdk';
+import { ensureLumeraTables, pool } from '../lib/lumera-db';
 
 /**
  * Compensatable drop-order flow. Each step has a rollback so a mid-flow failure
@@ -49,15 +50,38 @@ const reserveInventory = createStep(
 const notifySupplier = createStep(
   'notify-supplier',
   async (input: { dropId: string; qty: number; cartId: string }) => {
-    // Mock supplier API — in production this calls the actual supplier endpoint.
-    const mockRef = `SUP-${Date.now()}-${Math.floor(Math.random() * 9999)}`;
-    console.log(`[notify-supplier] Drop order placed: ref=${mockRef}, drop=${input.dropId}, qty=${input.qty}`);
-    return new StepResponse({ supplierRef: mockRef, accepted: true }, { ...input, mockRef });
+    // Persist the vendor handoff; live submission is separately gated by env.
+    await ensureLumeraTables();
+    const vendor = process.env.DEFAULT_FULFILLMENT_VENDOR || 'manual';
+    const canSubmit = process.env.VENDOR_LIVE_MODE === 'true' && process.env.AUTO_SUBMIT_VENDOR_ORDERS === 'true';
+    const vendorOrderId = `VO-${Date.now()}-${Math.floor(Math.random() * 9999)}`;
+    const status = canSubmit ? 'submitted' : 'staged_for_approval';
+    await pool().query(
+      `INSERT INTO lumera_vendor_order (id, order_id, vendor, vendor_order_id, status, payload)
+       VALUES ($1,$2,$3,$4,$5,$6)`,
+      [
+        vendorOrderId,
+        input.cartId,
+        vendor,
+        canSubmit ? vendorOrderId : null,
+        status,
+        JSON.stringify({
+          drop_id: input.dropId,
+          qty: input.qty,
+          cart_id: input.cartId,
+          live_submission_enabled: canSubmit,
+        }),
+      ]
+    );
+    console.log(`[notify-supplier] Vendor order ${status}: ref=${vendorOrderId}, drop=${input.dropId}, qty=${input.qty}`);
+    return new StepResponse({ supplierRef: vendorOrderId, accepted: canSubmit, status }, { ...input, vendorOrderId });
   },
-  async (ctx: { dropId: string; qty: number; cartId: string; mockRef: string } | undefined) => {
+  async (ctx: { dropId: string; qty: number; cartId: string; vendorOrderId: string } | undefined) => {
     if (!ctx) return;
-    // Cancel the supplier order
-    console.log(`[notify-supplier] Compensation: cancelling supplier order ref=${ctx.mockRef}`);
+    await pool()
+      .query(`UPDATE lumera_vendor_order SET status='cancel_staged', updated_at=now() WHERE id=$1`, [ctx.vendorOrderId])
+      .catch(() => {});
+    console.log(`[notify-supplier] Compensation: cancel staged for supplier order ref=${ctx.vendorOrderId}`);
   }
 );
 
