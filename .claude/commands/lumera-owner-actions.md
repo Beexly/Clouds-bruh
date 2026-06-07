@@ -1,13 +1,15 @@
 List the Lumera account, legal, and founder-approval actions that code cannot complete.
 
 Steps:
-1. Run `pnpm owner:actions`.
-2. Report missing env values separately from founder approval items.
-3. Keep the exit code meaningful: missing production values are a launch blocker, not a test failure.
-4. Link the operator to `docs/LUMERA_OWNER_ACTIONS.md`.
+1. Run `pnpm owner:actions` for code-readiness.
+2. Run `pnpm owner:actions -- --live` only when proving live production readiness.
+3. Report missing env values separately from founder approval items.
+4. Keep the exit code meaningful: missing production values block live readiness, not local push readiness.
+5. Link the operator to `docs/LUMERA_OWNER_ACTIONS.md`.
 
 Expected output:
 - Missing env keys, if any.
+- `proof_mode=code` or `proof_mode=live`.
 - Owner approvals that must be confirmed outside code.
 - Whether live vendor order flags are disabled.
 

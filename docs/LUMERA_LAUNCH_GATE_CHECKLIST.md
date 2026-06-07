@@ -11,7 +11,8 @@ Each proof layer must be reported separately. Do not blend local code health wit
 ## Commerce Environment
 
 - `pnpm preflight` passes all blockers.
-- `pnpm owner:actions` shows zero missing owner-only launch actions.
+- `pnpm owner:actions` reports the local code-readiness ledger.
+- `pnpm owner:actions -- --live` shows zero missing production env values before live launch.
 - Publishable key is copied to the storefront.
 - Region, sales channel, shipping profile, shipping option, and payment provider are configured.
 - Redis and S3 are configured for production intelligence/media durability.

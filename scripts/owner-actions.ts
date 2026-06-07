@@ -33,6 +33,13 @@ const ownerApprovals = [
   'Paid campaign spend is approved separately from product publishing.',
 ];
 
+const args = new Set(process.argv.slice(2));
+const liveProof =
+  args.has('--live') ||
+  args.has('--mode=live') ||
+  process.env.LUMERA_LIVE_PROOF === 'true' ||
+  process.env.VENDOR_LIVE_MODE === 'true';
+
 function isMissing(key: string) {
   const value = process.env[key];
   return !value || value.includes('change_me') || value.includes('...');
@@ -42,9 +49,10 @@ function main() {
   const missing = requiredEnv.filter(isMissing);
   console.log('\nLumera owner action ledger');
   console.log('==========================\n');
+  console.log(`proof_mode=${liveProof ? 'live' : 'code'}`);
 
   if (missing.length) {
-    console.log('Missing required env values:');
+    console.log(liveProof ? 'Missing required live env values:' : 'Live env values not present in this local shell:');
     missing.forEach((key) => console.log(`- ${key}`));
   } else {
     console.log('Required env values are present.');
@@ -61,7 +69,7 @@ function main() {
     console.log('\nVendor live order submission remains disabled.');
   }
 
-  if (missing.length) {
+  if (liveProof && missing.length) {
     process.exitCode = 1;
   }
 }

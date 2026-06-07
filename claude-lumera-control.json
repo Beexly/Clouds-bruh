@@ -5,9 +5,11 @@
   "commands": {
     "health": ["pnpm test", "pnpm lint", "pnpm build"],
     "commerce_preflight": "pnpm preflight",
+    "commerce_preflight_live": "pnpm preflight -- --live",
     "vendor_preflight": "pnpm vendor:preflight",
     "vendor_test": "pnpm vendor:test",
     "owner_actions": "pnpm owner:actions",
+    "owner_actions_live": "pnpm owner:actions -- --live",
     "curate": "pnpm curate -- --force",
     "publish_approved": "pnpm publish:approved",
     "fulfillment_sandbox": "pnpm fulfillment:sandbox",

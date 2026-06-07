@@ -6,46 +6,65 @@ export const metadata: Metadata = { title: 'Privacy Policy' };
 
 export default function PrivacyPage() {
   return (
-    <LegalDoc title="Privacy Policy" updated="[date]">
+    <LegalDoc title="Privacy Policy" updated="June 7, 2026">
       <p>
-        This policy explains how {BRAND} (operated by [Company legal name], &quot;we&quot;) collects, uses, and
-        protects your information when you use the Broadcast and make purchases.
+        This policy explains how {BRAND} collects, uses, shares, and protects information when you browse the
+        site, use the Broadcast, create an account, contact support, or place an order.
       </p>
       <Section title="Information we collect">
         <p>
-          Order and account details (name, email, shipping/billing address); payment confirmations from our
-          processor; and behavioral signals (pages viewed, items saved, searches) used to personalize your
-          experience. We never store full card numbers.
+          Lumera may collect account details, contact details, shipping and billing information, order history,
+          support messages, cart activity, saved items, product views, searches, referral details, approximate
+          location, device data, and checkout events. Payment providers process card details directly; Lumera
+          receives payment status and limited transaction references.
         </p>
       </Section>
-      <Section title="How we use it">
+      <Section title="How we use information">
         <p>
-          To fulfil orders, personalize the Broadcast and recommendations, run loyalty (Lumens / Luminance),
-          prevent fraud, and improve the service. [Add any marketing/email use and the legal basis if you
-          serve the EU/UK.]
+          Information is used to operate checkout, fulfill orders, provide support, prevent fraud, manage
+          returns, personalize recommendations, operate loyalty features, improve merchandising, secure the
+          service, comply with law, and send transactional messages. Marketing messages are sent only where
+          permitted and can be opted out of.
         </p>
       </Section>
       <Section title="Sharing">
         <p>
-          With the providers who run the platform for us — payments ([Stripe]), hosting/infrastructure
-          ([Medusa Cloud / Vercel]), and analytics — under contract and only as needed. We do not sell
-          personal data. [List your sub-processors.]
+          Lumera shares information with service providers that support checkout, fraud review, hosting,
+          analytics, fulfillment, shipping, email, customer support, tax calculation, and legal compliance. These
+          providers may use information only to provide services to Lumera or as otherwise required by law.
+          Lumera does not sell personal information.
         </p>
       </Section>
-      <Section title="Cookies">
+      <Section title="Cookies and personalization">
         <p>
-          We use a visitor identifier and essential cookies to keep your cart and personalize content. [Add
-          cookie-consent details for your jurisdiction.]
+          Lumera uses essential cookies and similar technologies to keep carts working, remember preferences,
+          measure site performance, reduce fraud, and personalize the Broadcast. Browser controls may limit some
+          tracking, but disabling essential cookies can affect checkout.
         </p>
       </Section>
-      <Section title="Your rights">
+      <Section title="Retention and security">
         <p>
-          You may request access, correction, deletion, or export of your data, and opt out of marketing.
-          [Adjust to GDPR / CCPA as applicable.] Contact us to exercise these rights.
+          Information is kept for as long as needed to provide the service, meet tax and accounting obligations,
+          resolve disputes, enforce policies, and protect the platform. Lumera uses administrative, technical,
+          and organizational safeguards designed to reduce unauthorized access and misuse.
+        </p>
+      </Section>
+      <Section title="Your choices">
+        <p>
+          You may request access, correction, deletion, or export of personal information, and you may opt out
+          of non-transactional marketing. Some requests may be limited by legal, security, tax, fraud-prevention,
+          or fulfillment obligations.
+        </p>
+      </Section>
+      <Section title="Children">
+        <p>
+          Lumera is not directed to children and does not knowingly collect personal information from children.
+          Children&apos;s products and other restricted categories are blocked from automated launch unless
+          reviewed under a separate compliance process.
         </p>
       </Section>
       <Section title="Contact">
-        <p>[privacy@lumera.example] · [Company legal name, registered address].</p>
+        <p>For privacy requests, contact Lumera support through the email listed in your order confirmation.</p>
       </Section>
     </LegalDoc>
   );

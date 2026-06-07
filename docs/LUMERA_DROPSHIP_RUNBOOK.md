@@ -6,7 +6,7 @@ This is the Claude Code operating path for Lumera dropshipping. The founder shou
 
 - No product publishes without founder approval.
 - No live supplier order submits unless `VENDOR_LIVE_MODE=true` and `AUTO_SUBMIT_VENDOR_ORDERS=true`.
-- No live launch claim while `pnpm preflight`, `pnpm vendor:preflight`, tests, lint, and build are failing.
+- No live launch claim while `pnpm preflight -- --live`, `pnpm vendor:preflight`, tests, lint, and build are failing.
 - Fixtures are allowed for local demo and tests only. They are not launch evidence.
 - Missing credentials are owner actions, not code guesses.
 
@@ -56,14 +56,18 @@ VENDOR_DRAFT_ORDER_PROOF=false
 
 ```bash
 pnpm preflight
+pnpm preflight -- --live
 pnpm vendor:preflight
 pnpm vendor:test
 pnpm owner:actions
+pnpm owner:actions -- --live
 pnpm curate -- --force
 pnpm curation:e2e
 pnpm fulfillment:sandbox
 pnpm launch:proof
 ```
+
+Use `pnpm preflight -- --live` and `pnpm owner:actions -- --live` only when proving live production readiness. The default commands are code-readiness ledgers and should not block local push readiness just because production secrets are not loaded in the shell.
 
 ## Founder Flow
 
@@ -98,7 +102,8 @@ pnpm launch:proof
 - `pnpm test`: pass/fail and first failure.
 - `pnpm lint`: pass/fail and first failure.
 - `pnpm build`: pass/fail and affected package.
-- `pnpm preflight`: readiness percent and blockers.
+- `pnpm preflight`: local code-push readiness percent and live-readiness debt.
+- `pnpm preflight -- --live`: production go/no-go blockers.
 - `pnpm vendor:preflight`: each provider status.
 - `pnpm vendor:test`: health/search/order-draft proof per provider.
 - Cockpit screenshot showing at least one ready candidate and one blocked candidate.
