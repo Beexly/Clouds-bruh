@@ -8,7 +8,7 @@ import { PageSignal } from '../../../components/PageSignal';
 import { ProductRail } from '../../../components/ProductRail';
 import { ReviewForm } from '../../../components/ReviewForm';
 import { getRegionId, PRODUCT_FIELDS, priceCents, priceStr } from '../../../lib/catalog';
-import { breadcrumbList } from '../../../lib/jsonld';
+import { breadcrumbList, jsonLdScript } from '../../../lib/jsonld';
 import type { ProductTruth } from '@alterxiv/shared';
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://lumera.example';
@@ -200,8 +200,8 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
 
   return (
     <main className="min-h-screen bg-void bg-sacred-grain">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbs) }} />
       <PageSignal type="product_view" context={{ chapter }} entityId={product.id} />
 
       <div className="mx-auto max-w-7xl px-6 py-10">

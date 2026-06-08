@@ -496,7 +496,8 @@ export class AmazonChannelAdapter extends BaseChannelAdapter {
 }
 
 async function requestJson(url: string, init: RequestInit = {}, attempt = 0): Promise<unknown> {
-  const res = await fetch(url, init);
+  // Always bound the request so a slow/hung channel API can't stall the sync. 15s default.
+  const res = await fetch(url, { ...init, signal: (init as any).signal ?? AbortSignal.timeout(15_000) });
   const text = await res.text();
   let body: unknown = {};
   try {

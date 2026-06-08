@@ -297,7 +297,12 @@ export function verifyVendorWebhook(
     stripe: process.env.STRIPE_WEBHOOK_SECRET,
   };
   const secret = secretByVendor[vendor];
-  if (!secret) return { valid: true, proof: 'unsigned_no_secret_configured' };
+  if (!secret) {
+    // No secret configured: accept-and-flag in dev/fixture mode, but FAIL CLOSED in production so a
+    // misconfigured prod deployment never accepts forged/unsigned webhooks.
+    if (process.env.NODE_ENV === 'production') return { valid: false, proof: 'missing_secret_in_production' };
+    return { valid: true, proof: 'unsigned_no_secret_configured' };
+  }
 
   // HMAC over the exact bytes the provider signed when the raw body is available (via the
   // preserveRawBody middleware); fall back to re-serialized JSON only when it isn't.
@@ -325,7 +330,12 @@ export function verifyStripeWebhook(
   secret = process.env.STRIPE_WEBHOOK_SECRET,
   toleranceSec = 300
 ): { valid: boolean; proof: string } {
-  if (!secret) return { valid: true, proof: 'unsigned_no_secret_configured' };
+  if (!secret) {
+    // No secret configured: accept-and-flag in dev/fixture mode, but FAIL CLOSED in production so a
+    // misconfigured prod deployment never accepts forged/unsigned webhooks.
+    if (process.env.NODE_ENV === 'production') return { valid: false, proof: 'missing_secret_in_production' };
+    return { valid: true, proof: 'unsigned_no_secret_configured' };
+  }
   if (!sigHeader) return { valid: false, proof: 'missing_signature' };
   let t: string | undefined;
   const v1: string[] = [];
@@ -383,7 +393,7 @@ export async function processVendorWebhook(vendor: VendorId, payload: any) {
         RETURNING id`,
       [String(vendorOrderId), String(status), trackingNumber ?? null, trackingUrl ?? null, JSON.stringify(payload ?? {})]
     );
-    return { matched: result.rowCount > 0, vendor_order_id: String(vendorOrderId), status: String(status) };
+    return { matched: (result.rowCount ?? 0) > 0, vendor_order_id: String(vendorOrderId), status: String(status) };
   } catch (e: unknown) {
     // Report then re-throw — the webhook route still surfaces the failure to the caller.
     captureException(e, { where: 'processVendorWebhook', vendor });

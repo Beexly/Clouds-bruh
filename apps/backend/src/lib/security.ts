@@ -60,6 +60,22 @@ setInterval(() => {
   for (const [k, b] of buckets) if (b.resetAt <= now) buckets.delete(k);
 }, 5 * 60_000).unref?.();
 
+// ── Store-value minting guard ────────────────────────────────────────────────
+/**
+ * True when minting store value (gift cards, Lumens credits) must be REFUSED because it isn't
+ * payment-bound: real-money mode (NODE_ENV=production + a live, non-test Stripe key) and not
+ * explicitly allowed for controlled testing via MONETIZATION_ALLOW_UNPAID_ISSUE=true. In dev/test
+ * (no live key) minting is permitted so local + CI flows work. Binding issuance to a captured
+ * payment is the production follow-up.
+ */
+export function mintingBlocked(): boolean {
+  const liveMoney =
+    process.env.NODE_ENV === 'production' &&
+    !!process.env.STRIPE_API_KEY &&
+    !process.env.STRIPE_API_KEY.startsWith('sk_test');
+  return liveMoney && process.env.MONETIZATION_ALLOW_UNPAID_ISSUE !== 'true';
+}
+
 // ── SSRF guard ──────────────────────────────────────────────────────────────
 const BLOCKED_HOSTS = new Set(['localhost', '0.0.0.0', '::1', '169.254.169.254', 'metadata.google.internal', 'metadata']);
 

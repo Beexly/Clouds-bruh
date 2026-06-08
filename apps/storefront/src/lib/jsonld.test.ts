@@ -1,7 +1,21 @@
 import { describe, it, expect } from 'vitest';
-import { absUrl, breadcrumbList, webSite, organization } from './jsonld';
+import { absUrl, breadcrumbList, webSite, organization, jsonLdScript } from './jsonld';
 
 const SITE = 'https://lumera.example';
+
+describe('jsonLdScript (XSS-safe serialization)', () => {
+  it('escapes < so a malicious value cannot break out of the <script> tag', () => {
+    const out = jsonLdScript({ name: 'Hoodie </script><script>alert(1)</script>' });
+    expect(out).not.toContain('</script>');
+    expect(out).toContain('\\u003c'); // < was escaped
+    expect(() => JSON.parse(out.replace(/\\u003c/g, '<'))).not.toThrow(); // still valid JSON
+  });
+  it('escapes the U+2028/U+2029 line separators', () => {
+    const out = jsonLdScript({ s: `a${String.fromCharCode(0x2028)}b${String.fromCharCode(0x2029)}c` });
+    expect(out).toContain('\\u2028');
+    expect(out).toContain('\\u2029');
+  });
+});
 
 describe('absUrl', () => {
   it('joins relative paths and collapses slashes', () => {

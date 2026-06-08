@@ -1,5 +1,28 @@
 import { describe, it, expect, afterEach } from 'vitest';
-import { assertSafeOutboundUrl, rateLimit } from './security';
+import { assertSafeOutboundUrl, rateLimit, mintingBlocked } from './security';
+
+describe('mintingBlocked (store-value minting guard)', () => {
+  const saved = { ...process.env };
+  afterEach(() => { process.env = { ...saved }; });
+
+  it('allows minting in dev / test (no live key)', () => {
+    delete process.env.NODE_ENV; delete process.env.STRIPE_API_KEY;
+    expect(mintingBlocked()).toBe(false);
+    process.env.NODE_ENV = 'test'; process.env.STRIPE_API_KEY = 'sk_test_x';
+    expect(mintingBlocked()).toBe(false);
+  });
+  it('blocks minting in production with a live key (unless explicitly allowed)', () => {
+    process.env.NODE_ENV = 'production'; process.env.STRIPE_API_KEY = 'sk_live_x';
+    delete process.env.MONETIZATION_ALLOW_UNPAID_ISSUE;
+    expect(mintingBlocked()).toBe(true);
+    process.env.MONETIZATION_ALLOW_UNPAID_ISSUE = 'true';
+    expect(mintingBlocked()).toBe(false);
+  });
+  it('does not block prod when only a TEST key is present', () => {
+    process.env.NODE_ENV = 'production'; process.env.STRIPE_API_KEY = 'sk_test_x';
+    expect(mintingBlocked()).toBe(false);
+  });
+});
 
 describe('assertSafeOutboundUrl (SSRF guard)', () => {
   it('allows a normal public https host', () => {

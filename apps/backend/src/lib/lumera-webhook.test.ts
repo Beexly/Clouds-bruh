@@ -45,6 +45,19 @@ describe('verifyVendorWebhook (HMAC signature verification)', () => {
     expect(res.valid).toBe(false);
   });
 
+  it('fails CLOSED in production when no secret is configured', () => {
+    const prev = process.env.NODE_ENV;
+    delete process.env.PRINTIFY_WEBHOOK_SECRET;
+    try {
+      (process.env as any).NODE_ENV = 'production';
+      const res = verifyVendorWebhook('printify', { a: 1 }, {});
+      expect(res.valid).toBe(false);
+      expect(res.proof).toBe('missing_secret_in_production');
+    } finally {
+      (process.env as any).NODE_ENV = prev;
+    }
+  });
+
   it('verifies over the RAW body bytes when provided (not the re-serialized JSON)', () => {
     process.env.PRINTIFY_WEBHOOK_SECRET = 'shh';
     // Odd whitespace so JSON.stringify(JSON.parse(raw)) would differ from the original bytes.

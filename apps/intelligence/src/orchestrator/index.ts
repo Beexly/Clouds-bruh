@@ -36,7 +36,7 @@ async function handleSignalEntry(msgId: string, fields: string[]): Promise<void>
     session_id: obj.session_id ?? '',
     type: type as SignalEvent['type'],
     entity_id: obj.entity_id,
-    value: obj.value ? parseFloat(obj.value) : undefined,
+    value: Number.isFinite(parseFloat(obj.value)) ? parseFloat(obj.value) : undefined,
     context: { chapter: obj.chapter as any },
     ts: obj.ts ?? new Date().toISOString(),
   }).catch(() => {});

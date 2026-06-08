@@ -4,7 +4,9 @@ loadEnv(process.env.NODE_ENV || 'development', process.cwd());
 // Launch safety: REFUSE to boot in production without the required secrets / connection string.
 // Fail hard with a clear message rather than warning and limping along on insecure/localhost defaults.
 if (process.env.NODE_ENV === 'production') {
-  const missing = (['JWT_SECRET', 'COOKIE_SECRET', 'DATABASE_URL'] as const).filter((k) => !process.env[k]);
+  const missing = (['JWT_SECRET', 'COOKIE_SECRET', 'DATABASE_URL', 'STORE_CORS', 'ADMIN_CORS'] as const).filter(
+    (k) => !process.env[k]
+  );
   if (missing.length) {
     throw new Error(
       `[lumera] FATAL: ${missing.join(', ')} must be set in production — refusing to boot on insecure/localhost defaults.`

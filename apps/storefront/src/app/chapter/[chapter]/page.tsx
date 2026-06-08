@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { ProductRail } from '../../../components/ProductRail';
 import { PageSignal } from '../../../components/PageSignal';
 import { getRegionId, PRODUCT_FIELDS } from '../../../lib/catalog';
-import { breadcrumbList } from '../../../lib/jsonld';
+import { breadcrumbList, jsonLdScript } from '../../../lib/jsonld';
 
 const API = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000';
 const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
@@ -57,7 +57,7 @@ export default async function ChapterPage({ params }: { params: Promise<{ chapte
 
   return (
     <main className="min-h-screen bg-void bg-sacred-grain">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbs) }} />
       <PageSignal type="chapter_enter" context={{ chapter }} />
       <section className="px-6 py-24 text-center">
         <p className="mb-3 text-micro uppercase text-neutral-600">Chapter</p>

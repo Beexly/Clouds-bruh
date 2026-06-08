@@ -13,7 +13,7 @@ import { Analytics } from '../components/Analytics';
 import { ConsentBanner } from '../components/ConsentBanner';
 import { ServiceWorker } from '../components/ServiceWorker';
 import { BRAND, EXPERIENCE, TAGLINE, DESCRIPTION } from '../lib/brand';
-import { organization, webSite } from '../lib/jsonld';
+import { organization, webSite, jsonLdScript } from '../lib/jsonld';
 
 // Editorial serif for display accents; a quiet grotesque for the body.
 const serif = Cormorant_Garamond({
@@ -67,8 +67,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`dark ${serif.variable} ${sans.variable}`}>
       <body className="min-h-screen bg-void font-sans text-neutral-100 antialiased">
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(org) }} />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(site) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(org) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(site) }} />
         <a href="#main" className="skip-link">Skip to content</a>
         <CustomerProvider>
           <CartProvider>

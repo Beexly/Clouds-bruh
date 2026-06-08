@@ -90,10 +90,10 @@ export function authHeaders(token?: string | null): Record<string, string> {
 }
 
 /**
- * Format a money amount for display. Medusa v2 stores order totals in major units already (not
- * cents), but the task's contract is "total ÷ 100" — historically Medusa amounts were cents. We
- * accept a `divisor` so callers can opt into the ÷100 convention used elsewhere in the storefront.
- * Pure + defensive: a nullish amount renders an em dash.
+ * Format a money amount for display. Lumera's convention is integer CENTS end-to-end (catalog, cart,
+ * orders, email) — divide by 100 only at display, like the rest of the storefront. `divisor` defaults
+ * to 100 for that; pass 1 only if a caller ever hands an already-major-unit value. Pure + defensive:
+ * a nullish amount renders an em dash. (Confirm against a live order during the money-unit go-live check.)
  */
 export function formatMoney(amount?: number | null, currency = 'usd', divisor = 100): string {
   if (amount == null || Number.isNaN(amount)) return '—';

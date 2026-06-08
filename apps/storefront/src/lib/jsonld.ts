@@ -10,6 +10,21 @@
 
 const SCHEMA = 'https://schema.org';
 
+/**
+ * Serialize a JSON-LD object for SAFE injection into <script type="application/ld+json"> via
+ * dangerouslySetInnerHTML. JSON.stringify does NOT escape `<`, so a value containing `</script>`
+ * (e.g. a scraped supplier title) could break out of the tag and execute. Escape `<` and the two
+ * JSON-invalid line separators (U+2028/U+2029). Always use this instead of bare JSON.stringify for
+ * JSON-LD blocks.
+ */
+export function jsonLdScript(data: unknown): string {
+  // Escape `<` (prevents a value like `</script>` breaking out of the tag) and U+2028/U+2029
+  // (valid in JSON strings but invalid inside a <script> block).
+  return JSON.stringify(data).replace(/[<\u2028\u2029]/g, (c) =>
+    c === '<' ? '\\u003c' : c === '\u2028' ? '\\u2028' : '\\u2029'
+  );
+}
+
 export interface Crumb {
   name: string;
   /** Absolute or root-relative URL; joined to `siteUrl` when relative. */
