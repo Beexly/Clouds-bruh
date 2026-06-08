@@ -383,6 +383,86 @@ export class SynceeClient extends BaseVendorClient {
   }
 }
 
+/** Modalyst — SaaS dropship bridge (US/EU + AliExpress). Same gated, fixture-safe pattern. */
+export class ModalystClient extends BaseVendorClient {
+  id: VendorId = 'modalyst';
+  label = 'Modalyst';
+  requiredEnv = ['MODALYST_API_KEY'];
+  baseUrl = process.env.MODALYST_API_URL || 'https://api.modalyst.co/v1';
+
+  protected headers() {
+    return { Authorization: `Bearer ${process.env.MODALYST_API_KEY ?? ''}` };
+  }
+
+  protected async remoteSearch(query: string, limit: number) {
+    const body = (await this.get(`/products?search=${encodeURIComponent(query)}&limit=${limit}`)) as Json;
+    const products = Array.isArray(body.results) ? body.results : Array.isArray(body.data) ? body.data : [];
+    return products.slice(0, limit).map((item: Json, index: number) => remoteCandidate('modalyst', item, query, index));
+  }
+
+  protected async remoteCreateDraftOrder(input: { external_order_id: string; items: Array<{ supplier_sku: string; quantity: number }>; shipping_address?: unknown }) {
+    const body = (await this.post('/orders', {
+      external_id: input.external_order_id,
+      items: input.items.map((item) => ({ sku: item.supplier_sku, quantity: item.quantity })),
+      shipping_address: input.shipping_address ?? {},
+    })) as Json;
+    return { vendor_order_id: String(body.id ?? `modalyst_${Date.now()}`), status: 'draft_created' };
+  }
+
+  protected async remoteSubmitOrder(vendorOrderId: string, source: VendorMode) {
+    return { vendor_order_id: vendorOrderId, status: 'bridge_managed_in_modalyst', source };
+  }
+
+  protected async remoteCancelOrder(vendorOrderId: string, source: VendorMode) {
+    return { vendor_order_id: vendorOrderId, status: 'cancel_requested', source };
+  }
+
+  protected async remoteGetTracking(vendorOrderId: string, source: VendorMode) {
+    const body = (await this.get(`/orders/${vendorOrderId}`).catch(() => ({}))) as Json;
+    return { vendor_order_id: vendorOrderId, tracking_number: body.tracking_number, tracking_url: body.tracking_url, status: body.status ?? 'tracking_pending', source };
+  }
+}
+
+/** Dropified — multi-supplier order-automation bridge. Same gated, fixture-safe pattern. */
+export class DropifiedClient extends BaseVendorClient {
+  id: VendorId = 'dropified';
+  label = 'Dropified';
+  requiredEnv = ['DROPIFIED_API_KEY'];
+  baseUrl = process.env.DROPIFIED_API_URL || 'https://api.dropified.com/api';
+
+  protected headers() {
+    return { Authorization: `Token ${process.env.DROPIFIED_API_KEY ?? ''}` };
+  }
+
+  protected async remoteSearch(query: string, limit: number) {
+    const body = (await this.get(`/products?title=${encodeURIComponent(query)}&limit=${limit}`)) as Json;
+    const products = Array.isArray(body.products) ? body.products : Array.isArray(body.data) ? body.data : [];
+    return products.slice(0, limit).map((item: Json, index: number) => remoteCandidate('dropified', item, query, index));
+  }
+
+  protected async remoteCreateDraftOrder(input: { external_order_id: string; items: Array<{ supplier_sku: string; quantity: number }>; shipping_address?: unknown }) {
+    const body = (await this.post('/orders/place', {
+      reference: input.external_order_id,
+      line_items: input.items.map((item) => ({ sku: item.supplier_sku, quantity: item.quantity })),
+      shipping_address: input.shipping_address ?? {},
+    })) as Json;
+    return { vendor_order_id: String(body.id ?? body.order_id ?? `dropified_${Date.now()}`), status: 'draft_created' };
+  }
+
+  protected async remoteSubmitOrder(vendorOrderId: string, source: VendorMode) {
+    return { vendor_order_id: vendorOrderId, status: 'bridge_managed_in_dropified', source };
+  }
+
+  protected async remoteCancelOrder(vendorOrderId: string, source: VendorMode) {
+    return { vendor_order_id: vendorOrderId, status: 'cancel_requested', source };
+  }
+
+  protected async remoteGetTracking(vendorOrderId: string, source: VendorMode) {
+    const body = (await this.get(`/orders/${vendorOrderId}`).catch(() => ({}))) as Json;
+    return { vendor_order_id: vendorOrderId, tracking_number: body.tracking_number, tracking_url: body.tracking_url, status: body.status ?? 'tracking_pending', source };
+  }
+}
+
 export class ManualSupplierClient extends BaseVendorClient {
   id: VendorId = 'manual';
   label = 'Manual Supplier Intake';
@@ -443,6 +523,10 @@ export function vendorClient(id: VendorId): VendorConnector {
       return new SpocketClient();
     case 'syncee':
       return new SynceeClient();
+    case 'modalyst':
+      return new ModalystClient();
+    case 'dropified':
+      return new DropifiedClient();
     case 'manual':
     case 'radar':
     default:
@@ -457,6 +541,8 @@ export function allVendorClients(): VendorConnector[] {
     vendorClient('cj'),
     vendorClient('spocket'),
     vendorClient('syncee'),
+    vendorClient('modalyst'),
+    vendorClient('dropified'),
     vendorClient('manual'),
   ];
 }

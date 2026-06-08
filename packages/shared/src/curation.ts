@@ -1,6 +1,15 @@
 import type { Chapter } from './events';
 
-export type VendorId = 'printify' | 'printful' | 'cj' | 'spocket' | 'syncee' | 'manual' | 'radar';
+export type VendorId =
+  | 'printify'
+  | 'printful'
+  | 'cj'
+  | 'spocket'
+  | 'syncee'
+  | 'modalyst'
+  | 'dropified'
+  | 'manual'
+  | 'radar';
 
 export type VendorMode = 'live' | 'sandbox' | 'fixture' | 'missing_credentials' | 'blocked';
 

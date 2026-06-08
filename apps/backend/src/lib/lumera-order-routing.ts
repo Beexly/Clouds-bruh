@@ -43,7 +43,17 @@ export type VendorOrderDraft = {
   };
 };
 
-const allowedVendors = new Set<VendorId>(['printify', 'printful', 'cj', 'spocket', 'syncee', 'manual', 'radar']);
+const allowedVendors = new Set<VendorId>([
+  'printify',
+  'printful',
+  'cj',
+  'spocket',
+  'syncee',
+  'modalyst',
+  'dropified',
+  'manual',
+  'radar',
+]);
 
 export function vendorOrderDraftsFromOrder(order: OrderLike): VendorOrderDraft[] {
   const liveMode = process.env.VENDOR_LIVE_MODE === 'true';

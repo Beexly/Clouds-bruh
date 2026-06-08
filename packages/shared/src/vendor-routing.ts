@@ -16,6 +16,8 @@ export const VENDOR_FULFILLMENT_PRIORITY: VendorId[] = [
   'cj',
   'spocket',
   'syncee',
+  'modalyst',
+  'dropified',
   'manual',
   'radar',
 ];

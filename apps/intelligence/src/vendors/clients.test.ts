@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeEach, afterEach } from 'vitest';
-import { allVendorClients, PrintifyClient, SpocketClient, SynceeClient } from './clients';
+import { allVendorClients, PrintifyClient, SpocketClient, SynceeClient, ModalystClient, DropifiedClient } from './clients';
 
 const savedEnv = { ...process.env };
 
@@ -49,12 +49,14 @@ describe('vendor clients', () => {
       'cj',
       'spocket',
       'syncee',
+      'modalyst',
+      'dropified',
       'manual',
     ]);
   });
 
   it('SaaS bridges are fixture-safe without creds and report bridge-managed submission', async () => {
-    for (const Client of [SpocketClient, SynceeClient]) {
+    for (const Client of [SpocketClient, SynceeClient, ModalystClient, DropifiedClient]) {
       const client = new Client();
       const health = await client.healthCheck();
       expect(health.connected).toBe(false);

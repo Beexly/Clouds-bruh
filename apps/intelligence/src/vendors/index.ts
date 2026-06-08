@@ -72,6 +72,8 @@ function syncHealth(id: VendorId): VendorConnection {
     cj: 'CJ Dropshipping',
     spocket: 'Spocket',
     syncee: 'Syncee (Alibaba-backed)',
+    modalyst: 'Modalyst',
+    dropified: 'Dropified',
     manual: 'Manual Supplier Intake',
     radar: 'Radar Only',
   };
@@ -81,6 +83,8 @@ function syncHealth(id: VendorId): VendorConnection {
     cj: ['CJ_API_KEY', 'CJ_ACCESS_TOKEN'],
     spocket: ['SPOCKET_API_KEY'],
     syncee: ['SYNCEE_API_KEY'],
+    modalyst: ['MODALYST_API_KEY'],
+    dropified: ['DROPIFIED_API_KEY'],
     manual: [],
     radar: [],
   };

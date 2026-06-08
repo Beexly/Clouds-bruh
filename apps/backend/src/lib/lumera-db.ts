@@ -117,6 +117,8 @@ export function vendorConnections(): VendorConnection[] {
     connection('cj', 'CJ Dropshipping', ['CJ_API_KEY', 'CJ_ACCESS_TOKEN'], liveMode && process.env.CJ_SANDBOX !== 'true', autoSubmit),
     connection('spocket', 'Spocket', ['SPOCKET_API_KEY'], liveMode, autoSubmit),
     connection('syncee', 'Syncee (Alibaba-backed)', ['SYNCEE_API_KEY'], liveMode, autoSubmit),
+    connection('modalyst', 'Modalyst', ['MODALYST_API_KEY'], liveMode, autoSubmit),
+    connection('dropified', 'Dropified', ['DROPIFIED_API_KEY'], liveMode, autoSubmit),
     manualConnection(),
     connection('radar', 'Radar Only', [], false, false, process.env.OXYLABS_USER || process.env.APIFY_TOKEN ? 'sandbox' : 'fixture'),
   ];
