@@ -1,24 +1,33 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { LumeraDropshipFulfillmentService } from './service';
+import { LumeraDropshipFulfillmentService, deriveDestination } from './service';
 
 describe('LumeraDropshipFulfillmentService', () => {
   let dbUrl: string | undefined;
   let live: string | undefined;
   let auto: string | undefined;
+  let easypost: string | undefined;
+  let shippo: string | undefined;
 
   beforeEach(() => {
     dbUrl = process.env.DATABASE_URL;
     live = process.env.VENDOR_LIVE_MODE;
     auto = process.env.AUTO_SUBMIT_VENDOR_ORDERS;
+    easypost = process.env.EASYPOST_API_KEY;
+    shippo = process.env.SHIPPO_API_KEY;
     // Ensure no DB so createFulfillment uses the pure path (no connection attempt).
     delete process.env.DATABASE_URL;
     delete process.env.VENDOR_LIVE_MODE;
     delete process.env.AUTO_SUBMIT_VENDOR_ORDERS;
+    // Ensure no carrier creds so price calc takes the fixture-safe (no network) fallback path.
+    delete process.env.EASYPOST_API_KEY;
+    delete process.env.SHIPPO_API_KEY;
   });
   afterEach(() => {
     if (dbUrl) process.env.DATABASE_URL = dbUrl; else delete process.env.DATABASE_URL;
     if (live) process.env.VENDOR_LIVE_MODE = live; else delete process.env.VENDOR_LIVE_MODE;
     if (auto) process.env.AUTO_SUBMIT_VENDOR_ORDERS = auto; else delete process.env.AUTO_SUBMIT_VENDOR_ORDERS;
+    if (easypost) process.env.EASYPOST_API_KEY = easypost; else delete process.env.EASYPOST_API_KEY;
+    if (shippo) process.env.SHIPPO_API_KEY = shippo; else delete process.env.SHIPPO_API_KEY;
   });
 
   const svc = () => new LumeraDropshipFulfillmentService();
@@ -33,9 +42,50 @@ describe('LumeraDropshipFulfillmentService', () => {
     expect(opts.find((o: any) => o.is_return)).toBeTruthy();
   });
 
-  it('does not support dynamic price calculation', async () => {
+  it('canCalculate() is false when no carrier (EasyPost/Shippo) is configured', async () => {
+    // creds are deleted in beforeEach
     expect(await svc().canCalculate()).toBe(false);
-    await expect(svc().calculatePrice()).rejects.toThrow();
+  });
+
+  it('canCalculate() is true once a carrier key is present', async () => {
+    process.env.EASYPOST_API_KEY = 'ep_test_key';
+    expect(await svc().canCalculate()).toBe(true);
+  });
+
+  it('calculatePrice() does not throw and returns a flat fallback when unconfigured (no network)', async () => {
+    const price = await svc().calculatePrice(
+      {},
+      { to_country: 'us', to_postal: '10001' },
+      { items: [{ quantity: 2 }], shipping_address: { country_code: 'us', postal_code: '10001' } }
+    );
+    expect(price).toEqual({ calculated_amount: 0, is_calculated_price_tax_inclusive: false });
+  });
+
+  it('calculatePrice() honors LUMERA_FLAT_SHIPPING_USD as the fallback amount', async () => {
+    process.env.LUMERA_FLAT_SHIPPING_USD = '7.5';
+    try {
+      const price = await svc().calculatePrice({}, {}, {});
+      expect(price.calculated_amount).toBe(7.5);
+      expect(price.is_calculated_price_tax_inclusive).toBe(false);
+    } finally {
+      delete process.env.LUMERA_FLAT_SHIPPING_USD;
+    }
+  });
+
+  it('deriveDestination prefers method data, then falls back to the cart shipping address', () => {
+    const fromData = deriveDestination(
+      { to_country: 'CA', to_postal: 'M5V' },
+      { shipping_address: { country_code: 'us', postal_code: '10001' }, items: [{ quantity: 3 }] }
+    );
+    expect(fromData).toEqual({ country: 'ca', postal: 'M5V', items: [{ quantity: 3 }] });
+
+    const fromAddress = deriveDestination(
+      {},
+      { shipping_address: { country_code: 'GB', postal_code: 'SW1A' }, items: [] }
+    );
+    expect(fromAddress.country).toBe('gb');
+    expect(fromAddress.postal).toBe('SW1A');
+    expect(fromAddress.items).toEqual([]);
   });
 
   it('stages a vendor order per supplier and keeps live submission gated', async () => {
