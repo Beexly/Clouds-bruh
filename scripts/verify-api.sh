@@ -16,6 +16,16 @@ cd "$ROOT"
 
 export DATABASE_URL="${DATABASE_URL:-postgres://alterxiv:alterxiv@localhost:5432/alterxiv}"
 export PUBLISHABLE_KEY="${PUBLISHABLE_KEY:-pk_3597340b67d6e63689846700f8264afde0105aed898356d6d630df566afd3050}"
+
+# Ephemeral secrets so `medusa start` (which boots in production mode) clears the launch-safety guard
+# in medusa-config.ts (refuses prod boot without these). Throwaway values for the verify run ONLY —
+# never real credentials. Booting in production mode makes verify:api a faithful proxy for the deploy.
+export JWT_SECRET="${JWT_SECRET:-verify_ephemeral_jwt_not_for_prod}"
+export COOKIE_SECRET="${COOKIE_SECRET:-verify_ephemeral_cookie_not_for_prod}"
+export STORE_CORS="${STORE_CORS:-http://localhost:9000,http://localhost:3000}"
+export ADMIN_CORS="${ADMIN_CORS:-http://localhost:9000,http://localhost:3000}"
+export AUTH_CORS="${AUTH_CORS:-http://localhost:9000,http://localhost:3000}"
+
 PORT="${PORT:-9000}"
 LOG="/tmp/alterxiv-verify-backend.log"
 BACKEND_PID=""
