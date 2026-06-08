@@ -15,7 +15,8 @@ const REASONS = [
 ];
 
 /**
- * Self-serve returns — POSTs to /store/returns. Shepherd reconciles supplier policy, return
+ * Self-serve returns — POSTs to /store/rma (Lumera return intake; /store/returns is a Medusa
+ * built-in, so we namespace ours). Shepherd reconciles supplier policy, return
  * window, and refund path on the backend; this page just opens the case with warmth and clarity.
  * Dark luminous editorial luxury, in the house voice.
  */
@@ -37,7 +38,7 @@ export default function ReturnsPage() {
     }
     setStatus('submitting');
     try {
-      const res = await apiFetch('/store/returns', {
+      const res = await apiFetch('/store/rma', {
         method: 'POST',
         body: JSON.stringify({
           order_id: form.order_id.trim() || undefined,

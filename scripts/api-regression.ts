@@ -279,10 +279,10 @@ async function run() {
     assert(typeof d.truth.supplier_name === 'string', 'missing supplier_name');
   });
 
-  await check('POST /store/returns — validates input and opens a return case', async () => {
-    const bad = await fetch(`${API}/store/returns`, { method: 'POST', headers, body: JSON.stringify({}) });
+  await check('POST /store/rma — validates input and opens a return case', async () => {
+    const bad = await fetch(`${API}/store/rma`, { method: 'POST', headers, body: JSON.stringify({}) });
     assert(bad.status === 400, `empty return should 400, got ${bad.status}`);
-    const res = await fetch(`${API}/store/returns`, {
+    const res = await fetch(`${API}/store/rma`, {
       method: 'POST', headers, body: JSON.stringify({ email: 'returns-reg@alterxiv.test', reason: 'regression' }),
     });
     const rawBody = await res.clone().text();
