@@ -34,6 +34,11 @@
 > wire a custom domain + `NEXT_PUBLIC_SITE_URL`; connect transactional email; run a hosted Lighthouse
 > pass. See "Needs founder" below and `CODEX_HANDOFF.md`.
 
+> **Refresh — 2026-06-08 (verified):** `pnpm build` 4/4 green · `pnpm test` **290 unit** (shared 28 ·
+> intelligence 47 · storefront 49 · backend 166) — the "56 unit" figures below are a 2026-06-01 snapshot and
+> now undercount by ~5×. Latest branch CI run green (incl. `verify:api`). Brand domain canonicalized in code
+> to **`lumeralabel.com`**; remaining gap unchanged (founder Cloud config — see `LAUNCH_READINESS.md`).
+
 ## Status
 - ✅ MASTER_PLAN phases 0–11 effectively complete and verified.
 - ✅ Beyond-plan capabilities shipped this session (waves G–O), research-grounded:

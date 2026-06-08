@@ -13,6 +13,19 @@
 > **Also shipped this pass:** social share card (OG/Twitter — verified PNG render), `/account` hub +
 > header search/account cues (prototypicality §0/§10), an order-confirmation email subscriber
 > (mock-until-keyed), and rebrand regression tests (**56** unit total).
+>
+> **Verification refresh — 2026-06-08:** re-verified from `claude/affectionate-clarke-KJ8O1`:
+> `pnpm build` green (4/4) · `pnpm test` **290 passing** (shared 28 · intelligence 47 · storefront 49 ·
+> backend 166) · latest branch CI run **success** (lint · test · build · `verify:api` with pgvector+Redis).
+> **Brand domain canonicalized in code to `lumeralabel.com`** (storefront SITE fallbacks, Footer contact,
+> Resend sender; production still set via env). The numbers further down are a 2026-06-01 snapshot.
+>
+> **▶ Domain cutover — `lumeralabel.com` (the gated next action):**
+> 1. Buy `lumeralabel.com` (+ `lumera.gold` → 301 redirect to canonical).
+> 2. Storefront env: `NEXT_PUBLIC_SITE_URL=https://lumeralabel.com`.
+> 3. Backend env: `STORE_CORS` / `ADMIN_CORS` = real origins · `NOTIFICATION_EMAIL_FROM=no-reply@lumeralabel.com` (+ `RESEND_API_KEY` + Resend DNS records).
+> 4. Deploy platform: attach custom domain + TLS · update PayPal return URLs.
+> 5. Trademark: run a real clearance search before filing (Class 25/35) — the domain needs none; a filing does.
 
 ---
 
