@@ -25,6 +25,9 @@ export COOKIE_SECRET="${COOKIE_SECRET:-verify_ephemeral_cookie_not_for_prod}"
 export STORE_CORS="${STORE_CORS:-http://localhost:9000,http://localhost:3000}"
 export ADMIN_CORS="${ADMIN_CORS:-http://localhost:9000,http://localhost:3000}"
 export AUTH_CORS="${AUTH_CORS:-http://localhost:9000,http://localhost:3000}"
+# Ops/BI APIs (/store/analyst, /store/cockpit) fail CLOSED in production without this key. Set an
+# ephemeral one so the regression can authenticate against them; the script also passes it through.
+export COCKPIT_KEY="${COCKPIT_KEY:-verify_ephemeral_cockpit_key}"
 
 PORT="${PORT:-9000}"
 LOG="/tmp/alterxiv-verify-backend.log"

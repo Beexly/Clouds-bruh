@@ -5,9 +5,12 @@
 const API = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000';
 const PK = process.env.PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
 
+const COCKPIT_KEY = process.env.COCKPIT_KEY || '';
 const headers: Record<string, string> = {
   'Content-Type': 'application/json',
   ...(PK ? { 'x-publishable-api-key': PK } : {}),
+  // Ops/BI surfaces (/store/analyst, /store/cockpit) fail closed in production; authenticate with the key.
+  ...(COCKPIT_KEY ? { 'x-cockpit-key': COCKPIT_KEY } : {}),
 };
 
 let passed = 0;
@@ -282,7 +285,8 @@ async function run() {
     const res = await fetch(`${API}/store/returns`, {
       method: 'POST', headers, body: JSON.stringify({ email: 'returns-reg@alterxiv.test', reason: 'regression' }),
     });
-    assert(res.status === 202, `return intake HTTP ${res.status}`);
+    const rawBody = await res.clone().text();
+    assert(res.status === 202, `return intake HTTP ${res.status} — body: ${rawBody.slice(0, 200)}`);
     const d = await res.json();
     assert(d.return_case?.id && d.return_case?.status === 'submitted', 'no return case created');
   });
