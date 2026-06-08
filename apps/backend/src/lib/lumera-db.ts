@@ -25,6 +25,12 @@ export function pool() {
   return _pool;
 }
 
+/**
+ * Canonical runtime DDL for the lumera_* tables. lib/lumera-db.ts is the source of truth the routes
+ * use; the native Medusa module (src/modules/lumera) is a typed scaffold that is not wired into any
+ * route. To prevent schema drift between the two, these definitions include the module migration's
+ * `deleted_at` column (nullable, soft-delete) even though the raw layer does not soft-delete today.
+ */
 export async function ensureLumeraTables() {
   await pool().query(`
     CREATE TABLE IF NOT EXISTS lumera_vendor_connection (
@@ -36,7 +42,8 @@ export async function ensureLumeraTables() {
       can_submit_orders boolean not null default false,
       last_checked_at timestamptz not null default now(),
       missing_env jsonb not null default '[]'::jsonb,
-      message text not null default ''
+      message text not null default '',
+      deleted_at timestamptz
     );
 
     CREATE TABLE IF NOT EXISTS lumera_product_candidate (
@@ -53,7 +60,8 @@ export async function ensureLumeraTables() {
       stock integer not null default 0,
       payload jsonb not null,
       created_at timestamptz not null default now(),
-      updated_at timestamptz not null default now()
+      updated_at timestamptz not null default now(),
+      deleted_at timestamptz
     );
 
     CREATE TABLE IF NOT EXISTS lumera_approval_request (
@@ -64,7 +72,8 @@ export async function ensureLumeraTables() {
       reason text,
       payload jsonb not null default '{}'::jsonb,
       created_at timestamptz not null default now(),
-      updated_at timestamptz not null default now()
+      updated_at timestamptz not null default now(),
+      deleted_at timestamptz
     );
 
     CREATE TABLE IF NOT EXISTS lumera_vendor_order (
@@ -75,7 +84,8 @@ export async function ensureLumeraTables() {
       status text not null,
       payload jsonb not null default '{}'::jsonb,
       created_at timestamptz not null default now(),
-      updated_at timestamptz not null default now()
+      updated_at timestamptz not null default now(),
+      deleted_at timestamptz
     );
 
     CREATE TABLE IF NOT EXISTS lumera_vendor_webhook_event (
@@ -84,7 +94,8 @@ export async function ensureLumeraTables() {
       event_type text not null,
       payload jsonb not null,
       received_at timestamptz not null default now(),
-      processed_at timestamptz
+      processed_at timestamptz,
+      deleted_at timestamptz
     );
 
     CREATE TABLE IF NOT EXISTS lumera_return_case (
@@ -95,7 +106,8 @@ export async function ensureLumeraTables() {
       reason text,
       payload jsonb not null default '{}'::jsonb,
       created_at timestamptz not null default now(),
-      updated_at timestamptz not null default now()
+      updated_at timestamptz not null default now(),
+      deleted_at timestamptz
     );
 
     CREATE TABLE IF NOT EXISTS lumera_product_design (
@@ -104,7 +116,8 @@ export async function ensureLumeraTables() {
       status text not null default 'draft',
       payload jsonb not null default '{}'::jsonb,
       created_at timestamptz not null default now(),
-      updated_at timestamptz not null default now()
+      updated_at timestamptz not null default now(),
+      deleted_at timestamptz
     );
   `);
 }
