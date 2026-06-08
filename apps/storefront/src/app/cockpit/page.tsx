@@ -7,6 +7,7 @@ import {
   requestSample,
   runCuration,
 } from './actions';
+import { CONSTELLATION } from '@alterxiv/shared';
 
 const API = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000';
 const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
@@ -56,16 +57,71 @@ function usd(cents: number | undefined): string {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount);
 }
 
+type RunLite = { agent: string; status?: string; escalated?: boolean; started_at?: string };
+
+function workerStatusStyle(status: string): string {
+  switch (status) {
+    case 'success':
+      return 'text-neutral-400';
+    case 'awaiting_approval':
+      return 'text-altar-goldlight';
+    case 'idle':
+      return 'text-neutral-700';
+    default:
+      return 'text-chapter-relentless';
+  }
+}
+
+/**
+ * The Constellation — the full autonomous workforce. The roster comes from the shared manifest (so it
+ * renders even when telemetry is dark); each worker's live status is overlaid from recent runs.
+ */
+function Workforce({ runs }: { runs: RunLite[] }) {
+  const latest = new Map<string, RunLite>();
+  for (const r of runs) if (r?.agent && !latest.has(r.agent)) latest.set(r.agent, r); // recent_runs is newest-first
+  return (
+    <section className="rounded-sm border border-white/[0.07] p-5">
+      <div className="mb-4 flex items-center justify-between">
+        <h2 className="text-label uppercase text-neutral-400">The Constellation — Autonomous Workforce</h2>
+        <span className="text-micro uppercase text-neutral-600">{CONSTELLATION.length} workers</span>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {CONSTELLATION.map((m) => {
+          const status = latest.get(m.key)?.status ?? 'idle';
+          return (
+            <div key={m.key} className="rounded-sm border border-white/[0.06] bg-white/[0.02] p-4">
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <p className="font-serif text-lg text-neutral-100">{m.name}</p>
+                  <p className="text-micro uppercase text-neutral-600">{m.department}</p>
+                </div>
+                <span className={`shrink-0 text-micro uppercase ${workerStatusStyle(status)}`}>{status.replace(/_/g, ' ')}</span>
+              </div>
+              <p className="mt-3 text-sm text-neutral-400">{m.role}</p>
+              <p className="mt-3 text-micro uppercase text-neutral-600">{m.cadence}</p>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 /** The Founder's Cockpit — the company, running itself. You approve; it operates. */
 export default async function Cockpit() {
   const [d, board] = await Promise.all([fetchCockpit(), fetchCurationBoard()]);
 
   if (!d && !board) {
     return (
-      <main className="min-h-screen bg-void px-6 py-24 text-center">
-        <p className="text-micro uppercase text-neutral-600">The Cockpit</p>
-        <p className="mt-4 font-serif text-2xl text-neutral-300">The control room is dark.</p>
-        <p className="mt-2 text-sm text-neutral-600">No telemetry — is the backend awake?</p>
+      <main className="min-h-screen bg-void bg-sacred-grain px-6 py-16">
+        <div className="mx-auto max-w-5xl">
+          <header className="mb-10 text-center">
+            <p className="text-micro uppercase text-neutral-600">The Cockpit</p>
+            <h1 className="mt-2 font-serif text-4xl font-light tracking-[0.1em] text-foil">The Company, Running Itself</h1>
+            <p className="mt-3 text-sm italic text-neutral-500">Telemetry is dark — is the backend awake? Your workforce, regardless:</p>
+          </header>
+          <Workforce runs={[]} />
+        </div>
       </main>
     );
   }
@@ -278,47 +334,25 @@ export default async function Cockpit() {
           )}
         </section>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          {/* Approval inbox */}
-          <section className="rounded-sm border border-white/[0.07] p-5">
-            <h2 className="mb-4 text-label uppercase text-neutral-400">Founder Approval Inbox</h2>
-            {inbox.length === 0 ? (
-              <p className="text-sm text-neutral-600">Nothing needs you. The gate is quiet.</p>
-            ) : (
-              <ul className="space-y-3">
-                {inbox.map((i) => (
-                  <li key={i.id} className="border-b border-white/5 pb-2">
-                    <span className="text-micro uppercase text-altar-goldlight">{i.agent}</span>
-                    <p className="text-sm text-neutral-300">{i.reason}</p>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </section>
-
-          {/* Recent agent runs */}
-          <section className="rounded-sm border border-white/[0.07] p-5">
-            <h2 className="mb-4 text-label uppercase text-neutral-400">The Constellation — Recent Runs</h2>
-            <ul className="space-y-2">
-              {runs.map((r, i) => (
-                <li key={i} className="flex items-center justify-between text-sm">
-                  <span className="text-neutral-300">{r.agent}</span>
-                  <span
-                    className={`text-micro uppercase ${
-                      r.status === 'success'
-                        ? 'text-neutral-500'
-                        : r.status === 'awaiting_approval'
-                          ? 'text-altar-goldlight'
-                          : 'text-chapter-relentless'
-                    }`}
-                  >
-                    {r.status}
-                  </span>
+        {/* Approval inbox */}
+        <section className="mb-6 rounded-sm border border-white/[0.07] p-5">
+          <h2 className="mb-4 text-label uppercase text-neutral-400">Founder Approval Inbox</h2>
+          {inbox.length === 0 ? (
+            <p className="text-sm text-neutral-600">Nothing needs you. The gate is quiet.</p>
+          ) : (
+            <ul className="space-y-3">
+              {inbox.map((i) => (
+                <li key={i.id} className="border-b border-white/5 pb-2">
+                  <span className="text-micro uppercase text-altar-goldlight">{i.agent}</span>
+                  <p className="text-sm text-neutral-300">{i.reason}</p>
                 </li>
               ))}
             </ul>
-          </section>
-        </div>
+          )}
+        </section>
+
+        {/* The Constellation — full autonomous workforce roster + live status */}
+        <Workforce runs={runs} />
 
         {/* Drops */}
         <section className="mt-6 rounded-sm border border-white/[0.07] p-5">

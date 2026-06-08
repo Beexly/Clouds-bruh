@@ -5,3 +5,4 @@ export * from './curation-fixtures';
 export * from './sourcing';
 export * from './vendor-routing';
 export * from './channels';
+export * from './constellation';
