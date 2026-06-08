@@ -51,13 +51,22 @@ else
   else unset REDIS_URL || true; ok "No Redis — backend will use in-memory defaults (still valid)"; fi
 fi
 
+# ── 1b. Build the shared workspace package ───────────────────────────────────
+# The backend's modules/config import @alterxiv/shared from its built dist (main:
+# dist/index.js). Medusa's loader resolves it from node_modules and does NOT transpile
+# workspace deps, so without this build every migrate/seed/boot crashes at config load.
+say "Building @alterxiv/shared"
+( cd "$ROOT" && pnpm --filter @alterxiv/shared build ) >/tmp/alterxiv-verify-shared.log 2>&1 \
+  && ok "@alterxiv/shared built" \
+  || { tail -50 /tmp/alterxiv-verify-shared.log; die "@alterxiv/shared build failed — see log above"; }
+
 cd "$ROOT/apps/backend"
 
 # ── 2. Migrate (timeout so it can never hang the run) ────────────────────────
 say "Running migrations"
 timeout 180 npx medusa db:migrate >/tmp/alterxiv-verify-migrate.log 2>&1 \
   && ok "Migrations complete" \
-  || die "Migrations failed/timed out — see /tmp/alterxiv-verify-migrate.log"
+  || { tail -80 /tmp/alterxiv-verify-migrate.log; die "Migrations failed/timed out — see log above"; }
 
 # ── 3. Seed (idempotent chain) ───────────────────────────────────────────────
 say "Seeding (idempotent — skips when data already present)"
