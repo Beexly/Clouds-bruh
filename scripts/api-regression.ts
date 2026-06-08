@@ -256,6 +256,37 @@ async function run() {
     assert(out.type === 'order' && out.order?.id, `expected an order, got type=${out.type} ${JSON.stringify(out.error ?? '')}`);
   });
 
+  // ── Lumera dropship: honest shipping promise · Product Truth · returns intake (Phase 13) ──
+  await check('POST /store/shipping-estimate — returns an honest delivery promise', async () => {
+    const res = await fetch(`${API}/store/shipping-estimate`, {
+      method: 'POST', headers, body: JSON.stringify({ items: [{ lead_time_days: 10 }] }),
+    });
+    assert(res.ok, `shipping-estimate HTTP ${res.status}`);
+    const d = await res.json();
+    assert(d.promise && typeof d.promise.max_days === 'number' && typeof d.promise.message === 'string', 'missing promise');
+    assert(d.promise.max_days >= d.promise.min_days, 'promise window inverted');
+  });
+
+  await check('GET /store/product-truth/:handle — returns Product Truth', async () => {
+    const cat = await get('/store/products?limit=1&fields=id,handle');
+    const handle = cat.products?.[0]?.handle;
+    assert(handle, 'no product handle in catalog');
+    const d = await get(`/store/product-truth/${encodeURIComponent(handle)}`);
+    assert(d.truth && typeof d.truth.estimated_ship_days === 'number', 'missing product truth');
+    assert(typeof d.truth.supplier_name === 'string', 'missing supplier_name');
+  });
+
+  await check('POST /store/returns — validates input and opens a return case', async () => {
+    const bad = await fetch(`${API}/store/returns`, { method: 'POST', headers, body: JSON.stringify({}) });
+    assert(bad.status === 400, `empty return should 400, got ${bad.status}`);
+    const res = await fetch(`${API}/store/returns`, {
+      method: 'POST', headers, body: JSON.stringify({ email: 'returns-reg@alterxiv.test', reason: 'regression' }),
+    });
+    assert(res.status === 202, `return intake HTTP ${res.status}`);
+    const d = await res.json();
+    assert(d.return_case?.id && d.return_case?.status === 'submitted', 'no return case created');
+  });
+
   console.log(`\nResults: ${passed} passed, ${failed} failed\n`);
   if (failed > 0) process.exit(1);
 }
