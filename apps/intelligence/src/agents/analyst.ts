@@ -8,6 +8,7 @@ export const Analyst: AgentDef = {
   mission: 'Answer any business question in plain English with honest numbers and a clear chart.',
   model: MODEL,
   tools: ['nl_analytics', 'signal_query', 'voc_reviews', 'ledger'],
+  skills: ['customer-feedback-analysis', 'customer-segment', 'brand-monitoring', 'brand-protection'],
   events: ['report.requested'],
   // Analyst is strictly read-only; any write/mutation must escalate (and is never expected).
   escalation: ['run_write_query', 'mutate_data'],

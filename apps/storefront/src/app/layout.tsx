@@ -8,6 +8,7 @@ import { Shepherd } from '../components/Shepherd';
 import { CommandPalette } from '../components/CommandPalette';
 import { Footer } from '../components/Footer';
 import { Analytics } from '../components/Analytics';
+import { ConsentBanner } from '../components/ConsentBanner';
 import { BRAND, EXPERIENCE, TAGLINE, DESCRIPTION } from '../lib/brand';
 
 // Editorial serif for display accents; a quiet grotesque for the body.
@@ -65,6 +66,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Shepherd />
           <CommandPalette />
         </CartProvider>
+        <ConsentBanner />
         <Analytics />
       </body>
     </html>

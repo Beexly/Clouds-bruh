@@ -41,6 +41,14 @@ export default function PrivacyPage() {
           measure site performance, reduce fraud, and personalize the Broadcast. Browser controls may limit some
           tracking, but disabling essential cookies can affect checkout.
         </p>
+        <p>
+          <strong className="text-altar-goldlight">Cookie consent.</strong> The first time you visit, a consent
+          banner asks whether you accept analytics and measurement cookies. Essential cookies (cart and session)
+          are always active because the store cannot function without them. Optional analytics cookies load only
+          after you choose &ldquo;Accept&rdquo;; if you decline, no analytics scripts run. Your choice is stored
+          on your device and can be reset by clearing your browser&apos;s site data, after which the banner will
+          appear again.
+        </p>
       </Section>
       <Section title="Retention and security">
         <p>

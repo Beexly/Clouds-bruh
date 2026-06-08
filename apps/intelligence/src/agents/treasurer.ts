@@ -6,6 +6,7 @@ export const Treasurer: AgentDef = {
   mission: 'Know the numbers cold; invoice cleanly; protect the margin.',
   model: MODEL,
   tools: ['medusa_admin_read', 'gl_reconcile', 'month_end_close', 'statement_audit', 'invoice_generate', 'pdf_render', 'ledger'],
+  skills: ['nl-analytics', 'margin-analysis', 'price-strategy'],
   schedule: '0 8 * * 1',
   escalation: ['send_invoice', 'move_money'],
   selfAudit: 'Reports reconcile to order/payment data; invoices are accurate and branded; margins computed against true supplier cost.',

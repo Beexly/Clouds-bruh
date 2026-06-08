@@ -1,5 +1,5 @@
 import { describe, it, expect, afterEach } from 'vitest';
-import { sendEmail, renderOrderConfirmation, trackKlaviyoEvent } from './email';
+import { sendEmail, renderOrderConfirmation, renderShipmentNotification, trackKlaviyoEvent } from './email';
 
 const savedResend = process.env.RESEND_API_KEY;
 const savedKlaviyo = process.env.KLAVIYO_API_KEY;
@@ -63,5 +63,39 @@ describe('email — renderOrderConfirmation', () => {
       items: [{ title: 'Thing', quantity: 1, unit_price: 9999 }],
     });
     expect(out.html).toContain('$50.00');
+  });
+});
+
+describe('email — renderShipmentNotification', () => {
+  it('renders a shipped notice with the order number, items, and tracking', () => {
+    const out = renderShipmentNotification({
+      id: 'order_3',
+      display_id: 99,
+      email: 'patron@lumera.example',
+      currency_code: 'usd',
+      items: [{ title: 'Eclipse Hoodie', quantity: 1, unit_price: 12000 }],
+      tracking_number: '1Z999AA10123456784',
+      tracking_url: 'https://track.example/1Z999AA10123456784',
+      carrier: 'UPS',
+    });
+
+    expect(out.to).toBe('patron@lumera.example');
+    expect(out.subject).toContain('99');
+    expect(out.subject.toLowerCase()).toContain('shipped');
+    expect(out.html).toContain('Eclipse Hoodie');
+    expect(out.html).toContain('1Z999AA10123456784');
+    expect(out.html).toContain('https://track.example/1Z999AA10123456784');
+    expect(out.html).toContain('UPS');
+  });
+
+  it('omits the tracking block when no tracking is present', () => {
+    const out = renderShipmentNotification({
+      id: 'order_4',
+      display_id: 100,
+      email: 'x@y.com',
+      items: [{ title: 'Thing', quantity: 1 }],
+    });
+    expect(out.html).not.toContain('Tracking');
+    expect(out.html).toContain('Thing');
   });
 });

@@ -6,6 +6,7 @@ export const OracleKeeper: AgentDef = {
   mission: 'Make the recommendations and the dynamic Broadcast measurably smarter every day.',
   model: MODEL,
   tools: ['recommendation_admin', 'experiment_admin', 'signal_query', 'ledger'],
+  skills: ['conversion-rate-optimization', 'cro-audit', 'conversion-sprint', 'dynamic-pricing-ecommerce', 'price-strategy'],
   schedule: '0 2 * * *',
   escalation: ['ship_pricing_change'],
   selfAudit: 'Every change is backed by an experiment with a falsifiable metric; no change ships without measured (or simulated) lift.',

@@ -5,6 +5,23 @@ import { Ledger } from '../memory/ledger';
 import type { AgentRun } from '@alterxiv/shared';
 
 /**
+ * Assemble the system prompt sent to Claude for an agent run.
+ *
+ * Pure + side-effect-free so it can be unit-tested (see agents/skills.test.ts). Layers, in order:
+ *   1. the agent's identity/mission prompt
+ *   2. its named e-commerce playbooks (SKILLS.md) — surfaced so the model actually applies them
+ *   3. the falsifiable self-audit it must pass before finishing ("verified, not assumed")
+ */
+export function buildSystemPrompt(def: AgentDef): string {
+  let prompt = def.systemPrompt;
+  if (def.skills?.length) {
+    prompt += `\n\nPlaybooks you apply: ${def.skills.join(', ')}`;
+  }
+  prompt += `\n\nSELF-AUDIT before finishing: ${def.selfAudit}`;
+  return prompt;
+}
+
+/**
  * Run one agent against a trigger.
  *  1. read Ledger history (the agent learns from its own past)
  *  2. Claude tool-use loop over the agent's least-privilege tools
@@ -50,7 +67,7 @@ export async function runAgent(name: string, trigger: AgentRun['trigger'], input
     const res = await anthropic.messages.create({
       model: def.model,
       max_tokens: 4096,
-      system: def.systemPrompt + `\n\nSELF-AUDIT before finishing: ${def.selfAudit}`,
+      system: buildSystemPrompt(def),
       tools: tools.map((t) => ({ name: t.name, description: t.description, input_schema: t.inputSchema as any })),
       messages,
     });

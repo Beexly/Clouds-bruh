@@ -5,6 +5,7 @@ export interface AgentDef {
   mission: string;
   model: string;            // CLAUDE_MODEL
   tools: string[];          // least-privilege tool names from the registry
+  skills?: string[];        // named e-commerce playbooks the agent applies (see agents/SKILLS.md)
   schedule?: string;        // cron expression, if scheduled
   events?: string[];        // Medusa/event names, if event-driven
   escalation: string[];     // actions requiring Garrett's explicit approval
