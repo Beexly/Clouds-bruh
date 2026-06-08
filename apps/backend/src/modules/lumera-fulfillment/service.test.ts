@@ -61,11 +61,11 @@ describe('LumeraDropshipFulfillmentService', () => {
     expect(price).toEqual({ calculated_amount: 0, is_calculated_price_tax_inclusive: false });
   });
 
-  it('calculatePrice() honors LUMERA_FLAT_SHIPPING_USD as the fallback amount', async () => {
+  it('calculatePrice() honors LUMERA_FLAT_SHIPPING_USD (dollars) as a cents fallback amount', async () => {
     process.env.LUMERA_FLAT_SHIPPING_USD = '7.5';
     try {
       const price = await svc().calculatePrice({}, {}, {});
-      expect(price.calculated_amount).toBe(7.5);
+      expect(price.calculated_amount).toBe(750); // $7.50 → 750 cents (Lumera stores integer cents)
       expect(price.is_calculated_price_tax_inclusive).toBe(false);
     } finally {
       delete process.env.LUMERA_FLAT_SHIPPING_USD;

@@ -27,12 +27,14 @@ describe('paypal pure helpers', () => {
     expect(mapPayPalStatus('???')).toBe('pending');
   });
 
-  it('formatPayPalAmount() emits a 2-decimal major-unit string', () => {
-    expect(formatPayPalAmount(12)).toBe('12.00');
-    expect(formatPayPalAmount(7.5)).toBe('7.50');
-    expect(formatPayPalAmount('19.999')).toBe('20.00');
+  it('formatPayPalAmount() converts integer cents → a 2-decimal dollar string', () => {
+    expect(formatPayPalAmount(9900)).toBe('99.00'); // 9900 cents → $99.00
+    expect(formatPayPalAmount(750)).toBe('7.50');
+    expect(formatPayPalAmount(1)).toBe('0.01');
+    expect(formatPayPalAmount(0)).toBe('0.00');
     expect(formatPayPalAmount(undefined)).toBe('0.00');
     expect(formatPayPalAmount(NaN)).toBe('0.00');
+    expect(formatPayPalAmount(-5)).toBe('0.00');
   });
 
   it('paypalWebhookAction() maps webhook events to Medusa actions', () => {

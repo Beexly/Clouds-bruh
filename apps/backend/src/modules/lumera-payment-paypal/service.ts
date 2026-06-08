@@ -300,11 +300,16 @@ export function mapPayPalStatus(status?: string): PaymentSessionStatus {
   }
 }
 
-/** PayPal expects amounts as a 2-decimal string in major units (e.g. "12.00"). */
-export function formatPayPalAmount(amount: unknown): string {
-  const n = Number(amount);
-  if (!Number.isFinite(n)) return '0.00';
-  return n.toFixed(2);
+/**
+ * Lumera money convention: amounts are stored as **integer cents** throughout (catalog, cart, email),
+ * matching the storefront (which divides by 100 for display). PayPal's REST API wants a 2-decimal
+ * string in major units, so we convert cents → dollars only here, at the external boundary.
+ * (Verify with one PayPal sandbox capture before going live — see SECURITY.md money-unit note.)
+ */
+export function formatPayPalAmount(amountCents: unknown): string {
+  const n = Number(amountCents);
+  if (!Number.isFinite(n) || n < 0) return '0.00';
+  return (n / 100).toFixed(2);
 }
 
 /** Pull a capture id out of a captured-order payload, if present. */

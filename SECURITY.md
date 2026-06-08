@@ -57,17 +57,19 @@ Defensive security posture for the Lumera platform. Scope: our own backend (Medu
   (DNS-rebinding) isn't caught. It's a first line for user/scraped URLs; vendor/channel/payment
   fetches target fixed provider hosts. Resolve-and-check before wiring it to user-supplied URLs.
 
-## ⚠️ Pre-launch money-unit verification (do before any live payment/carrier flag)
-Medusa v2 hands payment providers amounts in **major units** (the official Stripe provider ×100s to
-cents at its boundary). This repo's catalog/storefront use a **"prices as integer cents"** convention
-(`scripts/setup-prices.ts` seeds `9900` = $99; the storefront divides by 100 for display). These two
-conventions must be reconciled, or a real provider could charge **100×**. This is **pre-existing**
-(it equally affects the already-configured Stripe provider) and is invisible in test mode because
-`pp_system_default` never captures. **Must-do:** run ONE PayPal **sandbox** capture and ONE live
-carrier quote and confirm the charged/quoted amount equals the displayed price before flipping
-`PAYPAL_ENV=live` or setting `EASYPOST_API_KEY`/`SHIPPO_API_KEY` in production. Adjust the seed
-convention or the provider boundary (`formatPayPalAmount`, fulfillment `calculated_amount`) once the
-sandbox result is known — do not guess.
+## Money convention (decided): integer cents end-to-end
+Lumera stores **integer cents everywhere** (catalog/cart/shipping/email; `setup-prices.ts` seeds
+`9900` = $99.00; the storefront divides by 100 for display). Convert to a decimal dollar string ONLY
+at an external API boundary:
+- **PayPal** (`formatPayPalAmount`) converts the incoming cents amount → `"99.00"` (÷100, 2 decimals).
+- **Fulfillment** `calculatePrice` returns the carrier rate in **cents** (so the storefront's ÷100 renders correctly).
+
+This removes the earlier dollars-vs-cents mismatch. One assumption remains to confirm with a single
+non-charging check before going live: that Medusa hands the provider the stored **cents** amount (the
+official Stripe provider treats its input as major units, so if your Medusa build passes major units
+instead, flip the single ÷100 in `formatPayPalAmount`). **Do one PayPal sandbox capture** and confirm
+the captured total equals the displayed price before `PAYPAL_ENV=live`. It's a one-line change, isolated
+to the boundary helper.
 
 ## Reporting
 This is a private commercial platform. Report suspected vulnerabilities directly to the founder.

@@ -50,21 +50,21 @@ export class LumeraDropshipFulfillmentService extends AbstractFulfillmentProvide
   /**
    * Calculate a shipping price by deriving a destination from the cart context / shipping-method data,
    * then asking the configured carrier (EasyPost/Shippo) for the cheapest live rate. Returns the
-   * Medusa `CalculatedShippingOptionPrice` shape. `calculated_amount` is in major units (dollars), the
-   * unit Medusa stores shipping option prices in.
+   * Medusa `CalculatedShippingOptionPrice` shape. `calculated_amount` is in **integer cents** — the
+   * Lumera convention used across the catalog/cart/storefront (which divides by 100 for display).
    *
    * Resilient by design: if no carrier is configured, the lookup fails, or no rate is returned, this
-   * falls back to a flat amount (LUMERA_FLAT_SHIPPING_USD, default 0) and NEVER throws — checkout must
-   * not break because a carrier API is down.
+   * falls back to a flat amount (LUMERA_FLAT_SHIPPING_USD dollars → cents, default 0) and NEVER throws —
+   * checkout must not break because a carrier API is down.
    */
   async calculatePrice(
     _optionData: Record<string, unknown>,
     data: Record<string, unknown>,
     context: Record<string, unknown>
   ): Promise<CalculatedShippingOptionPrice> {
-    const fallbackDollars = Number(process.env.LUMERA_FLAT_SHIPPING_USD ?? 0) || 0;
+    const fallbackCents = Math.round((Number(process.env.LUMERA_FLAT_SHIPPING_USD ?? 0) || 0) * 100);
     const fallback: CalculatedShippingOptionPrice = {
-      calculated_amount: fallbackDollars,
+      calculated_amount: fallbackCents,
       is_calculated_price_tax_inclusive: false,
     };
 
@@ -77,7 +77,7 @@ export class LumeraDropshipFulfillmentService extends AbstractFulfillmentProvide
       });
       if (!rate) return fallback;
       return {
-        calculated_amount: rate.amount_cents / 100, // cents → dollars (major units)
+        calculated_amount: rate.amount_cents, // integer cents (Lumera convention; storefront ÷100 for display)
         is_calculated_price_tax_inclusive: false,
       };
     } catch (e) {

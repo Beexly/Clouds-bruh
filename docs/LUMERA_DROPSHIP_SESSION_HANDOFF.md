@@ -83,12 +83,13 @@ Built as parallel agent workers + integrated, all gated/fixture-safe, **no new n
 - **Outbound multichannel selling**: gated **channel-sync** for Shopify / WooCommerce / Etsy / Amazon
   (Amazon honestly gated as `requires_sp_api_auth`; no live listing without `CHANNEL_LIVE_MODE` + creds).
 
-### 🚨 #1 launch blocker to verify (pre-existing, not introduced here)
-**Money-unit convention.** The catalog/storefront treat stored prices as **cents** (`9900`=$99), but
-Medusa v2 passes **major units** to payment providers. Before flipping any live payment/carrier flag,
-do ONE PayPal **sandbox** capture + ONE live carrier quote and confirm the amount equals the displayed
-price (else risk a 100× charge). Details + fix options in `SECURITY.md` → "Pre-launch money-unit
-verification". This equally affects the existing Stripe provider; it's invisible in test mode.
+### Money convention (decided): integer cents end-to-end
+Lumera stores **integer cents everywhere**; convert to decimal dollars only at external boundaries.
+`formatPayPalAmount` now does cents→`"99.00"` (÷100) and the fulfillment `calculatePrice` returns
+**cents** (storefront ÷100 for display). One non-charging confirmation remains before `PAYPAL_ENV=live`:
+do a PayPal **sandbox** capture and check the captured total equals the displayed price (if your Medusa
+build passes major units to providers instead of cents, it's a one-line flip in `formatPayPalAmount`).
+See `SECURITY.md` → "Money convention".
 
 ### New env (all optional, no-op without keys)
 Security: `RATE_LIMIT_*`. Observability: `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`,
