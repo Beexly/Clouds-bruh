@@ -5,6 +5,7 @@ Lumera — a living, intelligent marketplace: every category, broadcast in real 
 **Dropship lane:** `docs/LUMERA_SOURCING_STACK.md` (sourcing/vendor/scraper stack — what's wired & what key turns each on) → `docs/LUMERA_DROPSHIP_RUNBOOK.md`.
 **For Claude Code:** `CLAUDE.md`. **For Codex:** `AGENTS.md`.
 **Contributing / verify flow:** `CONTRIBUTING.md`. **Backup & incidents:** `docs/DR_RUNBOOK.md`, `docs/INCIDENT_RUNBOOK.md`.
+**Cost & low-cost ops:** `docs/COST.md` (keys + what each costs) · `docs/SELF_HOSTED_STACK.md` ($0 / self-hosted toolkit).
 
 Stack: Medusa v2 · Postgres/pgvector · Redis · Next.js · Anthropic SDK (custom agent tool-use loop) · Higgsfield* · claude-seo*.
 <sub>* Higgsfield and claude-seo are planned integrations; their in-app tools are stubs today (see `docs/ARCHITECTURE.md` §3.4 tool status).</sub>
