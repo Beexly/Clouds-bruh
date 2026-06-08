@@ -37,6 +37,7 @@ export const videoRender: Tool = {
     return {
       job_id: jobId,
       engine: live ? 'moneyprinterturbo' : 'mock',
+      source: live ? 'live' : 'unconfigured',
       drop_id,
       chapter,
       aspect,
@@ -45,7 +46,9 @@ export const videoRender: Tool = {
       subtitles,
       asset_path: `staged/video/${jobId}.mp4`,
       status: 'STAGED_FOR_APPROVAL',
-      message: 'Video staged. Publishing requires founder approval (escalation).',
+      message: live
+        ? 'Video staged. Publishing requires founder approval (escalation).'
+        : 'Mock manifest (MONEYPRINTER_API_URL unset) — no real render produced. Publishing requires founder approval (escalation).',
     };
   },
 };
