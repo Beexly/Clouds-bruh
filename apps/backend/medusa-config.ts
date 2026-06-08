@@ -49,7 +49,8 @@ export default defineConfig({
           { resolve: '@medusajs/medusa/workflow-engine-redis', options: { redis: { url: process.env.REDIS_URL } } },
         ]
       : []),
-    // Payment: pp_system_default always enabled; Stripe activated when key present
+    // Payment: pp_system_default always enabled; Stripe activated when key present;
+    // PayPal (Orders v2, ./src/modules/lumera-payment-paypal) activated when PAYPAL_CLIENT_ID present.
     {
       resolve: '@medusajs/medusa/payment',
       options: {
@@ -58,6 +59,15 @@ export default defineConfig({
             resolve: '@medusajs/medusa/payment-stripe',
             id: 'stripe',
             options: { apiKey: process.env.STRIPE_API_KEY },
+          }] : []),
+          ...(process.env.PAYPAL_CLIENT_ID ? [{
+            resolve: './src/modules/lumera-payment-paypal',
+            id: 'paypal',
+            options: {
+              clientId: process.env.PAYPAL_CLIENT_ID,
+              clientSecret: process.env.PAYPAL_CLIENT_SECRET,
+              env: process.env.PAYPAL_ENV === 'live' ? 'live' : 'sandbox',
+            },
           }] : []),
         ],
       },
