@@ -10,7 +10,7 @@ tool/API in our research set maps to a phased future. Pairs with `docs/COST.md`,
 ## 1. What Lumera is today (verified, 282 tests · lint · build · proofs green)
 An **autonomous, agent-run commerce platform** with an editorial-luxury storefront ("The Broadcast"):
 - **Commerce core** — Medusa v2 + custom modules (signal, personalization, recommendation, drops, monetization, lumera).
-- **Intelligence layer** — 10 Claude agents (CONGREGATION) + a daily OPERATOR loop + Learning Loop (bandit + embeddings) + INTROSPECTION self-audit, all behind a hard founder-approval escalation gate.
+- **Intelligence layer** — 14 Claude agents (CONGREGATION: merchandising, sourcing, ops, creative, SEO, marketing, customer service, finance, merch-intelligence, BI, retention, growth/revenue, forecasting, product-optimization) + a daily OPERATOR loop + Learning Loop (bandit + embeddings) + INTROSPECTION self-audit, all behind a hard founder-approval escalation gate.
 - **Personalization** — SIGNAL → MIND (affinity) → ORACLE (recs + dynamic pricing, staged) on first paint.
 - **Dropship lane** — curation board → score/compliance → founder approve → publish to Medusa → vendor order staging → gated submission → tracking; real Printify/Printful/CJ clients + Spocket/Syncee/Modalyst/Dropified bridges; AliExpress/Alibaba/Shein **radar** discovery; native Medusa fulfillment provider; vendor routing intelligence.
 - **Customer lifecycle** — accounts + httpOnly sessions, order history + tracking, self-serve returns, first-party reviews, wishlist, gift cards.

@@ -20,6 +20,10 @@ Sources:
 | **Quartermaster** | inventory-forecast, returns-analysis, marketplace-audit, cross-border-ecommerce |
 | **Treasurer** | (DB-GPT nl_analytics) + margin/price skills as references |
 | **Analyst** | customer-feedback-analysis, customer-segment, brand-monitoring, brand-protection |
+| **Loyalist** | cart-abandonment, customer-segment, win-back, customer-feedback-analysis |
+| **Rainmaker** | bundle-suggest, marketplace-expand, affiliate-marketing-strategy, price-strategy |
+| **Forecaster** | inventory-forecast, demand-forecast, nl-analytics |
+| **Refiner** | conversion-rate-optimization, cro-audit, product-copy, dynamic-pricing-ecommerce |
 
 Reference platforms (architecture, not skills):
 - **upsidelab/enthusiast** — production agentic e-commerce framework (RAG + conversational commerce → Shepherd)

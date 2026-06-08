@@ -24,7 +24,7 @@
 | Loyalty program | **Luminance** | Altar Rewards | your accrued light / standing |
 | Loyalty levels (earned) | **Spark → Glow → Aurora → Zenith** | Seeker → Faithful → Anointed → Elect | ascending light, by lifetime Lumens |
 | Membership tiers (paid) | **Ember → Luminary** | Disciple → Patron | Luminary earns 2× Lumens |
-| The autonomous agent collective | **The Constellation** | CONGREGATION | ten agents = a field of stars; the **Operator** conducts them |
+| The autonomous agent collective | **The Constellation** | CONGREGATION | fourteen agents = a field of stars; the **Operator** conducts them |
 | The conversational guide (concierge) | **Polaris** | the Shepherd | one guiding star in the Constellation; advisory only (component + `/store/shepherd` keep the codename) |
 | Curated collections | **Chapters** (Stillness · Armor · Signal · Altar · Relentless) | — | kept for now; a cross-category curation overlay, *not* an apparel lock. A future editorial pass may relight these. |
 

@@ -61,7 +61,7 @@
 | 2 | SIGNAL + MIND | ✅ | /store/signal → pg + Redis stream; affinity decay + segment + identity merge |
 | 3 | ORACLE | ✅ | cosine for_you/because_you_viewed/complete_the_set/trending + Thompson bandit · **graph_rec** (co-engagement CF) · **dynamic pricing** within margin floor (staged, /store/pricing) |
 | 4 | The Broadcast | ✅ | Luxury design system + motion + next/font; React Compiler; Suspense-streamed shell; edge-cookie SSR personalization; countdowns/scarcity/quick-add/wishlist; /chapter routes; full signal coverage |
-| 5 | CONGREGATION + OPERATOR | ✅ | 10 agents + orchestrator ✅ · **OPERATOR** daily loop (delegate→validate→aggregate, founder inbox, 5am cron) · **resilient Ledger** (circuit-breaker + in-memory fallback) · escalation gate |
+| 5 | CONGREGATION + OPERATOR | ✅ | 14 agents + orchestrator ✅ (10 core + Loyalist/Rainmaker/Forecaster/Refiner) · **OPERATOR** daily loop (delegate→validate→aggregate, founder inbox, 5am cron) · **resilient Ledger** (circuit-breaker + in-memory fallback) · escalation gate |
 | 6 | Monetization | ✅ | `monetization` module: memberships/Patron tier (Autumn) + Altar Credits wallet (Flexprice) + gift cards · verified in test mode |
 | 7 | Commerce Completeness | ✅ | compensatable place-drop-order; promotions module; order.placed → drop-consume subscriber |
 | 8 | Content & Finance Autopilot | ✅ | Herald `video_render` (MoneyPrinterTurbo, staged) · Treasurer `gl_reconcile`/`month_end_close`/`statement_audit` (read-only) — both verified |
@@ -77,7 +77,7 @@
 - [x] Catalog seeded; chapters + drops live; cards carry ranking/scarcity/social-proof primitives.
 - [x] SIGNAL→MIND→ORACLE personalizes the Broadcast (edge cookie → first paint); bandit orders blocks.
 - [x] Browse → personalize → cart → test-mode checkout, on-brand luxury.
-- [x] OPERATOR + 10 agents running; escalation gate enforced; resilient Ledger persisting.
+- [x] OPERATOR + 14 agents running; escalation gate enforced; resilient Ledger persisting.
 - [x] Memberships/Patron tier + Altar Credits (Autumn/Flexprice) in test mode.
 - [x] One fulfillment path through the compensatable workflow.
 - [x] Herald auto-produces staged marketing video; Treasurer auto-reconciles/closes.

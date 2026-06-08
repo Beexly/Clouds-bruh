@@ -126,8 +126,13 @@ The roster:
 | **Shepherd** | Customer Service | Conversational support, order help, RMA, FAQ |
 | **Treasurer** | Finance | Invoicing/accounting (iDURAR patterns), margin & cash reports |
 | **OracleKeeper** | Merch Intelligence | Tune ORACLE recs/bandit, design + read experiments |
+| **Analyst** | Business Intelligence | Answer business questions in plain English with honest numbers + charts (on report.requested) |
+| **Loyalist** | Retention/Lifecycle | Cohort win-back, VIP nurture, churn-risk re-engagement (draft-only; sends + store credit escalate) |
+| **Rainmaker** | Growth/Revenue | Research + propose new revenue streams (bundles/subscriptions/affiliate) + monetization experiments |
+| **Forecaster** | Forecasting/Planning | Demand/revenue forecasts, stockout + reorder prediction, cash runway — feeds Sourcer + Treasurer |
+| **Refiner** | Product Optimization/CRO | Tune titles/price/merch from SIGNAL data; flag underperformers (edits + reprices escalate) |
 
-Agents are orchestrated by `intelligence/src/orchestrator` — some run on cron (Curator daily, Treasurer weekly), some on events (Shepherd on support message, Quartermaster on order.placed, Artisan on product.created-without-image).
+Agents are orchestrated by `intelligence/src/orchestrator` — some run on cron (Curator daily, Treasurer weekly, OracleKeeper/Refiner/Loyalist daily, Forecaster daily, Rainmaker weekly, Sourcer 6-hourly), some on events (Shepherd on support message, Quartermaster on order.placed, Artisan on product.created-without-image, Analyst on report.requested).
 
 > **Tool status (verified, not assumed).** Several agent tools are **stubs** today: they return placeholder/empty results and do not call the external service. Notably `claude_seo` (Scribe), `higgsfield`/image-generation (Artisan), `voc_reviews` (Voice-of-Customer), and `video_render` are stubs/unconfigured. The Apify/DB-GPT integrations described in `docs/INTEGRATIONS.md` are likewise connect-when-needed, not yet wired. Treat anything not explicitly confirmed as "wired" as planned. See each tool file under `apps/intelligence/src/tools/` for the exact state.
 
