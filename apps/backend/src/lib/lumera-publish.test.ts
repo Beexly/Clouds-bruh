@@ -103,6 +103,38 @@ describe('lumera publish helper', () => {
     expect(match).toEqual({ id: 'prod_supplier_match', handle: candidate.handle });
   });
 
+  it('blocks publish when media rights are not cleared (e.g. radar discovery)', async () => {
+    process.env.MEDUSA_ADMIN_API_TOKEN = 'test-token';
+    const candidate = { ...fixtureCandidates('printify')[0]!, media_rights: 'unknown' as const, status: 'approved' as const };
+
+    const result = await publishCandidateToMedusa(candidate, true);
+
+    expect(result.ok).toBe(false);
+    expect(result.status).toBe('blocked');
+    expect((result.payload as any).blockers).toContain('media_rights:unknown');
+  });
+
+  it('creates a new product when no existing match is found', async () => {
+    process.env.MEDUSA_ADMIN_API_TOKEN = 'test-token';
+    process.env.MEDUSA_BACKEND_URL = 'http://medusa.test';
+    const candidate = fixtureCandidates('printify')[0]!;
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url.includes('/admin/products?')) return { ok: true, json: async () => ({ products: [] }) };
+      return { ok: true, json: async () => ({ product: { id: 'prod_new' } }) };
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await publishCandidateToMedusa(candidate, true);
+
+    expect(result.ok).toBe(true);
+    expect(result.operation).toBe('created');
+    expect(result.product_id).toBe('prod_new');
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      'http://medusa.test/admin/products',
+      expect.objectContaining({ method: 'POST' })
+    );
+  });
+
   it('updates existing products instead of duplicating them', async () => {
     process.env.MEDUSA_ADMIN_API_TOKEN = 'test-token';
     process.env.MEDUSA_BACKEND_URL = 'http://medusa.test';
