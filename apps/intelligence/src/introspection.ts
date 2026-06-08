@@ -1,12 +1,70 @@
 import { Pool } from 'pg';
 import { Ledger } from './memory/ledger';
-import type { Audit } from '@alterxiv/shared';
+import { allVendorClients } from './vendors';
+import type { Audit, VendorConnection } from '@alterxiv/shared';
 
 let _pool: Pool | null = null;
 function pool(): Pool {
   if (_pool) return _pool;
   _pool = new Pool({ connectionString: process.env.DATABASE_URL || 'postgres://alterxiv:alterxiv@localhost:5432/alterxiv' });
   return _pool;
+}
+
+function audit(
+  type: Audit['type'],
+  severity: Audit['severity'],
+  finding: string,
+  recommendation: string,
+  falsifiable_check: string,
+  entity_ref?: string
+): Audit {
+  return {
+    id: crypto.randomUUID(),
+    type,
+    severity,
+    finding,
+    recommendation,
+    falsifiable_check,
+    auto_corrected: false,
+    entity_ref,
+    created_at: new Date().toISOString(),
+  };
+}
+
+/**
+ * Pure supplier-health auditor: given each vendor's health and whether live mode is on, flag
+ * vendors that would stall live fulfilment (selected for live but no creds) or that are connected
+ * yet still gated for submission. Pure so it is unit-testable without network or a DB.
+ */
+export function vendorHealthAudits(healths: VendorConnection[], liveMode: boolean): Audit[] {
+  const out: Audit[] = [];
+  for (const h of healths) {
+    if (h.id === 'radar') continue;
+    if (liveMode && !h.connected) {
+      out.push(
+        audit(
+          'integrity',
+          'error',
+          `Vendor "${h.label}" is in live mode but has no credentials (mode=${h.mode}). Orders routed to it will stall.`,
+          `Set ${h.missing_env.join(', ') || 'credentials'}, or reroute its products to a connected vendor.`,
+          'Check: vendorConnection.connected === true for every vendor with live products.',
+          h.id
+        )
+      );
+    } else if (liveMode && h.connected && !h.can_submit_orders) {
+      out.push(
+        audit(
+          'integrity',
+          'warn',
+          `Vendor "${h.label}" is connected but order submission is gated (can_submit_orders=false).`,
+          'Enable AUTO_SUBMIT_VENDOR_ORDERS after a sandbox/draft proof to allow live submission.',
+          'Check: vendorConnection.can_submit_orders === true when live submission is intended.',
+          h.id
+        )
+      );
+    }
+  }
+  return out;
 }
 
 /**
@@ -196,6 +254,40 @@ const CHECKS: Array<{ type: Audit['type']; run: () => Promise<Audit[]> }> = [
         entity_ref: r.id,
         created_at: new Date().toISOString(),
       }));
+    },
+  },
+
+  // ── Integrity: vendor / supplier health (live fulfilment readiness) ───────
+  {
+    type: 'integrity',
+    run: async () => {
+      const liveMode = process.env.VENDOR_LIVE_MODE === 'true';
+      const healths = await Promise.all(allVendorClients().map((c) => c.healthCheck().catch(() => null)));
+      return vendorHealthAudits(healths.filter(Boolean) as VendorConnection[], liveMode);
+    },
+  },
+
+  // ── Margin: curated/live products that have fallen below the margin floor ──
+  {
+    type: 'margin',
+    run: async () => {
+      const floor = Number(process.env.SUPPLIER_MARGIN_FLOOR ?? 0.38);
+      const { rows } = await pool().query(
+        `SELECT id, title, gross_margin FROM lumera_product_candidate
+          WHERE status IN ('published','live','approved') AND gross_margin < $1
+          ORDER BY gross_margin ASC LIMIT 8`,
+        [floor]
+      ).catch(() => ({ rows: [] as any[] }));
+      return rows.map((r: any) =>
+        audit(
+          'margin',
+          'warn',
+          `Curated product "${r.title}" is below the ${Math.round(floor * 100)}% margin floor (now ${Math.round(Number(r.gross_margin) * 100)}%).`,
+          'Sourcer: re-quote supplier or raise price within guardrails; Treasurer: confirm it still clears cost.',
+          'Check: lumera_product_candidate.gross_margin >= SUPPLIER_MARGIN_FLOOR for live products.',
+          r.id
+        )
+      );
     },
   },
 
