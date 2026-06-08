@@ -1,14 +1,20 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useCart } from '../../context/cart';
 import { signal } from '../../lib/signal';
 import { PageSignal } from '../../components/PageSignal';
+import { PayPalButtons } from '../../components/payment/PayPalButtons';
 import {
   apiFetch, getShippingOptions, addShippingMethod,
   createPaymentCollection, initPaymentSession, completeCart, getShippingEstimate,
+  paypalProviderAvailable,
 } from '../../lib/api';
 
 type Step = 'shipping' | 'payment' | 'complete';
+
+// Real-payment rail is gated on a configured PayPal client id. When absent we keep the existing
+// pp_system_default test flow exactly as-is. Stripe Elements is the follow-up (see TODO below).
+const PAYPAL_CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || '';
 
 export default function CheckoutPage() {
   const { cart, refresh } = useCart();
@@ -21,9 +27,35 @@ export default function CheckoutPage() {
   const [error, setError] = useState('');
   const [orderId, setOrderId] = useState('');
   const [shippingPromise, setShippingPromise] = useState<any>(null);
+  // Whether the backend PayPal provider is actually enabled for this cart's region. Defaults false
+  // so a misconfigured env (client id set, provider not wired) safely falls back to the test flow.
+  const [paypalEnabled, setPaypalEnabled] = useState(false);
 
   const items: any[] = cart?.items ?? [];
   const total = items.reduce((s: number, li: any) => s + (li.unit_price ?? 0) * (li.quantity ?? 1), 0);
+
+  // Detect PayPal availability once a cart with a region exists. Defensive: any failure → test flow.
+  useEffect(() => {
+    let active = true;
+    const regionId = cart?.region_id ?? cart?.region?.id;
+    if (!PAYPAL_CLIENT_ID || !regionId) {
+      setPaypalEnabled(false);
+      return;
+    }
+    paypalProviderAvailable(regionId)
+      .then((ok) => { if (active) setPaypalEnabled(ok); })
+      .catch(() => { if (active) setPaypalEnabled(false); });
+    return () => { active = false; };
+  }, [cart?.region_id, cart?.region?.id]);
+
+  const usePayPal = Boolean(PAYPAL_CLIENT_ID) && paypalEnabled;
+
+  const handlePayPalSuccess = (newOrderId: string) => {
+    signal('purchase', newOrderId, total / 100);
+    localStorage.removeItem('axiv_cart');
+    setOrderId(newOrderId);
+    setStep('complete');
+  };
 
   const handleShipping = async () => {
     if (!cart) return;
@@ -172,15 +204,10 @@ export default function CheckoutPage() {
 
         {step === 'payment' && (
           <div className="space-y-4">
-            <p className="text-[10px] uppercase tracking-widest text-neutral-600">Payment (Test Mode)</p>
-            <div className="border border-neutral-800 p-4 space-y-2">
-              <p className="text-xs text-neutral-500">
-                This is a test-mode order — no real payment is processed.
-              </p>
-              <p className="text-[10px] text-neutral-700 uppercase tracking-widest">
-                Provider: pp_system_default
-              </p>
-            </div>
+            <p className="text-[10px] uppercase tracking-widest text-neutral-600">
+              {usePayPal ? 'Payment' : 'Payment (Test Mode)'}
+            </p>
+
             <div className="space-y-2 border border-amber-700/20 bg-amber-900/5 p-4">
               <p className="text-[10px] uppercase tracking-widest text-amber-300/80">Fulfillment Promise</p>
               <p className="text-xs text-neutral-400">
@@ -190,18 +217,52 @@ export default function CheckoutPage() {
                 Orders that exceed the promised ship window require delay consent or refund handling.
               </p>
             </div>
+
             <div className="border border-neutral-900 p-3 text-[10px] text-neutral-700">
               <p className="mb-1 uppercase tracking-widest">Order Total</p>
               <p className="text-sm text-neutral-400">${(total / 100).toFixed(2)} USD</p>
             </div>
+
             {error && <p className="text-xs text-red-400">{error}</p>}
-            <button
-              onClick={handleComplete}
-              disabled={busy}
-              className="w-full border border-amber-700/50 py-4 text-xs uppercase tracking-[0.3em] text-amber-300 transition hover:border-amber-600 disabled:opacity-50"
-            >
-              {busy ? 'Processing…' : 'Complete Order'}
-            </button>
+
+            {/* Real payment rail (PayPal) when configured + enabled; otherwise the test flow below. */}
+            {usePayPal && cart ? (
+              <PayPalButtons
+                cartId={cart.id}
+                clientId={PAYPAL_CLIENT_ID}
+                totalCents={total}
+                currency={(cart?.region?.currency_code ?? cart?.currency_code ?? 'USD').toUpperCase()}
+                onSuccess={handlePayPalSuccess}
+                onError={(msg) => setError(msg)}
+              />
+            ) : (
+              <>
+                <div className="border border-neutral-800 p-4 space-y-2">
+                  <p className="text-xs text-neutral-500">
+                    This is a test-mode order — no real payment is processed.
+                  </p>
+                  <p className="text-[10px] text-neutral-700 uppercase tracking-widest">
+                    Provider: pp_system_default
+                  </p>
+                  <p className="text-[10px] text-neutral-600">
+                    Real payment requires a configured provider (set NEXT_PUBLIC_PAYPAL_CLIENT_ID and
+                    enable the PayPal provider on the backend).
+                  </p>
+                </div>
+                {/* TODO(stripe): add a Stripe Elements card form as the follow-up real-payment rail.
+                    Deferred here because Stripe Elements needs the @stripe/stripe-js + react-stripe-js
+                    npm packages, which this task may not add. Mirror the PayPal gating: render only
+                    when NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is set AND the backend stripe provider is
+                    enabled for the region. */}
+                <button
+                  onClick={handleComplete}
+                  disabled={busy}
+                  className="w-full border border-amber-700/50 py-4 text-xs uppercase tracking-[0.3em] text-amber-300 transition hover:border-amber-600 disabled:opacity-50"
+                >
+                  {busy ? 'Processing…' : 'Complete Order'}
+                </button>
+              </>
+            )}
           </div>
         )}
       </div>
