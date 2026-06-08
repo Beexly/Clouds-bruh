@@ -1,5 +1,6 @@
 'use client';
 import { signal } from '../lib/signal';
+import { WishlistButton } from './WishlistButton';
 import type { Product } from '@alterxiv/shared';
 
 /** The conversion primitives, mined from the Amazon/Walmart/Shein datasets, made tasteful. */
@@ -12,6 +13,16 @@ export function ProductCard({ p }: { p: Product }) {
         <img src={p.media.main_image} alt={p.title} className="h-full w-full object-cover transition group-hover:scale-[1.03]" />
         {p.social.badge && <span className="absolute left-3 top-3 text-[10px] tracking-widest uppercase text-amber-200/80">{p.social.badge}</span>}
         {lowStock && <span className="absolute right-3 top-3 text-[10px] tracking-widest text-red-300/80">{p.merch.units_remaining} left</span>}
+        <WishlistButton
+          item={{
+            id: p.id,
+            handle: p.handle,
+            title: p.title,
+            image: p.media.main_image,
+            price: p.price?.final != null ? `$${p.price.final}` : undefined,
+            chapter: p.chapter,
+          }}
+        />
       </div>
       <div className="mt-3">
         <p className="text-[11px] uppercase tracking-[0.2em] text-neutral-500">{p.chapter}</p>

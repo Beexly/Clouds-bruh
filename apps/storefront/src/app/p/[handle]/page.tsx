@@ -3,11 +3,15 @@ import Link from 'next/link';
 import { cookies } from 'next/headers';
 import type { Metadata } from 'next';
 import { AddToCartButton } from '../../../components/AddToCartButton';
+import { WishlistButton } from '../../../components/WishlistButton';
 import { PageSignal } from '../../../components/PageSignal';
 import { ProductRail } from '../../../components/ProductRail';
 import { ReviewForm } from '../../../components/ReviewForm';
 import { getRegionId, PRODUCT_FIELDS, priceCents, priceStr } from '../../../lib/catalog';
+import { breadcrumbList } from '../../../lib/jsonld';
 import type { ProductTruth } from '@alterxiv/shared';
+
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://lumera.example';
 
 interface PdpReview {
   id: string;
@@ -188,9 +192,16 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
     }),
   };
 
+  const breadcrumbs = breadcrumbList(SITE, [
+    { name: 'Broadcast', url: '/' },
+    ...(chapter ? [{ name: chapter, url: `/chapter/${chapter}` }] : []),
+    { name: product.title, url: `/p/${handle}` },
+  ]);
+
   return (
     <main className="min-h-screen bg-void bg-sacred-grain">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }} />
       <PageSignal type="product_view" context={{ chapter }} entityId={product.id} />
 
       <div className="mx-auto max-w-7xl px-6 py-10">
@@ -248,12 +259,25 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
               <p className="mt-6 text-sm leading-relaxed text-neutral-400">{product.description}</p>
             )}
 
-            <div className="mt-8">
-              {variantId ? (
-                <AddToCartButton variantId={variantId} productId={product.id} chapter={chapter} />
-              ) : (
-                <p className="text-xs text-neutral-600">Out of stock</p>
-              )}
+            <div className="mt-8 flex items-stretch gap-3">
+              <div className="flex-1">
+                {variantId ? (
+                  <AddToCartButton variantId={variantId} productId={product.id} chapter={chapter} />
+                ) : (
+                  <p className="text-xs text-neutral-600">Out of stock</p>
+                )}
+              </div>
+              <WishlistButton
+                variant="inline"
+                item={{
+                  id: product.id,
+                  handle,
+                  title: product.title,
+                  image: mainImg || undefined,
+                  price: priceLabel,
+                  chapter: chapter || undefined,
+                }}
+              />
             </div>
 
             <div className="mt-8 border-t border-white/[0.06] pt-6">

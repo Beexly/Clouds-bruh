@@ -9,8 +9,7 @@ import { BRAND, LOYALTY, CURRENCY } from '../lib/brand';
 const ACCOUNT_LINKS: Array<{ href: string; label: string; tone?: 'gold'; soon?: boolean }> = [
   { href: '/account/orders', label: 'Orders & tracking', tone: 'gold' },
   { href: '/returns', label: 'Returns & exchanges' },
-  // Wishlist isn't a live surface yet — surfaced as "coming soon" rather than a dead 404 link.
-  { href: '#', label: 'Wishlist', soon: true },
+  { href: '/account/wishlist', label: 'Wishlist' },
 ];
 
 /**
