@@ -97,3 +97,53 @@ Security: `RATE_LIMIT_*`. Observability: `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`,
 `NOTIFICATION_EMAIL_FROM`, `KLAVIYO_API_KEY`. Fulfillment: `EASYPOST_API_KEY` / `SHIPPO_API_KEY`,
 `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` / `PAYPAL_ENV`. Channels: `SHOPIFY_*`, `WOOCOMMERCE_*`,
 `ETSY_*`, `AMAZON_SP_*`, `CHANNEL_LIVE_MODE`. (Full list in `.env.example`.)
+
+---
+
+## Session 3 — Audit-driven hardening + customer lifecycle + automation
+
+A repo-wide audit (resilience/backup, code-quality/testing, product/automation) drove this round.
+All gated/fixture-safe, **no new npm deps**, integrated via parallel workers. **276 unit tests · lint ·
+full build green.**
+
+**Resilience / data (the critical fixes)**
+- `agent_run` + `audit` tables had **no DDL anywhere** → fixed (idempotent `ensureLedgerTables`); agent
+  history now persists and the cockpit reads real data instead of silently falling back to memory.
+- Vendor webhooks verify the **raw body** (preserveRawBody) + can't throw unhandled 500s; prod refuses
+  to boot without `DATABASE_URL`.
+- Learning loop **reward-dedup** (no bandit corruption on Redis redelivery) + orchestrator **XAUTOCLAIM**
+  crash-recovery (reclaim pending on boot).
+- **Backup/DR**: `scripts/backup.ts` (gated `pg_dump`), `DR_RUNBOOK.md`, `INCIDENT_RUNBOOK.md`,
+  secret-rotation in `SECURITY.md`.
+
+**Integrity / quality**
+- `brand_audit` no longer rubber-stamps; stub tools return honest `unconfigured`/`mock`.
+- Tests added for the previously-untested auth gate + data layer + webhook verify + reward math.
+- CI: Dependabot, CODEOWNERS, PR template, CONTRIBUTING; corrected the false "Claude Agent SDK" doc claim.
+
+**Customer lifecycle (the biggest product gap — now real)**
+- **Accounts** (login/register, httpOnly session), **order history + tracking**, self-serve **/returns**,
+  first-party **reviews** (drive the PDP rating), **wishlist**, **gift-card** purchase/redeem UX.
+- **Real payment rails**: gated **PayPal** (CDN buttons, server-computed amount) with the test flow
+  preserved as fallback. (Stripe Elements is the one follow-up — needs an npm SDK this env can't add.)
+
+**Automation / agents**
+- **Agent skills wired** (SKILLS.md → real, surfaced in prompts), **founder KPIs** in the cockpit,
+  **GDPR cookie consent**, **shipment "shipped" email**, **abandoned-cart recovery** (hourly, gated).
+
+## ✅ Go-live checklist (what's left — mostly your live keys, not code)
+1. **Core secrets/env** (prod): `JWT_SECRET`, `COOKIE_SECRET`, `DATABASE_URL`, `STORE_CORS`,
+   `ADMIN_CORS`, `COCKPIT_KEY`, `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY`, `NEXT_PUBLIC_SITE_URL`. (Prod now
+   fail-fasts if the first three are missing.)
+2. **Seed + pgvector** on the Cloud DB (`pnpm bootstrap`); migrations create all module tables.
+3. **Agents live**: `ANTHROPIC_API_KEY` (Polaris + CONGREGATION flip mock→live).
+4. **Payments**: a **PayPal sandbox capture** to confirm the cents↔decimal money unit (the one pre-live
+   check), then `PAYPAL_CLIENT_ID`/`SECRET` + `NEXT_PUBLIC_PAYPAL_CLIENT_ID`; and/or take Stripe live.
+5. **Email/analytics/monitoring** (optional, all gated): `RESEND_API_KEY`+`NOTIFICATION_EMAIL_FROM`,
+   `KLAVIYO_API_KEY`, `SENTRY_DSN`/`NEXT_PUBLIC_SENTRY_DSN`, one of Plausible/PostHog/umami.
+6. **Dropship live** (founder-gated, after a sandbox drill): vendor keys (Printify/Printful/CJ/…),
+   then `VENDOR_LIVE_MODE=true` → `VENDOR_DRAFT_ORDER_PROOF=true` → `AUTO_SUBMIT_VENDOR_ORDERS=true`.
+7. **Discovery** (optional): `OXYLABS_*`/`APIFY_TOKEN` for AliExpress/Alibaba radar.
+8. **Backups**: schedule `pnpm backup` (or confirm Medusa Cloud's cadence) + run one restore drill.
+9. **Run CI** (`verify:api`) by opening a PR — boots Medusa against real Postgres+Redis and runs the
+   migrate·seed·regression suite (the one verification that can't run in the dev sandbox).
