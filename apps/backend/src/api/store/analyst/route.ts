@@ -12,7 +12,8 @@ function pool() {
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
   // Internal BI surface (margins, demand/churn forecasts) — fail CLOSED in production. Open in dev.
   const opsKey = process.env.COCKPIT_KEY;
-  const opsProvided = (req.query.key as string) || (req.headers['x-cockpit-key'] as string);
+  // Header-only (no query string — avoids key leakage into logs/proxies/history).
+  const opsProvided = req.headers['x-cockpit-key'] as string;
   if (opsKey) {
     if (opsProvided !== opsKey) return res.status(401).json({ error: 'unauthorized' });
   } else if (process.env.NODE_ENV === 'production') {

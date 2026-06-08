@@ -15,7 +15,9 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   const { visitor_id, followed = [], muted = [] } = (req.body as any) ?? {};
   if (!visitor_id) return res.status(400).json({ error: 'visitor_id is required' });
-  const clean = (arr: any) => (Array.isArray(arr) ? arr.filter((c) => CHAPTERS.includes(c)) : []);
+  // Cap array size before filtering (DoS guard) and only accept known chapter strings.
+  const clean = (arr: any) =>
+    Array.isArray(arr) ? arr.slice(0, 50).filter((c) => typeof c === 'string' && CHAPTERS.includes(c)) : [];
   try {
     const mind: any = req.scope.resolve(PERSONALIZATION_MODULE);
     const prefs = await mind.setPreferences(visitor_id, clean(followed), clean(muted));

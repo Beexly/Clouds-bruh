@@ -2,7 +2,8 @@ import type { MedusaRequest, MedusaResponse } from '@medusajs/framework';
 
 export function authorizeOps(req: MedusaRequest, res: MedusaResponse): boolean {
   const required = process.env.COCKPIT_KEY;
-  const provided = (req.query.key as string) || (req.headers['x-cockpit-key'] as string);
+  // Header-only: never accept the key via query string (it leaks into access logs, proxies, history).
+  const provided = req.headers['x-cockpit-key'] as string;
   if (required && provided !== required) {
     res.status(401).json({ error: 'unauthorized' });
     return false;

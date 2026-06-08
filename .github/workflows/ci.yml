@@ -31,6 +31,18 @@ jobs:
       - run: pnpm lint
       - run: pnpm test
       - run: pnpm build
+      # Defensive security gates (non-blocking audit so a transitive advisory can't wedge the build,
+      # but surfaced in logs); secret scan fails hard if a private key or obvious token lands in src.
+      - name: Dependency audit (high)
+        run: pnpm audit --audit-level=high || true
+      - name: Secret scan (fail on obvious leaked secrets in source)
+        run: |
+          if grep -rInE 'BEGIN (RSA|EC|OPENSSH|PGP) PRIVATE KEY|sk_live_[0-9A-Za-z]{16,}|AKIA[0-9A-Z]{16}' \
+            --include='*.ts' --include='*.tsx' --include='*.js' --include='*.json' \
+            apps packages scripts 2>/dev/null; then
+            echo "::error::Potential secret detected in source"; exit 1;
+          fi
+          echo "secret scan clean"
 
   verify-api:
     name: verify:api (migrate · seed · pgvector · boot · 22 regressions)

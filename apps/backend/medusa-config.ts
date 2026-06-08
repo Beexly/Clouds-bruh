@@ -1,12 +1,13 @@
 import { defineConfig, loadEnv } from '@medusajs/framework/utils';
 loadEnv(process.env.NODE_ENV || 'development', process.cwd());
 
-// Launch safety: never let production boot silently on the insecure fallback secrets below.
+// Launch safety: REFUSE to boot in production on insecure default secrets. Fail hard, don't warn.
 if (process.env.NODE_ENV === 'production') {
-  for (const k of ['JWT_SECRET', 'COOKIE_SECRET'] as const) {
-    if (!process.env[k]) {
-      console.warn(`[lumera] SECURITY WARNING: ${k} is not set — using an INSECURE default. Set it before launch.`);
-    }
+  const missing = (['JWT_SECRET', 'COOKIE_SECRET'] as const).filter((k) => !process.env[k]);
+  if (missing.length) {
+    throw new Error(
+      `[lumera] FATAL: ${missing.join(', ')} must be set in production — refusing to boot on insecure defaults.`
+    );
   }
 }
 

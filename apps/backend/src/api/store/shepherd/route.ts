@@ -20,9 +20,24 @@ Keep replies to 2-4 sentences unless asked for more.`;
 
 export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   const body = (req.body as any) ?? {};
-  const messages: { role: 'user' | 'assistant'; content: string }[] = Array.isArray(body.messages) ? body.messages : [];
-  const userText = body.message ?? messages.filter((m) => m.role === 'user').slice(-1)[0]?.content ?? '';
-  if (!userText) return res.status(400).json({ error: 'message (or messages[]) required' });
+  // Input validation (DoS / token-cost / prompt-abuse control on the LLM endpoint).
+  const MAX_MESSAGES = 20;
+  const MAX_TEXT = 4000;
+  const rawMessages = Array.isArray(body.messages) ? body.messages : [];
+  if (rawMessages.length > MAX_MESSAGES) {
+    return res.status(400).json({ error: `too many messages (max ${MAX_MESSAGES})` });
+  }
+  const messages: { role: 'user' | 'assistant'; content: string }[] = rawMessages.filter(
+    (m: any) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string' && m.content.length <= MAX_TEXT
+  );
+  const rawUserText = body.message ?? messages.filter((m) => m.role === 'user').slice(-1)[0]?.content ?? '';
+  if (typeof rawUserText !== 'string' || !rawUserText.trim()) {
+    return res.status(400).json({ error: 'message (or messages[]) required' });
+  }
+  if (rawUserText.length > MAX_TEXT) {
+    return res.status(400).json({ error: `message too long (max ${MAX_TEXT} chars)` });
+  }
+  const userText = rawUserText;
 
   // Ground Polaris in live drops.
   let dropContext = '';
@@ -50,6 +65,7 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
   try {
     const r = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
+      signal: AbortSignal.timeout(15_000),
       headers: {
         'content-type': 'application/json',
         'x-api-key': key as string,
