@@ -172,3 +172,74 @@ export function renderOrderConfirmation(order: OrderLike): SendEmailInput {
     html,
   };
 }
+
+interface ShipmentLike extends OrderLike {
+  tracking_number?: string;
+  tracking_url?: string;
+  carrier?: string;
+}
+
+/**
+ * Brand-aligned shipment ("your order shipped") notification — same dark luminous editorial
+ * palette as the confirmation. Tracking is optional; the body adapts when it's absent.
+ */
+export function renderShipmentNotification(order: ShipmentLike): SendEmailInput {
+  const displayId = order.display_id ?? order.id ?? '';
+  const items = order.items ?? [];
+
+  const rows = items
+    .map(
+      (i) => `
+        <tr>
+          <td style="padding:12px 0;border-bottom:1px solid #1c1c22;color:#ECECEE;font-size:15px;">
+            ${escapeHtml(i.title ?? 'Item')} <span style="color:#7A7A82;">×${i.quantity ?? 1}</span>
+          </td>
+        </tr>`
+    )
+    .join('');
+
+  const trackingBlock = order.tracking_number
+    ? `
+      <div style="margin:28px 0 0;padding:18px 20px;border:1px solid #2a2a32;border-radius:2px;">
+        <p style="margin:0 0 6px;letter-spacing:0.18em;text-transform:uppercase;font-size:10px;color:#7A7A82;">
+          Tracking${order.carrier ? ` · ${escapeHtml(order.carrier)}` : ''}
+        </p>
+        <p style="margin:0;font-size:15px;color:#ECECEE;">${escapeHtml(order.tracking_number)}</p>
+        ${
+          order.tracking_url
+            ? `<p style="margin:14px 0 0;"><a href="${escapeHtml(order.tracking_url)}" style="color:#C7A24B;text-decoration:none;font-size:13px;letter-spacing:0.04em;">Track your shipment →</a></p>`
+            : ''
+        }
+      </div>`
+    : '';
+
+  const html = `<!doctype html>
+<html lang="en">
+  <body style="margin:0;padding:0;background:#0B0B0D;">
+    <div style="max-width:560px;margin:0 auto;padding:48px 32px;background:#0B0B0D;font-family:Inter,Helvetica,Arial,sans-serif;color:#ECECEE;">
+      <p style="margin:0 0 4px;letter-spacing:0.32em;text-transform:uppercase;font-size:11px;color:#C7A24B;">Lumera</p>
+      <p style="margin:0 0 32px;letter-spacing:0.18em;text-transform:uppercase;font-size:10px;color:#7A7A82;">The Broadcast</p>
+
+      <h1 style="margin:0 0 12px;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:30px;line-height:1.2;color:#FFFFFF;">
+        It&rsquo;s on the way.
+      </h1>
+      <p style="margin:0 0 28px;font-size:14px;line-height:1.6;color:#9A9AA2;">
+        Order <span style="color:#ECECEE;">#${escapeHtml(String(displayId))}</span> has shipped. The wait is the smallest part — what arrives is yours.
+      </p>
+
+      ${rows ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0;">${rows}</table>` : ''}
+      ${trackingBlock}
+
+      <p style="margin:36px 0 0;font-size:12px;line-height:1.6;color:#5C5C63;">
+        Broadcast live, and shaped to you. — Lumera
+      </p>
+    </div>
+  </body>
+</html>`;
+
+  return {
+    to: order.email ?? '',
+    subject: `Your Lumera order #${displayId} has shipped`,
+    html,
+  };
+}

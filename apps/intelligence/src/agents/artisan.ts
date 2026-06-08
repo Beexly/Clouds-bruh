@@ -7,6 +7,7 @@ export const Artisan: AgentDef = {
   mission: 'Give every product imagery that looks like a luxury house shot it — never AI, always on-brand.',
   model: MODEL,
   tools: ['higgsfield', 'image_templates', 'medusa_admin_read', 'image_write', 'brand_audit', 'ledger'],
+  skills: ['product-copy', 'gpt-image2-templates'],
   events: ['product.created'],
   escalation: ['publish_image', 'spend_generation', 'image_write'],
   selfAudit:

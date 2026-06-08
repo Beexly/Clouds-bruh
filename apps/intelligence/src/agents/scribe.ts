@@ -7,6 +7,7 @@ export const Scribe: AgentDef = {
   mission: 'Make Lumera the answer AI and search engines cite — technically flawless, schema-perfect, GEO-optimized.',
   model: MODEL,
   tools: ['claude_seo', 'medusa_admin_read', 'content_draft', 'schema_write', 'ledger'],
+  skills: ['product-copy', 'cro-audit', 'claude-seo'],
   schedule: '0 3 * * *',
   escalation: ['publish_content'],
   selfAudit:

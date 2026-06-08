@@ -6,6 +6,7 @@ export const Herald: AgentDef = {
   mission: 'Build anticipation for every drop; make the brand impossible to scroll past.',
   model: MODEL,
   tools: ['content_draft', 'video_render', 'calendar_write', 'recommendation_read', 'dataset_query', 'ledger'],
+  skills: ['product-launch', 'seasonal-campaign', 'affiliate-marketing-strategy', 'cart-abandonment'],
   schedule: '0 7 * * 1',
   escalation: ['publish_social', 'launch_campaign', 'spend_budget'],
   selfAudit: 'Every post ties to a live/upcoming drop or chapter, in brand voice, with a clear hook. No generic filler. Videos are STAGED, never published.',

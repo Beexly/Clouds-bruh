@@ -50,6 +50,12 @@ function Stat({ label, value }: { label: string; value: string | number }) {
   );
 }
 
+/** Money arrives as integer cents (see ARCHITECTURE §4) — divide by 100 for display. */
+function usd(cents: number | undefined): string {
+  const amount = (cents ?? 0) / 100;
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount);
+}
+
 /** The Founder's Cockpit — the company, running itself. You approve; it operates. */
 export default async function Cockpit() {
   const [d, board] = await Promise.all([fetchCockpit(), fetchCurationBoard()]);
@@ -71,6 +77,10 @@ export default async function Cockpit() {
   const runs: any[] = d?.recent_runs ?? [];
   const warns = audits.find((a) => a.severity === 'warn')?.count ?? 0;
   const errors = audits.find((a) => a.severity === 'error' || a.severity === 'critical')?.count ?? 0;
+  const kpis: any = d?.kpis ?? {};
+  const topProducts: any[] = kpis.top_products ?? [];
+  const lowStockDrops: any[] = kpis.low_stock_drops ?? [];
+  const returnRatePct = ((kpis.return_rate_30d ?? 0) * 100).toFixed(1);
 
   return (
     <main className="min-h-screen bg-void bg-sacred-grain px-6 py-16">
@@ -105,6 +115,67 @@ export default async function Cockpit() {
           <Stat label="Purchases · 7d" value={d?.signals_7d?.purchases ?? 0} />
           <Stat label="Audit warnings" value={`${warns + errors}`} />
           <Stat label="Approvals waiting" value={inbox.length} />
+        </section>
+
+        {/* Business KPIs — the founder's ledger at a glance */}
+        <section className="mb-8 rounded-sm border border-altar-gold/15 bg-altar-gold/[0.02] p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <span className="text-label uppercase text-altar-goldlight">Business · The Numbers</span>
+            <span className="text-micro uppercase text-neutral-600">Live, read-only</span>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+            <Stat label="Revenue · 7d" value={usd(kpis.revenue_7d_cents)} />
+            <Stat label="Revenue · 30d" value={usd(kpis.revenue_30d_cents)} />
+            <Stat label="Orders · 30d" value={kpis.order_count_30d ?? 0} />
+            <Stat label="AOV · 30d" value={usd(kpis.aov_30d_cents)} />
+            <Stat label="Return rate · 30d" value={`${returnRatePct}%`} />
+          </div>
+
+          <div className="mt-5 grid gap-5 md:grid-cols-2">
+            {/* Top products by engagement */}
+            <div className="rounded-sm border border-white/[0.07] bg-white/[0.02] p-4">
+              <p className="mb-3 text-micro uppercase text-neutral-500">Top Products · 7d</p>
+              {topProducts.length === 0 ? (
+                <p className="text-sm text-neutral-600">No signal yet.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {topProducts.map((p, i) => (
+                    <li key={i} className="flex items-center justify-between gap-3 text-sm">
+                      <span className="truncate text-neutral-200">
+                        {p.title}
+                        {p.chapter && <span className="ml-2 text-micro uppercase text-neutral-600">{p.chapter}</span>}
+                      </span>
+                      <span className="shrink-0 text-micro uppercase text-altar-goldlight">
+                        {p.signals} sig · {p.cart_adds} cart
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* Low-stock live drops */}
+            <div className="rounded-sm border border-white/[0.07] bg-white/[0.02] p-4">
+              <p className="mb-3 text-micro uppercase text-neutral-500">Low-Stock Drops</p>
+              {lowStockDrops.length === 0 ? (
+                <p className="text-sm text-neutral-600">Inventory holding steady.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {lowStockDrops.map((dr, i) => (
+                    <li key={i} className="flex items-center justify-between gap-3 text-sm">
+                      <span className="truncate text-neutral-200">
+                        {dr.name}
+                        <span className="ml-2 text-micro uppercase text-neutral-600">{dr.chapter}</span>
+                      </span>
+                      <span className="shrink-0 text-micro uppercase text-chapter-relentless">
+                        {dr.units_remaining}/{dr.units_total} · {dr.pct_remaining}%
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
         </section>
 
         <section className="mb-8 border border-altar-gold/20 bg-black/25 p-5">

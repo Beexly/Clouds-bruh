@@ -1,6 +1,8 @@
 'use client';
 
 import Script from 'next/script';
+import { useEffect, useState } from 'react';
+import { CONSENT_EVENT, readConsent } from './ConsentBanner';
 
 /**
  * Analytics + error monitoring — injected only when configured via NEXT_PUBLIC_* env.
@@ -9,9 +11,28 @@ import Script from 'next/script';
  * by setting its env. Sentry browser monitoring loads via its CDN loader when its DSN is set.
  * Renders nothing when none are configured, so it is a clean no-op out of the box.
  *
+ * Consent gate (GDPR): when NEXT_PUBLIC_CONSENT_REQUIRED is not 'false' (the default), NO analytics
+ * script renders until the visitor accepts via ConsentBanner. We re-read consent on mount and on the
+ * `lumera:consent` event so acceptance takes effect without a reload. Set the flag to 'false' only
+ * for regions/deployments where consent is handled elsewhere.
+ *
  * All scripts use next/script with afterInteractive so they never block first paint.
  */
 export function Analytics() {
+  const consentRequired = process.env.NEXT_PUBLIC_CONSENT_REQUIRED !== 'false';
+  const [consented, setConsented] = useState(false);
+
+  useEffect(() => {
+    if (!consentRequired) {
+      setConsented(true);
+      return;
+    }
+    const sync = () => setConsented(readConsent() === 'accepted');
+    sync();
+    window.addEventListener(CONSENT_EVENT, sync);
+    return () => window.removeEventListener(CONSENT_EVENT, sync);
+  }, [consentRequired]);
+
   const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
   const posthogKey = process.env.NEXT_PUBLIC_POSTHOG_KEY;
   const posthogHost = process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com';
@@ -24,6 +45,9 @@ export function Analytics() {
   const useUmami = !usePlausible && !usePostHog && !!umamiId && !!umamiSrc;
 
   if (!usePlausible && !usePostHog && !useUmami && !sentryDsn) return null;
+
+  // Hold all scripts until the visitor has consented (unless consent is disabled by env).
+  if (!consented) return null;
 
   return (
     <>

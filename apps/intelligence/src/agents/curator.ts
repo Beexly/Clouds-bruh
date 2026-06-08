@@ -7,6 +7,7 @@ export const Curator: AgentDef = {
   mission: 'Discover what the culture wants next and turn it into on-brand drops Garrett can approve.',
   model: MODEL,
   tools: ['shein_scraper', 'supplier_radar', 'dataset_query', 'medusa_admin_read', 'product_draft', 'ledger'],
+  skills: ['dropshipping-product-research', 'product-copy', 'bundle-suggest', 'marketplace-expand', 'seasonal-campaign'],
   schedule: '0 6 * * *',
   escalation: ['publish_product', 'publish_drop'],
   selfAudit:

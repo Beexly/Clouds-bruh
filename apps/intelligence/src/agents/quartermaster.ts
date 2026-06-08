@@ -6,6 +6,7 @@ export const Quartermaster: AgentDef = {
   mission: 'Every order reaches the right hands on time; nothing oversells, nothing stalls.',
   model: MODEL,
   tools: ['medusa_admin_read', 'medusa_admin_write_order', 'supplier_api', 'vendor_select', 'ledger'],
+  skills: ['inventory-forecast', 'returns-analysis', 'marketplace-audit', 'cross-border-ecommerce'],
   events: ['order.placed', 'fulfillment.stuck'],
   escalation: ['issue_refund', 'cancel_order'],
   selfAudit: 'No order sits past its SLA without action; no oversell; every routing decision is logged with its rule.',

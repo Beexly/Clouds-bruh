@@ -6,6 +6,7 @@ export const Shepherd: AgentDef = {
   mission: 'Answer with warmth and authority; turn questions into confidence and confidence into carry.',
   model: MODEL,
   tools: ['medusa_admin_read', 'order_lookup', 'reply_draft', 'recommendation_read', 'ledger'],
+  skills: ['review-response', 'returns-analysis', 'customer-feedback-analysis'],
   events: ['support.message'],
   escalation: ['issue_refund', 'send_public_reply'],
   selfAudit: 'Every reply is accurate to order/account data, in brand voice, and resolves or clearly escalates. No invented facts.',
