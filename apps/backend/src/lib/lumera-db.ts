@@ -420,9 +420,16 @@ function manualConnection(): VendorConnection {
   };
 }
 
-function bestConfiguredVendor(): VendorId {
+export function bestConfiguredVendor(): VendorId {
   const configured = vendorConnections().find((v) => v.connected && v.id !== 'radar');
   return configured?.id ?? 'manual';
+}
+
+/** Vendor ids that currently have credentials (used for routing failover decisions). */
+export function connectedVendorIds(): VendorId[] {
+  return vendorConnections()
+    .filter((v) => v.connected && v.id !== 'radar')
+    .map((v) => v.id);
 }
 
 function marginFloor() {

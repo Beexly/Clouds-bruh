@@ -1,5 +1,5 @@
 import type { VendorId } from '@alterxiv/shared';
-import { ensureLumeraTables, pool } from './lumera-db';
+import { ensureLumeraTables, pool, bestConfiguredVendor } from './lumera-db';
 
 type OrderItemLike = {
   product_id?: string;
@@ -116,13 +116,15 @@ export async function persistVendorOrderDrafts(order: OrderLike) {
 }
 
 function vendorForItem(item: OrderItemLike, order: OrderLike): VendorId {
-  const raw =
+  const explicit =
     item.metadata?.fulfillment_provider ??
     item.metadata?.vendor ??
     item.metadata?.lumera_truth?.fulfillment_provider ??
-    order.metadata?.fulfillment_provider ??
-    'manual';
-  return normalizeVendor(raw);
+    order.metadata?.fulfillment_provider;
+  // Respect an explicit assignment (never silently re-route a SKU to a vendor that may not carry it).
+  if (explicit) return normalizeVendor(explicit);
+  // Unassigned items route to the best currently-connected vendor (falls back to 'manual').
+  return bestConfiguredVendor();
 }
 
 function normalizeVendor(value: unknown): VendorId {
