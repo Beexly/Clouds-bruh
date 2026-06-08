@@ -1,5 +1,6 @@
 import type { MedusaRequest, MedusaResponse } from '@medusajs/framework';
 import pg from 'pg';
+import { integrationStatus } from '../../../lib/integrations';
 
 let _pool: pg.Pool | null = null;
 function pool() {
@@ -172,6 +173,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       drops,
       signals_7d: signals,
       kpis,
+      integrations: integrationStatus(),
     });
   } catch (e: any) {
     res.status(500).json({ error: e.message?.slice(0, 200) });

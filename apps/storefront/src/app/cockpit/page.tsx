@@ -143,6 +143,7 @@ export default async function Cockpit() {
   const drops: any[] = d?.drops ?? [];
   const inbox: any[] = d?.approval_inbox ?? [];
   const runs: any[] = d?.recent_runs ?? [];
+  const integrations: any[] = d?.integrations ?? [];
   const warns = audits.find((a) => a.severity === 'warn')?.count ?? 0;
   const errors = audits.find((a) => a.severity === 'error' || a.severity === 'critical')?.count ?? 0;
   const kpis: any = d?.kpis ?? {};
@@ -184,6 +185,34 @@ export default async function Cockpit() {
           <Stat label="Audit warnings" value={`${warns + errors}`} />
           <Stat label="Approvals waiting" value={inbox.length} />
         </section>
+
+        {/* Ignition — which capabilities are live vs asleep, and what each key unlocks */}
+        {integrations.length > 0 && (
+          <section className="mb-8 rounded-sm border border-white/[0.07] p-5">
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-label uppercase text-neutral-400">Ignition — Integrations</h2>
+              <span className="text-micro uppercase text-neutral-600">
+                {integrations.filter((i) => i.configured).length}/{integrations.length} live
+              </span>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {integrations.map((i) => (
+                <div
+                  key={i.key}
+                  className={`rounded-sm border p-4 ${i.configured ? 'border-altar-gold/30 bg-altar-gold/[0.04]' : 'border-white/[0.06] bg-white/[0.02]'}`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm text-neutral-200">{i.label}</p>
+                    <span className={`shrink-0 text-micro uppercase ${i.configured ? 'text-altar-goldlight' : 'text-neutral-600'}`}>
+                      {i.configured ? 'live' : 'asleep'}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-micro uppercase text-neutral-600">{i.unlocks}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Business KPIs — the founder's ledger at a glance */}
         <section className="mb-8 rounded-sm border border-altar-gold/15 bg-altar-gold/[0.02] p-5">
