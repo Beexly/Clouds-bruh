@@ -99,6 +99,18 @@ function Workforce({ runs }: { runs: RunLite[] }) {
               </div>
               <p className="mt-3 text-sm text-neutral-400">{m.role}</p>
               <p className="mt-3 text-micro uppercase text-neutral-600">{m.cadence}</p>
+              {m.gated.length > 0 && (
+                <div className="mt-3 border-t border-white/[0.05] pt-3">
+                  <p className="text-micro uppercase text-neutral-600">Needs your approval</p>
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    {m.gated.map((g) => (
+                      <span key={g} className="rounded-full border border-altar-gold/25 px-2 py-0.5 text-micro uppercase text-altar-goldlight">
+                        {g.replace(/_/g, ' ')}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}

@@ -28,4 +28,12 @@ describe('constellation manifest <-> agent registry', () => {
       keys.add(m.key);
     }
   });
+
+  it("each member's gated actions equal the agent's real escalation gate (dash guardrails cannot lie)", () => {
+    for (const m of CONSTELLATION) {
+      const real = [...(AGENTS[m.key]?.escalation ?? [])].sort();
+      const shown = [...m.gated].sort();
+      expect(shown, `${m.key} gated actions must match its escalation gate`).toEqual(real);
+    }
+  });
 });
