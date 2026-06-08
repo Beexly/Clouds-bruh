@@ -44,6 +44,18 @@ describe('verifyVendorWebhook (HMAC signature verification)', () => {
     const res = verifyVendorWebhook('stripe', { id: 'evt' }, {});
     expect(res.valid).toBe(false);
   });
+
+  it('verifies over the RAW body bytes when provided (not the re-serialized JSON)', () => {
+    process.env.PRINTIFY_WEBHOOK_SECRET = 'shh';
+    // Odd whitespace so JSON.stringify(JSON.parse(raw)) would differ from the original bytes.
+    const raw = '{"vendor_order_id":"po_1",   "status":"shipped"}';
+    const sig = crypto.createHmac('sha256', 'shh').update(raw).digest('hex');
+    const overRaw = verifyVendorWebhook('printify', JSON.parse(raw), { 'x-printify-hmac-sha256': sig }, raw);
+    expect(overRaw.valid).toBe(true);
+    // Without the raw body, the re-serialized JSON won't match the signature over the original bytes.
+    const overJson = verifyVendorWebhook('printify', JSON.parse(raw), { 'x-printify-hmac-sha256': sig });
+    expect(overJson.valid).toBe(false);
+  });
 });
 
 describe('verifyStripeWebhook (Stripe t,v1 scheme over raw body)', () => {

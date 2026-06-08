@@ -271,7 +271,12 @@ export async function recordWebhook(vendor: VendorId, eventType: string, payload
   return { id, vendor, event_type: eventType, status: 'recorded' };
 }
 
-export function verifyVendorWebhook(vendor: VendorId | 'stripe', payload: unknown, headers: Record<string, any>) {
+export function verifyVendorWebhook(
+  vendor: VendorId | 'stripe',
+  payload: unknown,
+  headers: Record<string, any>,
+  rawBody?: string
+) {
   const secretByVendor: Record<string, string | undefined> = {
     printify: process.env.PRINTIFY_WEBHOOK_SECRET,
     printful: process.env.PRINTFUL_WEBHOOK_SECRET,
@@ -281,7 +286,9 @@ export function verifyVendorWebhook(vendor: VendorId | 'stripe', payload: unknow
   const secret = secretByVendor[vendor];
   if (!secret) return { valid: true, proof: 'unsigned_no_secret_configured' };
 
-  const raw = JSON.stringify(payload ?? {});
+  // HMAC over the exact bytes the provider signed when the raw body is available (via the
+  // preserveRawBody middleware); fall back to re-serialized JSON only when it isn't.
+  const raw = rawBody ?? JSON.stringify(payload ?? {});
   const expected = crypto.createHmac('sha256', secret).update(raw).digest('hex');
   const provided =
     headers['x-printify-hmac-sha256'] ||

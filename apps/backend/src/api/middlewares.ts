@@ -22,5 +22,10 @@ export default defineMiddlewares({
       matcher: '/hooks/stripe',
       bodyParser: { preserveRawBody: true },
     },
+    {
+      // Vendor webhooks are HMAC-signed over the raw bytes; preserve them for correct verification.
+      matcher: '/hooks/vendor/*',
+      bodyParser: { preserveRawBody: true },
+    },
   ],
 });

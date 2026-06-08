@@ -10,6 +10,55 @@ function pool(): Pool {
 }
 
 /**
+ * DDL for the Ledger's two tables. These previously had NO migration anywhere, so on a fresh DB
+ * every write threw → the circuit breaker wedged open → all agent_run/audit history silently fell
+ * back to the volatile in-memory buffer (lost on restart) and the cockpit showed nothing. We now
+ * create them idempotently (memoized) before the first read/write. Columns match the INSERTs below.
+ */
+let _ensured: Promise<void> | null = null;
+export function ensureLedgerTables(): Promise<void> {
+  if (_ensured) return _ensured;
+  _ensured = pool()
+    .query(`
+      CREATE TABLE IF NOT EXISTS agent_run (
+        id text primary key,
+        agent text not null,
+        trigger text,
+        input jsonb,
+        output jsonb,
+        tools_used text[] not null default '{}',
+        decisions text[] not null default '{}',
+        status text not null default 'unknown',
+        escalated boolean not null default false,
+        outcome text,
+        started_at timestamptz not null default now(),
+        finished_at timestamptz
+      );
+      CREATE INDEX IF NOT EXISTS agent_run_agent_started_idx ON agent_run (agent, started_at DESC);
+
+      CREATE TABLE IF NOT EXISTS audit (
+        id text primary key,
+        type text not null,
+        severity text not null,
+        finding text not null,
+        recommendation text,
+        falsifiable_check text,
+        auto_corrected boolean not null default false,
+        entity_ref text,
+        created_at timestamptz not null default now()
+      );
+      CREATE INDEX IF NOT EXISTS audit_severity_created_idx ON audit (severity, created_at DESC);
+    `)
+    .then(() => undefined)
+    .catch((e: any) => {
+      // Don't cache a failure — let the next call retry once Postgres is reachable.
+      _ensured = null;
+      throw e;
+    });
+  return _ensured;
+}
+
+/**
  * Resilience (agentmemory pattern): a circuit-breaker around Postgres with an in-memory
  * fallback ring buffer. If Postgres fails repeatedly the breaker OPENS — writes go to
  * memory (never lost), reads merge memory + db — and HALF-OPENs after a cooldown to probe
@@ -64,6 +113,7 @@ export const Ledger = {
     push(memRuns, run); // always mirror to memory first — never lose a record
     await withBreaker(
       async () => {
+        await ensureLedgerTables();
         await pool().query(
           `INSERT INTO agent_run (id, agent, trigger, input, output, tools_used, decisions, status, escalated, started_at, finished_at)
            VALUES ($1,$2,$3,$4::jsonb,$5::jsonb,$6,$7,$8,$9,$10,$11)
@@ -87,7 +137,10 @@ export const Ledger = {
     const m = memRuns.find((r) => r.id === runId);
     if (m) m.outcome = outcome;
     await withBreaker(
-      () => pool().query(`UPDATE agent_run SET outcome=$1, finished_at=now() WHERE id=$2`, [outcome, runId]).then(() => undefined),
+      async () => {
+        await ensureLedgerTables();
+        await pool().query(`UPDATE agent_run SET outcome=$1, finished_at=now() WHERE id=$2`, [outcome, runId]);
+      },
       () => undefined,
       'outcome'
     );
@@ -96,6 +149,7 @@ export const Ledger = {
   async history(agent: string, limit = 50): Promise<AgentRun[]> {
     return withBreaker(
       async () => {
+        await ensureLedgerTables();
         const { rows } = await pool().query(
           `SELECT * FROM agent_run WHERE agent=$1 ORDER BY started_at DESC LIMIT $2`,
           [agent, limit]
@@ -111,6 +165,7 @@ export const Ledger = {
     push(memAudits, a);
     await withBreaker(
       async () => {
+        await ensureLedgerTables();
         await pool().query(
           `INSERT INTO audit (id, type, severity, finding, recommendation, falsifiable_check, auto_corrected, entity_ref, created_at)
            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) ON CONFLICT (id) DO NOTHING`,
@@ -128,6 +183,7 @@ export const Ledger = {
   async openAudits(severity?: Audit['severity']): Promise<Audit[]> {
     return withBreaker(
       async () => {
+        await ensureLedgerTables();
         const { rows } = await pool().query(
           severity
             ? `SELECT * FROM audit WHERE severity=$1 ORDER BY created_at DESC LIMIT 50`
@@ -144,6 +200,7 @@ export const Ledger = {
   async recentRuns(limit = 20): Promise<AgentRun[]> {
     return withBreaker(
       async () => {
+        await ensureLedgerTables();
         const { rows } = await pool().query(`SELECT * FROM agent_run ORDER BY started_at DESC LIMIT $1`, [limit]);
         return rows as AgentRun[];
       },
