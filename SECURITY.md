@@ -52,6 +52,22 @@ Defensive security posture for the Lumera platform. Scope: our own backend (Medu
 - Rate limiting is per-instance (in-memory) until a Redis limiter is wired.
 - No MFA on the cockpit key (single strong secret); consider TOTP/WebAuthn for the founder surface.
 - Structured audit logging of admin actions is partial (escalations are logged to the Ledger).
+- `assertSafeOutboundUrl` is hostname/literal-CIDR based (blocks loopback, link-local metadata,
+  private ranges) — it does not resolve DNS, so a public hostname that resolves to a private IP
+  (DNS-rebinding) isn't caught. It's a first line for user/scraped URLs; vendor/channel/payment
+  fetches target fixed provider hosts. Resolve-and-check before wiring it to user-supplied URLs.
+
+## ⚠️ Pre-launch money-unit verification (do before any live payment/carrier flag)
+Medusa v2 hands payment providers amounts in **major units** (the official Stripe provider ×100s to
+cents at its boundary). This repo's catalog/storefront use a **"prices as integer cents"** convention
+(`scripts/setup-prices.ts` seeds `9900` = $99; the storefront divides by 100 for display). These two
+conventions must be reconciled, or a real provider could charge **100×**. This is **pre-existing**
+(it equally affects the already-configured Stripe provider) and is invisible in test mode because
+`pp_system_default` never captures. **Must-do:** run ONE PayPal **sandbox** capture and ONE live
+carrier quote and confirm the charged/quoted amount equals the displayed price before flipping
+`PAYPAL_ENV=live` or setting `EASYPOST_API_KEY`/`SHIPPO_API_KEY` in production. Adjust the seed
+convention or the provider boundary (`formatPayPalAmount`, fulfillment `calculated_amount`) once the
+sandbox result is known — do not guess.
 
 ## Reporting
 This is a private commercial platform. Report suspected vulnerabilities directly to the founder.

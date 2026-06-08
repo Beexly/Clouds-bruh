@@ -75,6 +75,9 @@ jobs:
       REDIS_URL: redis://localhost:6379
       # Boot without the admin static bundle so the operational pipeline runs headless.
       MEDUSA_ADMIN_DISABLED: "true"
+      # The API regression hammers /store/* from one IP; disable per-IP rate limiting so a growing
+      # suite can never trip the limiter (belt-and-suspenders; limiter is also off under NODE_ENV=test).
+      RATE_LIMIT_DISABLED: "true"
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

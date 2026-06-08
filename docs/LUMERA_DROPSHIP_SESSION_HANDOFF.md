@@ -61,3 +61,38 @@ Branch: `claude/affectionate-clarke-KJ8O1`. Everything is committed + pushed.
 - Complete the SaaS set (Modalyst, Dropified) and add the official AliExpress order API.
 - Reconcile `lib/lumera-db.ts` raw SQL with the native `lumera` Medusa module/migration.
 - Stripe custom hook: confirm Medusa preserves `req.rawBody` (or rely on the native payment-stripe webhook).
+
+---
+
+## Session 2 — Launch infrastructure (security, observability, email, fulfillment realism, multichannel)
+
+Built as parallel agent workers + integrated, all gated/fixture-safe, **no new npm deps** (HTTP `fetch`
++ CDN scripts), **169 unit tests green · lint clean · full build green**.
+
+- **Defensive security hardening** (OWASP): production refuses to boot without `JWT_SECRET`/`COOKIE_SECRET`;
+  cockpit/ops auth is header-only; per-IP rate limiting on `/store/*` + `/admin/lumera/*` (tunable, off
+  under test/CI); input validation on `/shepherd` + `/preferences`; SSRF guard + outbound timeouts;
+  Stripe webhook raw-body via middleware; storefront security headers (HSTS, X-Frame-Options, nosniff,
+  CSP Report-Only); CI `pnpm audit` + secret-scan; `SECURITY.md`.
+- **Observability**: backend Sentry envelope (`captureException`) on key catches; storefront analytics
+  (Plausible / PostHog / umami) + Sentry browser, env-gated.
+- **Email**: order confirmations now send via **Resend** (mock-until-keyed) + **Klaviyo** "Placed Order".
+- **Fulfillment realism**: **EasyPost/Shippo** live carrier rates in the fulfillment provider
+  (flat-rate fallback, never throws); native **PayPal** Orders v2 payment provider (gated on
+  `PAYPAL_CLIENT_ID`, alongside Stripe).
+- **Outbound multichannel selling**: gated **channel-sync** for Shopify / WooCommerce / Etsy / Amazon
+  (Amazon honestly gated as `requires_sp_api_auth`; no live listing without `CHANNEL_LIVE_MODE` + creds).
+
+### 🚨 #1 launch blocker to verify (pre-existing, not introduced here)
+**Money-unit convention.** The catalog/storefront treat stored prices as **cents** (`9900`=$99), but
+Medusa v2 passes **major units** to payment providers. Before flipping any live payment/carrier flag,
+do ONE PayPal **sandbox** capture + ONE live carrier quote and confirm the amount equals the displayed
+price (else risk a 100× charge). Details + fix options in `SECURITY.md` → "Pre-launch money-unit
+verification". This equally affects the existing Stripe provider; it's invisible in test mode.
+
+### New env (all optional, no-op without keys)
+Security: `RATE_LIMIT_*`. Observability: `SENTRY_DSN`, `NEXT_PUBLIC_SENTRY_DSN`,
+`NEXT_PUBLIC_PLAUSIBLE_DOMAIN` / `NEXT_PUBLIC_POSTHOG_*` / `NEXT_PUBLIC_UMAMI_*`. Email: `RESEND_API_KEY`,
+`NOTIFICATION_EMAIL_FROM`, `KLAVIYO_API_KEY`. Fulfillment: `EASYPOST_API_KEY` / `SHIPPO_API_KEY`,
+`PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET` / `PAYPAL_ENV`. Channels: `SHOPIFY_*`, `WOOCOMMERCE_*`,
+`ETSY_*`, `AMAZON_SP_*`, `CHANNEL_LIVE_MODE`. (Full list in `.env.example`.)
