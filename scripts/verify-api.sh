@@ -108,12 +108,22 @@ fi
 if _build_ok; then ok "Build present (reusing)"; else npx medusa build >/dev/null 2>&1; _build_ok && ok "Build complete" || die "build failed/incomplete"; fi
 
 say "Booting backend on :$PORT"
+# Medusa cold boot on a clean CI runner (module graph load + workflow engine) can exceed 60s,
+# so allow more headroom; surface the boot log on failure and bail immediately if the process dies.
+HEALTH_TIMEOUT="${HEALTH_TIMEOUT:-120}"
 if port_up "$PORT"; then ok "Backend already running on :$PORT"; else
   ( npx medusa start >"$LOG" 2>&1 ) & BACKEND_PID=$!
-  for i in $(seq 1 60); do
+  for i in $(seq 1 "$HEALTH_TIMEOUT"); do
     if curl -fsS "http://localhost:$PORT/health" >/dev/null 2>&1; then ok "Backend healthy after ${i}s"; break; fi
+    if ! kill -0 "$BACKEND_PID" 2>/dev/null; then
+      printf '\n----- backend exited during boot; last 100 lines of %s -----\n' "$LOG"; tail -100 "$LOG" || true
+      die "Backend process exited during boot — see log above"
+    fi
     sleep 1
-    [ "$i" -eq 60 ] && die "Backend did not become healthy in 60s — see $LOG"
+    if [ "$i" -eq "$HEALTH_TIMEOUT" ]; then
+      printf '\n----- backend not healthy in %ss; last 100 lines of %s -----\n' "$HEALTH_TIMEOUT" "$LOG"; tail -100 "$LOG" || true
+      die "Backend did not become healthy in ${HEALTH_TIMEOUT}s — see log above"
+    fi
   done
 fi
 
