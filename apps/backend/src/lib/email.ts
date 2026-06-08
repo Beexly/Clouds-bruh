@@ -243,3 +243,83 @@ export function renderShipmentNotification(order: ShipmentLike): SendEmailInput 
     html,
   };
 }
+
+interface AbandonedCartLike {
+  email?: string;
+  currency_code?: string;
+  url?: string;
+  items?: Array<{ title?: string; quantity?: number; unit_price?: number }>;
+}
+
+/**
+ * Brand-aligned abandoned-cart recovery — same dark luminous editorial palette as the order
+ * notices. Leans on the drop-culture motto ("Some things only happen once.") and Lumera's
+ * reverent, sharp voice. Money is integer cents ÷100 via the shared money() helper. The CTA
+ * link is optional; the body adapts when no recovery URL is supplied.
+ */
+export function renderAbandonedCart(cart: AbandonedCartLike): SendEmailInput {
+  const currency = cart.currency_code || 'USD';
+  const items = cart.items ?? [];
+  const subtotal = items.reduce((s, i) => s + (i.unit_price ?? 0) * (i.quantity ?? 1), 0);
+
+  const rows = items
+    .map((i) => {
+      const line = (i.unit_price ?? 0) * (i.quantity ?? 1);
+      return `
+        <tr>
+          <td style="padding:14px 0;border-bottom:1px solid #1c1c22;color:#ECECEE;font-size:15px;">
+            ${escapeHtml(i.title ?? 'Item')} <span style="color:#7A7A82;">×${i.quantity ?? 1}</span>
+          </td>
+          <td style="padding:14px 0;border-bottom:1px solid #1c1c22;color:#ECECEE;font-size:15px;text-align:right;">
+            ${money(line, currency)}
+          </td>
+        </tr>`;
+    })
+    .join('');
+
+  const ctaBlock = cart.url
+    ? `
+      <p style="margin:32px 0 0;">
+        <a href="${escapeHtml(cart.url)}" style="display:inline-block;padding:14px 28px;border:1px solid #C7A24B;border-radius:2px;color:#C7A24B;text-decoration:none;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;">
+          Return to your selection &rarr;
+        </a>
+      </p>`
+    : '';
+
+  const html = `<!doctype html>
+<html lang="en">
+  <body style="margin:0;padding:0;background:#0B0B0D;">
+    <div style="max-width:560px;margin:0 auto;padding:48px 32px;background:#0B0B0D;font-family:Inter,Helvetica,Arial,sans-serif;color:#ECECEE;">
+      <p style="margin:0 0 4px;letter-spacing:0.32em;text-transform:uppercase;font-size:11px;color:#C7A24B;">Lumera</p>
+      <p style="margin:0 0 32px;letter-spacing:0.18em;text-transform:uppercase;font-size:10px;color:#7A7A82;">The Broadcast</p>
+
+      <h1 style="margin:0 0 12px;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:30px;line-height:1.2;color:#FFFFFF;">
+        You left something behind.
+      </h1>
+      <p style="margin:0 0 28px;font-size:14px;line-height:1.6;color:#9A9AA2;">
+        Some things only happen once. What you chose is still here &mdash; held, for now. Pick up where you left off before the moment passes.
+      </p>
+
+      ${rows ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 8px;">
+        ${rows}
+        <tr>
+          <td style="padding:18px 0 0;font-size:14px;letter-spacing:0.04em;text-transform:uppercase;color:#7A7A82;">Subtotal</td>
+          <td style="padding:18px 0 0;font-size:18px;text-align:right;color:#FFFFFF;">${money(subtotal, currency)}</td>
+        </tr>
+      </table>` : ''}
+
+      ${ctaBlock}
+
+      <p style="margin:36px 0 0;font-size:12px;line-height:1.6;color:#5C5C63;">
+        Broadcast live, and shaped to you. &mdash; Lumera
+      </p>
+    </div>
+  </body>
+</html>`;
+
+  return {
+    to: cart.email ?? '',
+    subject: 'You left something behind — your Lumera selection',
+    html,
+  };
+}

@@ -1,5 +1,11 @@
 import { describe, it, expect, afterEach } from 'vitest';
-import { sendEmail, renderOrderConfirmation, renderShipmentNotification, trackKlaviyoEvent } from './email';
+import {
+  sendEmail,
+  renderOrderConfirmation,
+  renderShipmentNotification,
+  renderAbandonedCart,
+  trackKlaviyoEvent,
+} from './email';
 
 const savedResend = process.env.RESEND_API_KEY;
 const savedKlaviyo = process.env.KLAVIYO_API_KEY;
@@ -97,5 +103,37 @@ describe('email — renderShipmentNotification', () => {
     });
     expect(out.html).not.toContain('Tracking');
     expect(out.html).toContain('Thing');
+  });
+});
+
+describe('email — renderAbandonedCart', () => {
+  it('renders brand HTML with items and the subtotal', () => {
+    const out = renderAbandonedCart({
+      email: 'patron@lumera.example',
+      currency_code: 'usd',
+      url: 'https://lumera.example/cart',
+      items: [
+        { title: 'Eclipse Hoodie', quantity: 2, unit_price: 12000 },
+        { title: 'Gold Pendant', quantity: 1, unit_price: 8000 },
+      ],
+    });
+
+    expect(out.to).toBe('patron@lumera.example');
+    expect(out.subject.toLowerCase()).toContain('left something behind');
+    // Subtotal = 2*120 + 80 = $320.00
+    expect(out.html).toContain('$320.00');
+    expect(out.html).toContain('Lumera');
+    expect(out.html).toContain('Eclipse Hoodie');
+    expect(out.html).toContain('https://lumera.example/cart');
+  });
+
+  it('omits the CTA block when no recovery url is provided', () => {
+    const out = renderAbandonedCart({
+      email: 'x@y.com',
+      items: [{ title: 'Thing', quantity: 1, unit_price: 5000 }],
+    });
+    expect(out.html).not.toContain('Return to your selection');
+    expect(out.html).toContain('Thing');
+    expect(out.html).toContain('$50.00');
   });
 });
