@@ -30,9 +30,34 @@ function redis(): Redis | null {
  *   2. embeddings — queue a refresh for purchased products + this visitor's vector
  *   3. ledger — record sell-through for Curator/Herald memory
  */
+/**
+ * Idempotency guard for the Learning Loop. Redis streams are at-least-once, so a redelivered event
+ * (consumer restart, reclaim) must NOT apply its bandit reward twice — that would corrupt the
+ * Thompson/Beta posteriors. We remember recently-seen event ids in a bounded in-memory set and skip
+ * duplicates. Exported for tests.
+ */
+const _seenEventIds = new Set<string>();
+const SEEN_CAP = 5000;
+export function markRewardApplied(id: string | undefined): boolean {
+  if (!id) return true; // no id → can't dedup; let it through
+  if (_seenEventIds.has(id)) return false;
+  _seenEventIds.add(id);
+  if (_seenEventIds.size > SEEN_CAP) {
+    // Drop the oldest ~10% (insertion-ordered) to bound memory.
+    let drop = Math.ceil(SEEN_CAP * 0.1);
+    for (const k of _seenEventIds) {
+      _seenEventIds.delete(k);
+      if (--drop <= 0) break;
+    }
+  }
+  return true;
+}
+
 export async function learnFrom(event: SignalEvent): Promise<void> {
   const reward = REWARD_WEIGHTS[event.type] ?? 0;
   if (reward <= 0) return;
+  // At-least-once delivery: never double-apply a reward for the same event id.
+  if (!markRewardApplied(event.id)) return;
 
   try {
     // 1. Bandit reward: find the visitor's segment, reward the block they engaged with

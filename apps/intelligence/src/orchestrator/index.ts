@@ -16,12 +16,74 @@ function agentsForEvent(type: string): string[] {
     .map((def) => def.name);
 }
 
+function fieldsToObj(fields: string[]): Record<string, string> {
+  const obj: Record<string, string> = {};
+  for (let i = 0; i < fields.length; i += 2) obj[fields[i]] = fields[i + 1];
+  return obj;
+}
+
+async function handleSignalEntry(msgId: string, fields: string[]): Promise<void> {
+  const obj = fieldsToObj(fields);
+  const type = obj.type ?? 'unknown';
+  for (const agentName of agentsForEvent(type)) {
+    runAgent(agentName, 'event', { event_type: type, ...obj })
+      .catch((e: Error) => console.error(`[orchestrator] ${agentName} error:`, e.message?.slice(0, 80)));
+  }
+  // Learning Loop reward — deduped by event id inside learnFrom, so reprocessing is safe.
+  await learnFrom({
+    id: msgId,
+    visitor_id: obj.visitor_id ?? '',
+    session_id: obj.session_id ?? '',
+    type: type as SignalEvent['type'],
+    entity_id: obj.entity_id,
+    value: obj.value ? parseFloat(obj.value) : undefined,
+    context: { chapter: obj.chapter as any },
+    ts: obj.ts ?? new Date().toISOString(),
+  }).catch(() => {});
+}
+
+/**
+ * Crash recovery: reclaim pending-but-unacked entries (delivered to this consumer before a previous
+ * crash) and reprocess them. Fully guarded — if XAUTOCLAIM is unsupported or errors it's a silent
+ * no-op and the normal loop proceeds. Safe to reprocess because reward application is deduped.
+ */
+async function reclaimPending(
+  stream: string,
+  group: string,
+  consumer: string,
+  handle: (id: string, fields: string[]) => Promise<void>
+): Promise<void> {
+  try {
+    let cursor = '0-0';
+    for (let pass = 0; pass < 20; pass++) {
+      const res: any = await (redisReader as any)
+        .xautoclaim(stream, group, consumer, 60_000, cursor, 'COUNT', 50)
+        .catch(() => null);
+      if (!res) return;
+      const entries = (res[1] ?? []) as Array<[string, string[]]>;
+      if (entries.length) console.log(`[orchestrator] reclaiming ${entries.length} pending entr(y/ies) on ${stream}`);
+      for (const [msgId, fields] of entries) {
+        try {
+          await handle(msgId, fields);
+        } catch {
+          /* handler self-logs */
+        }
+        await redisReader.xack(stream, group, msgId).catch(() => {});
+      }
+      const next = res[0];
+      if (!next || next === '0-0') break;
+      cursor = next;
+    }
+  } catch (e: any) {
+    console.warn(`[orchestrator] reclaim skipped (${stream}):`, e.message?.slice(0, 60));
+  }
+}
+
 async function consumeRedisStream() {
-  let lastId = '$'; // only new events from boot
   const STREAM = 'signal:events';
   const GROUP = 'congregation';
-  // Create consumer group (idempotent)
   await redisReader.xgroup('CREATE', STREAM, GROUP, '$', 'MKSTREAM').catch(() => {});
+  await reclaimPending(STREAM, GROUP, 'orchestrator', handleSignalEntry);
 
   while (true) {
     try {
@@ -33,27 +95,7 @@ async function consumeRedisStream() {
       if (!results) continue;
       for (const [, entries] of results) {
         for (const [msgId, fields] of entries) {
-          const obj: Record<string, string> = {};
-          for (let i = 0; i < fields.length; i += 2) obj[fields[i]] = fields[i + 1];
-          const type = obj.type ?? 'unknown';
-          const subscribedAgents = agentsForEvent(type);
-          for (const agentName of subscribedAgents) {
-            runAgent(agentName, 'event', { event_type: type, ...obj })
-              .catch((e: Error) => console.error(`[orchestrator] ${agentName} error:`, e.message?.slice(0, 80)));
-          }
-
-          // Learning Loop: apply reward for every SIGNAL event with known reward weight
-          learnFrom({
-            id: msgId,
-            visitor_id: obj.visitor_id ?? '',
-            session_id: obj.session_id ?? '',
-            type: type as SignalEvent['type'],
-            entity_id: obj.entity_id,
-            value: obj.value ? parseFloat(obj.value) : undefined,
-            context: { chapter: obj.chapter as any },
-            ts: obj.ts ?? new Date().toISOString(),
-          }).catch(() => {});
-
+          await handleSignalEntry(msgId, fields);
           await redisReader.xack(STREAM, GROUP, msgId).catch(() => {});
         }
       }
@@ -66,10 +108,23 @@ async function consumeRedisStream() {
   }
 }
 
+async function handleJobEntry(msgId: string, fields: string[]): Promise<void> {
+  const obj = fieldsToObj(fields);
+  const payload = safeJson(obj.payload);
+  const agentName = String(payload.type ?? '').replace(/^agent:/, '');
+  if (AGENTS[agentName]) {
+    runAgent(agentName, payload.trigger ?? 'event', payload)
+      .catch((e: Error) => console.error(`[orchestrator] job ${agentName} error:`, e.message?.slice(0, 80)));
+  } else {
+    console.warn(`[orchestrator] unknown job agent: ${agentName || '(missing)'}`);
+  }
+}
+
 async function consumeAgentJobs() {
   const STREAM = 'lumera:agent-jobs';
   const GROUP = 'congregation-jobs';
   await redisReader.xgroup('CREATE', STREAM, GROUP, '$', 'MKSTREAM').catch(() => {});
+  await reclaimPending(STREAM, GROUP, 'job-orchestrator', handleJobEntry);
 
   while (true) {
     try {
@@ -81,16 +136,7 @@ async function consumeAgentJobs() {
       if (!results) continue;
       for (const [, entries] of results) {
         for (const [msgId, fields] of entries) {
-          const obj: Record<string, string> = {};
-          for (let i = 0; i < fields.length; i += 2) obj[fields[i]] = fields[i + 1];
-          const payload = safeJson(obj.payload);
-          const agentName = String(payload.type ?? '').replace(/^agent:/, '');
-          if (AGENTS[agentName]) {
-            runAgent(agentName, payload.trigger ?? 'event', payload)
-              .catch((e: Error) => console.error(`[orchestrator] job ${agentName} error:`, e.message?.slice(0, 80)));
-          } else {
-            console.warn(`[orchestrator] unknown job agent: ${agentName || '(missing)'}`);
-          }
+          await handleJobEntry(msgId, fields);
           await redisReader.xack(STREAM, GROUP, msgId).catch(() => {});
         }
       }
