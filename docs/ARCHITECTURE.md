@@ -28,10 +28,10 @@ Commerce core ...... Medusa v2 (modular + workflow orchestration)
 Database ........... PostgreSQL 16 + pgvector (embeddings live with the data)
 Cache / streams .... Redis 7 (event streams, bandit state, locks)
 Storefront ......... Next.js 15 (App Router) + React 19 + Tailwind  →  "The Broadcast"
-Agent runtime ...... Claude Agent SDK (TypeScript)  →  the autonomous departments
+Agent runtime ...... custom tool-use loop on the Anthropic SDK (TypeScript)  →  the autonomous departments
 AI ................. Anthropic Claude (agents, copy, self-audit, conversational commerce)
-Imagery ............ Higgsfield (Soul + Marketing Studio) driven by ported gpt-image2 templates
-SEO ................ claude-seo (Claude Code plugin) — 18 agents, GEO/AI-search, schema
+Imagery ............ Higgsfield (Soul + Marketing Studio) — planned; the in-app tool is a stub (no API call yet)
+SEO ................ claude-seo (Claude Code plugin) — planned; the in-app `claude_seo` tool is a stub
 Intelligence ....... custom Medusa modules: signal · personalization · recommendation · drops
 Data radar ......... Oxylabs Shein scraper · scraper-master price tracking · Bright Data seed
 Orchestration ...... Medusa workflows + scheduled jobs + the intelligence orchestrator
@@ -39,7 +39,9 @@ QA ................. APIAuto + Vitest (verify-before-done)
 Monorepo ........... Turborepo (pnpm workspaces)
 ```
 
-Why this stack: it's all TypeScript end-to-end (one language for Claude Code/Codex to reason about), Medusa gives modular commerce + compensatable workflows, pgvector keeps personalization simple (no separate vector DB), and the Claude Agent SDK is the native way to build the autonomous departments. You already have the Anthropic SDK + Claude Agent SDK + claude-code repos locally — this leans on those patterns instead of reinventing.
+Why this stack: it's all TypeScript end-to-end (one language for Claude Code/Codex to reason about), Medusa gives modular commerce + compensatable workflows, and pgvector keeps personalization simple (no separate vector DB).
+
+> **Agent runtime — as built (not as originally planned).** The autonomous departments do **not** currently use the Claude Agent SDK. The orchestrator hand-rolls a bounded tool-use loop directly on the raw Anthropic SDK (`@anthropic-ai/sdk`) in `apps/intelligence/src/orchestrator/run-agent.ts`. The `@anthropic-ai/claude-agent-sdk` package is a declared dependency of `apps/intelligence` but is **not imported anywhere** — it is currently unused. Migrating the loop onto the agent SDK (to reuse its agent loop, tool use, and memory primitives) remains a worthwhile future step, but the docs describe the custom loop because that is what runs today.
 
 ---
 
@@ -110,7 +112,7 @@ Product **embeddings** (pgvector) built from title + description + attributes + 
 Dynamic pricing hook: ORACLE can request margin-aware price adjustments through Medusa's pricing module (guardrailed by min-margin — never below floor).
 
 ### 3.4 CONGREGATION — autonomous agent departments
-Each department is a **Claude agent** (Claude Agent SDK) with: an identity + mission system prompt, a tool set, persistent memory (the Ledger), a schedule, a **self-audit contract**, and **escalation rules** (what it must ask Garrett before doing). Full specs in `apps/intelligence/src/agents/*` and §5 below.
+Each department is a **Claude agent** (today: a custom tool-use loop on the raw Anthropic SDK — see §1; not the Claude Agent SDK) with: an identity + mission system prompt, a tool set, persistent memory (the Ledger), a schedule, a **self-audit contract**, and **escalation rules** (what it must ask Garrett before doing). Full specs in `apps/intelligence/src/agents/*` and §5 below.
 
 The roster:
 | Agent | Department | Core job |
@@ -126,6 +128,8 @@ The roster:
 | **OracleKeeper** | Merch Intelligence | Tune ORACLE recs/bandit, design + read experiments |
 
 Agents are orchestrated by `intelligence/src/orchestrator` — some run on cron (Curator daily, Treasurer weekly), some on events (Shepherd on support message, Quartermaster on order.placed, Artisan on product.created-without-image).
+
+> **Tool status (verified, not assumed).** Several agent tools are **stubs** today: they return placeholder/empty results and do not call the external service. Notably `claude_seo` (Scribe), `higgsfield`/image-generation (Artisan), `voc_reviews` (Voice-of-Customer), and `video_render` are stubs/unconfigured. The Apify/DB-GPT integrations described in `docs/INTEGRATIONS.md` are likewise connect-when-needed, not yet wired. Treat anything not explicitly confirmed as "wired" as planned. See each tool file under `apps/intelligence/src/tools/` for the exact state.
 
 ### 3.5 INTROSPECTION — self-audit & the Learning Loop
 **Self-audit agents** run continuously and embody your "verified, not assumed" rule:

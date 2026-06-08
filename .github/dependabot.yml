@@ -1,0 +1,90 @@
+# Dependabot — weekly dependency updates for the Lumera monorepo.
+# Each workspace with a manifest gets its own npm update stream; PRs are grouped to keep
+# review volume low (one PR per ecosystem/scope instead of one per package).
+# GitHub Actions used by .github/workflows/* are tracked separately.
+version: 2
+
+updates:
+  # ── Root workspace (turbo, typescript, vitest, pnpm overrides) ──
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      root-deps:
+        patterns: ["*"]
+    labels: ["dependencies"]
+    commit-message:
+      prefix: "chore(deps)"
+
+  # ── apps/backend (Medusa v2) ──
+  - package-ecosystem: npm
+    directory: "/apps/backend"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      backend-deps:
+        patterns: ["*"]
+    labels: ["dependencies", "backend"]
+    commit-message:
+      prefix: "chore(deps)"
+
+  # ── apps/intelligence (agent runtime) ──
+  - package-ecosystem: npm
+    directory: "/apps/intelligence"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      intelligence-deps:
+        patterns: ["*"]
+    labels: ["dependencies", "intelligence"]
+    commit-message:
+      prefix: "chore(deps)"
+
+  # ── apps/storefront (Next.js) ──
+  - package-ecosystem: npm
+    directory: "/apps/storefront"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      storefront-deps:
+        patterns: ["*"]
+    labels: ["dependencies", "storefront"]
+    commit-message:
+      prefix: "chore(deps)"
+
+  # ── packages/shared (types + SIGNAL taxonomy) ──
+  - package-ecosystem: npm
+    directory: "/packages/shared"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      shared-deps:
+        patterns: ["*"]
+    labels: ["dependencies", "shared"]
+    commit-message:
+      prefix: "chore(deps)"
+
+  # ── GitHub Actions used in CI ──
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      github-actions:
+        patterns: ["*"]
+    labels: ["dependencies", "ci"]
+    commit-message:
+      prefix: "chore(ci)"

@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   green-gates:
-    name: build · lint · test (52)
+    name: build · lint · test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
