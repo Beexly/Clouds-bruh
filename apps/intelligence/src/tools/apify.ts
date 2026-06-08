@@ -1,24 +1,26 @@
 import type { Tool } from './index';
+import { apifyConfigured, runApifyActor } from '@alterxiv/shared';
 
 /**
- * Apify MCP — thousands of ready-made scrapers/crawlers (social, search, maps, e-commerce)
- * exposed as tools via mcp.apify.com (OAuth/URL). UPGRADE to the data radar: Curator/Sourcer/
- * Herald no longer depend on a single hand-rolled scraper — they can run any Apify Actor.
- *
- * Preferred wiring: register mcp.apify.com as an MCP server (see ../mcp.config.ts) so the
- * agent gets Apify's tools natively. This wrapper is the fallback for direct Actor calls.
+ * Apify — thousands of ready-made Actors (scrapers/crawlers) for AliExpress, Alibaba, Amazon,
+ * Shein, TikTok, etc. Second source for the data radar (alongside Oxylabs). Uses the shared
+ * transport in `@alterxiv/shared/sourcing`. Degrades to an empty dataset when APIFY_TOKEN is
+ * absent so the loop/tests run. Production-preferred: register mcp.apify.com (see ../mcp.config.ts).
  */
 export const apify: Tool = {
   name: 'apify',
-  description: 'Run an Apify Actor (ready-made scraper/crawler) — e.g. amazon-product, shein, instagram, google-maps, tiktok. Returns structured dataset items.',
+  description:
+    'Run an Apify Actor (ready-made scraper/crawler) — e.g. aliexpress-listings, alibaba, amazon-product, shein. Returns structured dataset items. Read-only; empty until APIFY_TOKEN is set.',
   inputSchema: {
     type: 'object',
     properties: { actor: { type: 'string' }, input: { type: 'object' } },
     required: ['actor', 'input'],
   },
   run: async ({ actor, input }) => {
-    // TODO: POST https://api.apify.com/v2/acts/${actor}/run-sync-get-dataset-items with APIFY_TOKEN.
-    // Or rely on the mcp.apify.com MCP server registered in mcp.config.ts (preferred).
-    return { actor, input, items: [] };
+    if (!apifyConfigured()) {
+      return { actor, input, items: [], source: 'unconfigured', note: 'Set APIFY_TOKEN to enable live Actor runs.' };
+    }
+    const items = await runApifyActor(actor, input ?? {}).catch((e) => [{ error: String((e as Error).message) }]);
+    return { actor, input, items, source: 'live' };
   },
 };

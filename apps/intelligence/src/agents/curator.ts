@@ -6,7 +6,7 @@ export const Curator: AgentDef = {
   department: 'Merchandising / Curation',
   mission: 'Discover what the culture wants next and turn it into on-brand drops Garrett can approve.',
   model: MODEL,
-  tools: ['shein_scraper', 'dataset_query', 'medusa_admin_read', 'product_draft', 'ledger'],
+  tools: ['shein_scraper', 'supplier_radar', 'dataset_query', 'medusa_admin_read', 'product_draft', 'ledger'],
   schedule: '0 6 * * *',
   escalation: ['publish_product', 'publish_drop'],
   selfAudit:

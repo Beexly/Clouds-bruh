@@ -25,6 +25,7 @@
     "vendor-orders:submit": "tsx scripts/vendor-order-submit.ts",
     "launch:proof": "tsx scripts/launch-proof.ts",
     "curate": "tsx scripts/curate.ts",
+    "radar": "tsx scripts/radar.ts",
     "publish:approved": "tsx scripts/publish-approved.ts",
     "fulfillment:drill": "tsx scripts/fulfillment-drill.ts",
     "launch:preflight": "tsx scripts/launch-preflight.ts",

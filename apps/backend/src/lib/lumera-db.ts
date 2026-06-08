@@ -4,9 +4,12 @@ import {
   attachReview,
   candidateToProductTruth,
   fixtureCandidates,
+  radarDiscover,
+  radarConfigured as radarConfiguredShared,
   type CandidateStatus,
   type ProductCandidate,
   type ProductTruth,
+  type RadarSource,
   type VendorConnection,
   type VendorId,
 } from '@alterxiv/shared';
@@ -144,6 +147,38 @@ export async function seedCurationCandidates(force = false) {
   const candidates = fixtureCandidates(primaryVendor);
   for (const candidate of candidates) await upsertCandidate(candidate);
   return listCandidates();
+}
+
+export function radarConfigured(): boolean {
+  return radarConfiguredShared();
+}
+
+export function defaultRadarQueries(): string[] {
+  const raw = process.env.LUMERA_RADAR_QUERIES;
+  if (raw) return raw.split(',').map((q) => q.trim()).filter(Boolean);
+  return ['oversized hoodie', 'gold pendant necklace', 'cargo pants', 'minimalist leather tote', 'ribbed beanie'];
+}
+
+/**
+ * Pull live discovery candidates from the configured radar source (AliExpress/Alibaba/Shein),
+ * score them, and upsert onto the board. No-op (empty) when no scraping creds are configured, so
+ * curation stays fixture-safe until Garrett turns the keys on.
+ */
+export async function discoverAndIngestRadar(queries?: string[]) {
+  if (!radarConfigured()) return { source: 'unconfigured' as const, ingested: 0, candidates: [] as ProductCandidate[] };
+  const source = (process.env.LUMERA_RADAR_SOURCE as RadarSource) || 'aliexpress';
+  const limit = Number(process.env.LUMERA_RADAR_LIMIT ?? 8);
+  const fulfillmentVendor = (process.env.LUMERA_RADAR_FULFILLMENT as VendorId) || 'manual';
+  const qs = (queries?.length ? queries : defaultRadarQueries()).slice(0, 6);
+  const candidates: ProductCandidate[] = [];
+  for (const query of qs) {
+    const found = await radarDiscover({ query, source, limit, fulfillmentVendor }).catch(() => [] as ProductCandidate[]);
+    for (const candidate of found) {
+      await upsertCandidate(candidate).catch(() => {});
+      candidates.push(candidate);
+    }
+  }
+  return { source, ingested: candidates.length, candidates };
 }
 
 export async function upsertCandidate(candidate: ProductCandidate) {

@@ -5,7 +5,7 @@ export const Sourcer: AgentDef = {
   department: 'Sourcing / Purchasing',
   mission: 'Keep every product in stock, on margin, and from a reliable supplier.',
   model: MODEL,
-  tools: ['supplier_api', 'price_scraper', 'medusa_admin_read', 'ledger'],
+  tools: ['supplier_api', 'price_scraper', 'supplier_radar', 'medusa_admin_read', 'ledger'],
   schedule: '0 */6 * * *',
   escalation: ['change_supplier', 'change_price'],
   selfAudit: 'Every active SKU has confirmed stock + a margin >= floor; compression and OOS risks are flagged with evidence.',

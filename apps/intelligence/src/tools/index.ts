@@ -8,6 +8,7 @@ export interface Tool {
 
 import { medusaAdminRead, medusaAdminWriteOrder } from './medusa-admin';
 import { sheinScraper, priceScraper } from './scraper';
+import { supplierRadar } from './radar';
 import { higgsfield } from './higgsfield';
 import { claudeSeo } from './seo';
 import { apify } from './apify';
@@ -29,6 +30,7 @@ export const TOOLS: Record<string, Tool> = {
   medusa_admin_write_order: medusaAdminWriteOrder,
   shein_scraper: sheinScraper,
   price_scraper: priceScraper,
+  supplier_radar: supplierRadar,
   higgsfield,
   claude_seo: claudeSeo,
   apify,
