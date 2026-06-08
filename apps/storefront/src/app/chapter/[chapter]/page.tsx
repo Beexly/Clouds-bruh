@@ -3,9 +3,11 @@ import type { Metadata } from 'next';
 import { ProductRail } from '../../../components/ProductRail';
 import { PageSignal } from '../../../components/PageSignal';
 import { getRegionId, PRODUCT_FIELDS } from '../../../lib/catalog';
+import { breadcrumbList } from '../../../lib/jsonld';
 
 const API = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000';
 const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://lumera.example';
 
 const CHAPTERS = ['stillness', 'armor', 'signal', 'altar', 'relentless'] as const;
 type Chapter = (typeof CHAPTERS)[number];
@@ -48,8 +50,14 @@ export default async function ChapterPage({ params }: { params: Promise<{ chapte
   if (!CHAPTERS.includes(chapter as Chapter)) notFound();
   const products = await fetchChapterProducts(chapter);
 
+  const breadcrumbs = breadcrumbList(SITE, [
+    { name: 'Broadcast', url: '/' },
+    { name: chapter, url: `/chapter/${chapter}` },
+  ]);
+
   return (
     <main className="min-h-screen bg-void bg-sacred-grain">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }} />
       <PageSignal type="chapter_enter" context={{ chapter }} />
       <section className="px-6 py-24 text-center">
         <p className="mb-3 text-micro uppercase text-neutral-600">Chapter</p>
