@@ -1,0 +1,174 @@
+/**
+ * Email + lifecycle messaging — Resend (transactional) and Klaviyo (events), env-gated.
+ *
+ * No SDK: both providers are hit via their REST APIs with global fetch, and both no-op cleanly
+ * when their key is absent. The order path must never break on a messaging failure, so callers
+ * should treat a `{ sent: false }` result as benign.
+ */
+
+export interface SendEmailInput {
+  to: string;
+  subject: string;
+  html: string;
+  from?: string;
+}
+
+export interface SendEmailResult {
+  sent: boolean;
+  id?: string;
+  reason?: string;
+}
+
+/** Send a transactional email through Resend. No-op ({ sent:false, reason:'no_api_key' }) when unkeyed. */
+export async function sendEmail({ to, subject, html, from }: SendEmailInput): Promise<SendEmailResult> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return { sent: false, reason: 'no_api_key' };
+
+  const sender = from || process.env.NOTIFICATION_EMAIL_FROM || 'Lumera <no-reply@lumera.example>';
+  try {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({ from: sender, to, subject, html }),
+    });
+    const body = (await res.json().catch(() => ({}))) as { id?: string; message?: string };
+    if (!res.ok) return { sent: false, reason: `resend_${res.status}${body.message ? `:${body.message}` : ''}` };
+    return { sent: true, id: body.id };
+  } catch (e: any) {
+    return { sent: false, reason: `resend_error:${(e?.message ?? 'unknown').slice(0, 80)}` };
+  }
+}
+
+/**
+ * Track a customer event in Klaviyo (e.g. "Placed Order") for lifecycle flows.
+ * No-op when KLAVIYO_API_KEY is unset. Fire-and-forget; resolves to whether it was sent.
+ */
+export async function trackKlaviyoEvent(
+  event: string,
+  email: string,
+  props: Record<string, unknown> = {}
+): Promise<SendEmailResult> {
+  const apiKey = process.env.KLAVIYO_API_KEY;
+  if (!apiKey) return { sent: false, reason: 'no_api_key' };
+  if (!email) return { sent: false, reason: 'no_email' };
+
+  try {
+    const res = await fetch('https://a.klaviyo.com/api/events/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        Authorization: `Klaviyo-API-Key ${apiKey}`,
+        revision: process.env.KLAVIYO_API_REVISION || '2024-10-15',
+      },
+      body: JSON.stringify({
+        data: {
+          type: 'event',
+          attributes: {
+            properties: props,
+            metric: { data: { type: 'metric', attributes: { name: event } } },
+            profile: { data: { type: 'profile', attributes: { email } } },
+          },
+        },
+      }),
+    });
+    if (!res.ok) return { sent: false, reason: `klaviyo_${res.status}` };
+    return { sent: true };
+  } catch (e: any) {
+    return { sent: false, reason: `klaviyo_error:${(e?.message ?? 'unknown').slice(0, 80)}` };
+  }
+}
+
+interface OrderLike {
+  id?: string;
+  display_id?: string | number;
+  email?: string;
+  currency_code?: string;
+  total?: number;
+  items?: Array<{ title?: string; quantity?: number; unit_price?: number }>;
+}
+
+function money(cents: number, currency = 'USD'): string {
+  const amount = (cents ?? 0) / 100;
+  try {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: (currency || 'USD').toUpperCase() }).format(amount);
+  } catch {
+    return `$${amount.toFixed(2)}`;
+  }
+}
+
+function escapeHtml(s: string): string {
+  return String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/**
+ * Brand-aligned order confirmation — dark luminous editorial luxury.
+ * Names/voice mirror the storefront brand layer (apps/storefront/src/lib/brand.ts):
+ * Lumera · The Broadcast. Palette: void #0B0B0D, luminous neutrals, a faint gold accent.
+ */
+export function renderOrderConfirmation(order: OrderLike): SendEmailInput {
+  const currency = order.currency_code || 'USD';
+  const items = order.items ?? [];
+  const computedTotal =
+    typeof order.total === 'number' && order.total > 0
+      ? order.total
+      : items.reduce((s, i) => s + (i.unit_price ?? 0) * (i.quantity ?? 1), 0);
+  const displayId = order.display_id ?? order.id ?? '';
+
+  const rows = items
+    .map((i) => {
+      const line = (i.unit_price ?? 0) * (i.quantity ?? 1);
+      return `
+        <tr>
+          <td style="padding:14px 0;border-bottom:1px solid #1c1c22;color:#ECECEE;font-size:15px;">
+            ${escapeHtml(i.title ?? 'Item')} <span style="color:#7A7A82;">×${i.quantity ?? 1}</span>
+          </td>
+          <td style="padding:14px 0;border-bottom:1px solid #1c1c22;color:#ECECEE;font-size:15px;text-align:right;">
+            ${money(line, currency)}
+          </td>
+        </tr>`;
+    })
+    .join('');
+
+  const html = `<!doctype html>
+<html lang="en">
+  <body style="margin:0;padding:0;background:#0B0B0D;">
+    <div style="max-width:560px;margin:0 auto;padding:48px 32px;background:#0B0B0D;font-family:Inter,Helvetica,Arial,sans-serif;color:#ECECEE;">
+      <p style="margin:0 0 4px;letter-spacing:0.32em;text-transform:uppercase;font-size:11px;color:#C7A24B;">Lumera</p>
+      <p style="margin:0 0 32px;letter-spacing:0.18em;text-transform:uppercase;font-size:10px;color:#7A7A82;">The Broadcast</p>
+
+      <h1 style="margin:0 0 12px;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:30px;line-height:1.2;color:#FFFFFF;">
+        We have it. Your order is on its way.
+      </h1>
+      <p style="margin:0 0 28px;font-size:14px;line-height:1.6;color:#9A9AA2;">
+        Order <span style="color:#ECECEE;">#${escapeHtml(String(displayId))}</span> is confirmed. Some things only happen once — thank you for being here for this one.
+      </p>
+
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 8px;">
+        ${rows}
+        <tr>
+          <td style="padding:18px 0 0;font-size:14px;letter-spacing:0.04em;text-transform:uppercase;color:#7A7A82;">Total</td>
+          <td style="padding:18px 0 0;font-size:18px;text-align:right;color:#FFFFFF;">${money(computedTotal, currency)}</td>
+        </tr>
+      </table>
+
+      <p style="margin:36px 0 0;font-size:12px;line-height:1.6;color:#5C5C63;">
+        Broadcast live, and shaped to you. — Lumera
+      </p>
+    </div>
+  </body>
+</html>`;
+
+  return {
+    to: order.email ?? '',
+    subject: `Your Lumera order #${displayId} is confirmed`,
+    html,
+  };
+}

@@ -7,6 +7,7 @@ import { PageTransition } from '../components/PageTransition';
 import { Shepherd } from '../components/Shepherd';
 import { CommandPalette } from '../components/CommandPalette';
 import { Footer } from '../components/Footer';
+import { Analytics } from '../components/Analytics';
 import { BRAND, EXPERIENCE, TAGLINE, DESCRIPTION } from '../lib/brand';
 
 // Editorial serif for display accents; a quiet grotesque for the body.
@@ -64,6 +65,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Shepherd />
           <CommandPalette />
         </CartProvider>
+        <Analytics />
       </body>
     </html>
   );
