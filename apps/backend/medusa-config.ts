@@ -61,11 +61,17 @@ export default defineConfig({
         ],
       },
     },
-    // Fulfillment: manual drop-ship provider
+    // Fulfillment: manual drop-ship provider + the native Lumera dropship provider (lumera_dropship).
+    // The Lumera provider stages vendor orders natively when a fulfillment is created; live supplier
+    // submission stays gated by VENDOR_LIVE_MODE + AUTO_SUBMIT_VENDOR_ORDERS. Manual stays the default
+    // so existing checkout is unaffected until a shipping option is pointed at lumera_dropship.
     {
       resolve: '@medusajs/medusa/fulfillment',
       options: {
-        providers: [{ resolve: '@medusajs/medusa/fulfillment-manual', id: 'manual' }],
+        providers: [
+          { resolve: '@medusajs/medusa/fulfillment-manual', id: 'manual' },
+          { resolve: './src/modules/lumera-fulfillment', id: 'dropship' },
+        ],
       },
     },
     // Promotions module (coupons, campaigns)

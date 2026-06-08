@@ -102,6 +102,9 @@ export default async function setupCommerce({ container }: ExecArgs) {
   }
 
   // ── 4b. Link fulfillment provider to stock location ───────────────────────
+  // Default to Medusa's manual provider (safe, unchanged). Set LUMERA_NATIVE_FULFILLMENT=true to
+  // route through the native Lumera dropship provider so paid orders stage vendor orders natively.
+  const fulfillmentProviderId = process.env.LUMERA_NATIVE_FULFILLMENT === 'true' ? 'lumera_dropship' : 'manual_manual';
   const existing_lfp = await fulfillmentModule.listFulfillmentSets({}).catch(() => []);
   const existingLinks = await (fulfillmentModule as any).listLocationFulfillmentProviders?.({ stock_location_id: locationId }).catch(() => null);
   if (!existingLinks || existingLinks === null) {
@@ -110,12 +113,12 @@ export default async function setupCommerce({ container }: ExecArgs) {
       input: {
         create: [{
           [MedusaModules.STOCK_LOCATION]: { stock_location_id: locationId },
-          [MedusaModules.FULFILLMENT]: { fulfillment_provider_id: 'manual_manual' },
+          [MedusaModules.FULFILLMENT]: { fulfillment_provider_id: fulfillmentProviderId },
         }],
         delete: [],
       },
     }).catch((e: Error) => console.warn('[setup] Link provider to location:', e.message?.slice(0, 80)));
-    console.log(`[setup] Linked manual_manual provider to location ${locationId}`);
+    console.log(`[setup] Linked ${fulfillmentProviderId} provider to location ${locationId}`);
   } else {
     console.log('[setup] Provider-location link exists');
   }
@@ -145,7 +148,7 @@ export default async function setupCommerce({ container }: ExecArgs) {
         name: 'Standard Delivery',
         service_zone_id: serviceZoneId,
         shipping_profile_id: shippingProfileId,
-        provider_id: 'manual_manual',
+        provider_id: fulfillmentProviderId,
         type: {
           label: 'Standard',
           description: 'Drop-ship delivery in 5–10 business days',

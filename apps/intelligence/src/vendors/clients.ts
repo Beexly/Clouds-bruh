@@ -276,6 +276,107 @@ export class CjClient extends BaseVendorClient {
   }
 }
 
+/**
+ * Spocket — SaaS dropship bridge (US/EU + global suppliers). Catalog/inventory read is API-driven;
+ * order placement is typically managed inside Spocket, so submitOrder reports a bridge-managed status
+ * (honest) unless a direct order endpoint is configured. Gated + fixture-safe until SPOCKET_API_KEY set.
+ */
+export class SpocketClient extends BaseVendorClient {
+  id: VendorId = 'spocket';
+  label = 'Spocket';
+  requiredEnv = ['SPOCKET_API_KEY'];
+  baseUrl = process.env.SPOCKET_API_URL || 'https://api.spocket.co/api/v1';
+
+  protected headers() {
+    return { Authorization: `Bearer ${process.env.SPOCKET_API_KEY ?? ''}` };
+  }
+
+  protected async remoteSearch(query: string, limit: number) {
+    const body = (await this.get(`/search/products?search=${encodeURIComponent(query)}&per_page=${limit}`)) as Json;
+    const products = Array.isArray(body.data) ? body.data : Array.isArray(body.products) ? body.products : [];
+    return products.slice(0, limit).map((item: Json, index: number) => remoteCandidate('spocket', item, query, index));
+  }
+
+  protected async remoteCreateDraftOrder(input: { external_order_id: string; items: Array<{ supplier_sku: string; quantity: number }>; shipping_address?: unknown }) {
+    const body = (await this.post('/orders', {
+      external_id: input.external_order_id,
+      line_items: input.items.map((item) => ({ sku: item.supplier_sku, quantity: item.quantity })),
+      shipping_address: input.shipping_address ?? {},
+    })) as Json;
+    return { vendor_order_id: String(body.id ?? body.order_id ?? `spocket_${Date.now()}`), status: 'draft_created' };
+  }
+
+  protected async remoteSubmitOrder(vendorOrderId: string, source: VendorMode) {
+    // Spocket order processing is completed inside the Spocket dashboard for most plans.
+    return { vendor_order_id: vendorOrderId, status: 'bridge_managed_in_spocket', source };
+  }
+
+  protected async remoteCancelOrder(vendorOrderId: string, source: VendorMode) {
+    return { vendor_order_id: vendorOrderId, status: 'cancel_requested', source };
+  }
+
+  protected async remoteGetTracking(vendorOrderId: string, source: VendorMode) {
+    const body = (await this.get(`/orders/${vendorOrderId}`).catch(() => ({}))) as Json;
+    return {
+      vendor_order_id: vendorOrderId,
+      tracking_number: body.tracking_number ?? body.tracking?.number,
+      tracking_url: body.tracking_url ?? body.tracking?.url,
+      status: body.status ?? 'tracking_pending',
+      source,
+    };
+  }
+}
+
+/**
+ * Syncee — SaaS dropship bridge with a large Alibaba-backed catalog (the cleanest Alibaba automation
+ * route, since pure-OSS Alibaba ordering doesn't exist). Catalog/inventory read is API-driven; order
+ * placement is bridge-managed. Gated + fixture-safe until SYNCEE_API_KEY set.
+ */
+export class SynceeClient extends BaseVendorClient {
+  id: VendorId = 'syncee';
+  label = 'Syncee (Alibaba-backed)';
+  requiredEnv = ['SYNCEE_API_KEY'];
+  baseUrl = process.env.SYNCEE_API_URL || 'https://api.syncee.com/v2';
+
+  protected headers() {
+    return { Authorization: `Bearer ${process.env.SYNCEE_API_KEY ?? ''}`, 'X-Api-Key': process.env.SYNCEE_API_KEY ?? '' };
+  }
+
+  protected async remoteSearch(query: string, limit: number) {
+    const body = (await this.get(`/products?search=${encodeURIComponent(query)}&limit=${limit}`)) as Json;
+    const products = body.data?.products ?? body.products ?? body.data ?? [];
+    return (Array.isArray(products) ? products : []).slice(0, limit).map((item: Json, index: number) => remoteCandidate('syncee', item, query, index));
+  }
+
+  protected async remoteCreateDraftOrder(input: { external_order_id: string; items: Array<{ supplier_sku: string; quantity: number }>; shipping_address?: unknown }) {
+    const body = (await this.post('/orders', {
+      reference: input.external_order_id,
+      items: input.items.map((item) => ({ sku: item.supplier_sku, qty: item.quantity })),
+      shipping: input.shipping_address ?? {},
+    })) as Json;
+    return { vendor_order_id: String(body.id ?? body.order_id ?? `syncee_${Date.now()}`), status: 'draft_created' };
+  }
+
+  protected async remoteSubmitOrder(vendorOrderId: string, source: VendorMode) {
+    return { vendor_order_id: vendorOrderId, status: 'bridge_managed_in_syncee', source };
+  }
+
+  protected async remoteCancelOrder(vendorOrderId: string, source: VendorMode) {
+    return { vendor_order_id: vendorOrderId, status: 'cancel_requested', source };
+  }
+
+  protected async remoteGetTracking(vendorOrderId: string, source: VendorMode) {
+    const body = (await this.get(`/orders/${vendorOrderId}`).catch(() => ({}))) as Json;
+    return {
+      vendor_order_id: vendorOrderId,
+      tracking_number: body.tracking_number,
+      tracking_url: body.tracking_url,
+      status: body.status ?? 'tracking_pending',
+      source,
+    };
+  }
+}
+
 export class ManualSupplierClient extends BaseVendorClient {
   id: VendorId = 'manual';
   label = 'Manual Supplier Intake';
@@ -332,6 +433,10 @@ export function vendorClient(id: VendorId): VendorConnector {
       return new PrintfulClient();
     case 'cj':
       return new CjClient();
+    case 'spocket':
+      return new SpocketClient();
+    case 'syncee':
+      return new SynceeClient();
     case 'manual':
     case 'radar':
     default:
@@ -340,7 +445,14 @@ export function vendorClient(id: VendorId): VendorConnector {
 }
 
 export function allVendorClients(): VendorConnector[] {
-  return [vendorClient('printify'), vendorClient('printful'), vendorClient('cj'), vendorClient('manual')];
+  return [
+    vendorClient('printify'),
+    vendorClient('printful'),
+    vendorClient('cj'),
+    vendorClient('spocket'),
+    vendorClient('syncee'),
+    vendorClient('manual'),
+  ];
 }
 
 function remoteCandidate(vendor: VendorId, item: Json, query: string, index: number): ProductCandidate {

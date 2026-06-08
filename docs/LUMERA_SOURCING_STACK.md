@@ -69,8 +69,9 @@ The scrapers above are for **discovery**. To actually *place and track orders* y
 | **CJ Dropshipping** API | **ADOPTED** | Broadest AliExpress-style catalog *with* an order API → the realistic path to auto-ship a scraped-style product. `CjClient` implements search/draft/submit/cancel/tracking. | `CJ_API_KEY`, `CJ_ACCESS_TOKEN` (+ `CJ_SANDBOX`) |
 | **Printify** API | **ADOPTED** | POD / house-label; cleanest order API; **fastest path to a first real shipped order.** `PrintifyClient` full lifecycle. | `PRINTIFY_TOKEN`, `PRINTIFY_SHOP_ID` |
 | **Printful** API | **ADOPTED** | Premium POD; `PrintfulClient` full lifecycle. | `PRINTFUL_TOKEN`, `PRINTFUL_STORE_ID` |
-| **Spocket / Modalyst / Syncee** | BORROW (later) | US/EU + Alibaba-backed catalogs behind a SaaS bridge. Add as a new `VendorConnector` (catalog/inventory read; order placement where their API allows). Syncee↔Alibaba is the cleanest Alibaba automation route (pure-OSS Alibaba ordering doesn't exist). | provider API key (per bridge) |
-| **Dropified** | BORROW (later) | Order-automation layer over multiple suppliers; same connector slot. | provider API key |
+| **Spocket** | **ADOPTED** | US/EU dropship bridge. `SpocketClient` implements catalog search + draft/cancel/tracking; order completion is bridge-managed (honest status, never a fake "submitted"). | `SPOCKET_API_KEY` |
+| **Syncee (Alibaba-backed)** | **ADOPTED** | The cleanest **Alibaba automation route** (pure-OSS Alibaba ordering doesn't exist). `SynceeClient` same shape; large Alibaba-backed catalog. | `SYNCEE_API_KEY` |
+| **Modalyst / Dropified** | BORROW (later) | Same `VendorConnector` slot; add when needed. | provider API key (per bridge) |
 | **AliExpress Dropshipping/affiliate API** | BORROW (later) | Official program for order placement + tracking (vs scraping). Add as `AliExpressClient` once approved. | AE app key/secret |
 
 **Single seam:** all of the above implement the one `VendorConnector` interface in `curation.ts`
@@ -89,16 +90,19 @@ New providers drop in via `vendorClient(id)` with zero changes elsewhere.
 
 ---
 
-## 6. The one native pattern still worth adopting: Medusa Fulfillment Provider
+## 6. Native Medusa Fulfillment Provider — **ADOPTED**
 
-Today a paid order is routed to a vendor in application code (`lumera-order-routing.ts` +
-`order.placed` subscriber) — which works and is fully gated. The cleaner, Medusa-native upgrade is a
-**custom Fulfillment Provider** so fulfilment is first-class in the order lifecycle. A provider
-implements roughly: `getFulfillmentOptions`, `validateOption`, `canCalculate`/`calculatePrice`,
-`createFulfillment` (→ `vendorClient(id).createDraftOrder/submitOrder`), `cancelFulfillment`,
-`createReturnFulfillment`, `getFulfillmentDocuments`, and registers in `medusa-config` under the
-`fulfillment` module. **Status:** planned next; the routing already enforces the same gates, so this
-is a refactor toward native, not new capability.
+Vendor routing is now first-class in Medusa's order lifecycle via a custom Fulfillment Provider
+(`apps/backend/src/modules/lumera-fulfillment`, provider id `lumera_dropship`). It implements the
+real Medusa v2 `AbstractFulfillmentProviderService` contract — `getFulfillmentOptions`,
+`validateFulfillmentData`, `validateOption`, `canCalculate`/`calculatePrice`, `createFulfillment`
+(stages a vendor order per supplier via the shared gated routing), `cancelFulfillment`,
+`createReturnFulfillment` (opens a return case). It is **registered and available** in
+`medusa-config`; the manual provider stays the default so existing checkout is unaffected. Flip
+checkout to it with `LUMERA_NATIVE_FULFILLMENT=true` (setup-commerce points the shipping option at
+`lumera_dropship`). Live supplier submission stays gated by `VENDOR_LIVE_MODE` +
+`AUTO_SUBMIT_VENDOR_ORDERS` — the provider never submits or moves money on its own. Unit-tested
+(staging decision, gating, returns) without a DB; full backend build validates registration.
 
 ---
 

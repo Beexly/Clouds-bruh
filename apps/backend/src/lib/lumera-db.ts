@@ -115,6 +115,8 @@ export function vendorConnections(): VendorConnection[] {
     connection('printify', 'Printify', ['PRINTIFY_TOKEN', 'PRINTIFY_SHOP_ID'], liveMode, autoSubmit),
     connection('printful', 'Printful', ['PRINTFUL_TOKEN', 'PRINTFUL_STORE_ID'], liveMode, autoSubmit),
     connection('cj', 'CJ Dropshipping', ['CJ_API_KEY', 'CJ_ACCESS_TOKEN'], liveMode && process.env.CJ_SANDBOX !== 'true', autoSubmit),
+    connection('spocket', 'Spocket', ['SPOCKET_API_KEY'], liveMode, autoSubmit),
+    connection('syncee', 'Syncee (Alibaba-backed)', ['SYNCEE_API_KEY'], liveMode, autoSubmit),
     manualConnection(),
     connection('radar', 'Radar Only', [], false, false, process.env.OXYLABS_USER || process.env.APIFY_TOKEN ? 'sandbox' : 'fixture'),
   ];

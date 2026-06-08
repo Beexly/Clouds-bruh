@@ -70,6 +70,8 @@ function syncHealth(id: VendorId): VendorConnection {
     printify: 'Printify',
     printful: 'Printful',
     cj: 'CJ Dropshipping',
+    spocket: 'Spocket',
+    syncee: 'Syncee (Alibaba-backed)',
     manual: 'Manual Supplier Intake',
     radar: 'Radar Only',
   };
@@ -77,6 +79,8 @@ function syncHealth(id: VendorId): VendorConnection {
     printify: ['PRINTIFY_TOKEN', 'PRINTIFY_SHOP_ID'],
     printful: ['PRINTFUL_TOKEN', 'PRINTFUL_STORE_ID'],
     cj: ['CJ_API_KEY', 'CJ_ACCESS_TOKEN'],
+    spocket: ['SPOCKET_API_KEY'],
+    syncee: ['SYNCEE_API_KEY'],
     manual: [],
     radar: [],
   };
