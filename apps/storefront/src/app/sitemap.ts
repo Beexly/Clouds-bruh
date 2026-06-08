@@ -1,8 +1,8 @@
 import type { MetadataRoute } from 'next';
+import { SITE } from '../lib/site';
 
 const API = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000';
 const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
-const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://lumeralabel.com';
 
 const CHAPTERS = ['stillness', 'armor', 'signal', 'altar', 'relentless'];
 

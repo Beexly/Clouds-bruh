@@ -4,10 +4,10 @@ import { ProductRail } from '../../../components/ProductRail';
 import { PageSignal } from '../../../components/PageSignal';
 import { getRegionId, PRODUCT_FIELDS } from '../../../lib/catalog';
 import { breadcrumbList, jsonLdScript } from '../../../lib/jsonld';
+import { SITE } from '../../../lib/site';
 
 const API = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000';
 const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
-const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://lumeralabel.com';
 
 const CHAPTERS = ['stillness', 'armor', 'signal', 'altar', 'relentless'] as const;
 type Chapter = (typeof CHAPTERS)[number];

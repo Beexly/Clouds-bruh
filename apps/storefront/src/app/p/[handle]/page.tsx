@@ -9,9 +9,8 @@ import { ProductRail } from '../../../components/ProductRail';
 import { ReviewForm } from '../../../components/ReviewForm';
 import { getRegionId, PRODUCT_FIELDS, priceCents, priceStr } from '../../../lib/catalog';
 import { breadcrumbList, jsonLdScript } from '../../../lib/jsonld';
+import { SITE } from '../../../lib/site';
 import type { ProductTruth } from '@alterxiv/shared';
-
-const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://lumeralabel.com';
 
 interface PdpReview {
   id: string;

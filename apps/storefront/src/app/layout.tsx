@@ -14,6 +14,7 @@ import { ConsentBanner } from '../components/ConsentBanner';
 import { ServiceWorker } from '../components/ServiceWorker';
 import { BRAND, EXPERIENCE, TAGLINE, DESCRIPTION } from '../lib/brand';
 import { organization, webSite, jsonLdScript } from '../lib/jsonld';
+import { SITE } from '../lib/site';
 
 // Editorial serif for display accents; a quiet grotesque for the body.
 const serif = Cormorant_Garamond({
@@ -27,8 +28,6 @@ const sans = Inter({
   variable: '--font-sans',
   display: 'swap',
 });
-
-const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://lumeralabel.com';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
