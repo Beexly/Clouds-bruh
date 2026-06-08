@@ -31,15 +31,17 @@ function redis(): Redis | null {
  *   3. ledger — record sell-through for Curator/Herald memory
  */
 /**
- * Idempotency guard for the Learning Loop. Redis streams are at-least-once, so a redelivered event
- * (consumer restart, reclaim) must NOT apply its bandit reward twice — that would corrupt the
- * Thompson/Beta posteriors. We remember recently-seen event ids in a bounded in-memory set and skip
- * duplicates. Exported for tests.
+ * Idempotency for the Learning Loop. Redis streams are at-least-once, and the orchestrator reclaims
+ * pending entries on boot (crash recovery) — so a reward must be applied AT MOST ONCE per event,
+ * even across restarts/instances. We "claim" each event id before applying its reward:
+ *   - Redis (authoritative, survives restarts/instances): `SET reward:dedup:{id} NX EX 1d`.
+ *   - In-memory fallback (bounded) when Redis is absent/down: best-effort within the process.
+ * At-most-once is the right trade for a bandit reward: one lost reward barely moves a Beta posterior,
+ * whereas double-counting (reclaim re-applying after a restart) skews it. Exported for tests.
  */
 const _seenEventIds = new Set<string>();
 const SEEN_CAP = 5000;
-export function markRewardApplied(id: string | undefined): boolean {
-  if (!id) return true; // no id → can't dedup; let it through
+function rememberInMemory(id: string): boolean {
   if (_seenEventIds.has(id)) return false;
   _seenEventIds.add(id);
   if (_seenEventIds.size > SEEN_CAP) {
@@ -53,11 +55,26 @@ export function markRewardApplied(id: string | undefined): boolean {
   return true;
 }
 
+/** Returns true if THIS call claimed the event (proceed to apply), false if already applied (skip). */
+export async function claimReward(id: string | undefined): Promise<boolean> {
+  if (!id) return true; // no id → can't dedup; let it through
+  const r = redis();
+  if (r) {
+    try {
+      const ok = await r.set(`reward:dedup:${id}`, '1', 'EX', 86400, 'NX');
+      return ok === 'OK'; // null when the key already existed → already applied
+    } catch {
+      /* Redis down → fall back to the in-memory guard */
+    }
+  }
+  return rememberInMemory(id);
+}
+
 export async function learnFrom(event: SignalEvent): Promise<void> {
   const reward = REWARD_WEIGHTS[event.type] ?? 0;
   if (reward <= 0) return;
-  // At-least-once delivery: never double-apply a reward for the same event id.
-  if (!markRewardApplied(event.id)) return;
+  // Claim before applying — at-most-once across restarts/instances (see claimReward).
+  if (!(await claimReward(event.id))) return;
 
   try {
     // 1. Bandit reward: find the visitor's segment, reward the block they engaged with

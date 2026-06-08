@@ -1,18 +1,21 @@
-import { describe, it, expect } from 'vitest';
-import { inferBlock, learnFrom, markRewardApplied } from './loop';
+import { describe, it, expect, beforeEach } from 'vitest';
+import { inferBlock, learnFrom, claimReward } from './loop';
 import type { SignalEvent } from '@alterxiv/shared';
 import { REWARD_WEIGHTS } from '@alterxiv/shared';
 
-describe('markRewardApplied (at-least-once dedup)', () => {
-  it('returns true the first time an id is seen and false on redelivery', () => {
-    const id = `evt-${Math.random()}`;
-    expect(markRewardApplied(id)).toBe(true);
-    expect(markRewardApplied(id)).toBe(false);
-    expect(markRewardApplied(id)).toBe(false);
+describe('claimReward (at-most-once dedup)', () => {
+  beforeEach(() => {
+    delete process.env.REDIS_URL; // force the deterministic in-memory path for the unit test
   });
-  it('lets events without an id through (cannot dedup)', () => {
-    expect(markRewardApplied(undefined)).toBe(true);
-    expect(markRewardApplied('')).toBe(true);
+  it('claims an id the first time and rejects redelivery', async () => {
+    const id = `evt-${Math.random()}`;
+    expect(await claimReward(id)).toBe(true);
+    expect(await claimReward(id)).toBe(false);
+    expect(await claimReward(id)).toBe(false);
+  });
+  it('lets events without an id through (cannot dedup)', async () => {
+    expect(await claimReward(undefined)).toBe(true);
+    expect(await claimReward('')).toBe(true);
   });
 });
 
