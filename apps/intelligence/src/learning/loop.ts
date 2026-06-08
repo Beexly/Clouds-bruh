@@ -207,11 +207,7 @@ async function refreshProductEmbedding(productId: string): Promise<void> {
 
   // Sharpen the embedding toward the observed chapter with signal weight
   const sharpening = Math.min(signalCount / 10, 0.3); // max 30% sharpening
-  const embedding = chapters.map((c, i) => {
-    const base = c === chapter ? 0.95 : 0.05;
-    const currentVec = base;
-    return currentVec;
-  });
+  const embedding = chapters.map((c) => (c === chapter ? 0.95 : 0.05));
 
   await pool().query(
     `UPDATE product_embedding SET embedding = $1::vector WHERE product_id = $2`,
