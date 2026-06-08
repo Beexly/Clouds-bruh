@@ -1,5 +1,6 @@
 import type { ProductCandidate } from '@alterxiv/shared';
 import { candidateToProductTruth } from '@alterxiv/shared';
+import { captureException } from './observability';
 
 export interface PublishResult {
   ok: boolean;
@@ -47,6 +48,13 @@ export async function publishCandidateToMedusa(candidate: ProductCandidate, publ
 
   const body = (await res.json().catch(() => ({}))) as any;
   if (!res.ok) {
+    captureException(new Error(`Medusa product ${operation} failed: ${res.status}`), {
+      where: 'publishCandidateToMedusa',
+      candidate_id: candidate.id,
+      handle: candidate.handle,
+      operation,
+      status: res.status,
+    });
     return {
       ok: false,
       status: 'blocked',

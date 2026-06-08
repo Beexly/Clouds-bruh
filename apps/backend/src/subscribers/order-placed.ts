@@ -1,6 +1,7 @@
 import type { SubscriberArgs, SubscriberConfig } from '@medusajs/framework';
 import { Modules } from '@medusajs/framework/utils';
 import { persistVendorOrderDrafts } from '../lib/lumera-order-routing';
+import { captureException } from '../lib/observability';
 
 export default async function orderPlaced({ event, container }: SubscriberArgs<{ id: string }>) {
   const orderId = event.data?.id;
@@ -84,6 +85,7 @@ export default async function orderPlaced({ event, container }: SubscriberArgs<{
 
   } catch (e: any) {
     console.error('[order-placed] subscriber error:', e.message?.slice(0, 120));
+    captureException(e, { subscriber: 'order-placed', order_id: orderId });
   }
 }
 

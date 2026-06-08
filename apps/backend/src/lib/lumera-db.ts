@@ -1,5 +1,6 @@
 import pg from 'pg';
 import crypto from 'node:crypto';
+import { captureException } from './observability';
 import {
   attachReview,
   candidateToProductTruth,
@@ -176,9 +177,14 @@ export async function discoverAndIngestRadar(queries?: string[]) {
   const qs = (queries?.length ? queries : defaultRadarQueries()).slice(0, 6);
   const candidates: ProductCandidate[] = [];
   for (const query of qs) {
-    const found = await radarDiscover({ query, source, limit, fulfillmentVendor }).catch(() => [] as ProductCandidate[]);
+    const found = await radarDiscover({ query, source, limit, fulfillmentVendor }).catch((e: unknown) => {
+      captureException(e, { where: 'discoverAndIngestRadar.radarDiscover', source, query });
+      return [] as ProductCandidate[];
+    });
     for (const candidate of found) {
-      await upsertCandidate(candidate).catch(() => {});
+      await upsertCandidate(candidate).catch((e: unknown) => {
+        captureException(e, { where: 'discoverAndIngestRadar.upsertCandidate', candidate_id: candidate.id });
+      });
       candidates.push(candidate);
     }
   }
@@ -318,45 +324,51 @@ export function verifyStripeWebhook(
 }
 
 export async function processVendorWebhook(vendor: VendorId, payload: any) {
-  await ensureLumeraTables();
-  const vendorOrderId =
-    payload?.vendor_order_id ??
-    payload?.order_id ??
-    payload?.orderId ??
-    payload?.data?.order_id ??
-    payload?.data?.id ??
-    payload?.result?.id;
-  if (!vendorOrderId) return { matched: false };
+  try {
+    await ensureLumeraTables();
+    const vendorOrderId =
+      payload?.vendor_order_id ??
+      payload?.order_id ??
+      payload?.orderId ??
+      payload?.data?.order_id ??
+      payload?.data?.id ??
+      payload?.result?.id;
+    if (!vendorOrderId) return { matched: false };
 
-  const trackingNumber =
-    payload?.tracking_number ??
-    payload?.trackingNumber ??
-    payload?.tracking?.number ??
-    payload?.shipment?.tracking_number ??
-    payload?.data?.tracking_number;
-  const trackingUrl =
-    payload?.tracking_url ??
-    payload?.trackingUrl ??
-    payload?.tracking?.url ??
-    payload?.shipment?.tracking_url ??
-    payload?.data?.tracking_url;
-  const status = payload?.status ?? payload?.event_type ?? payload?.type ?? 'webhook_received';
+    const trackingNumber =
+      payload?.tracking_number ??
+      payload?.trackingNumber ??
+      payload?.tracking?.number ??
+      payload?.shipment?.tracking_number ??
+      payload?.data?.tracking_number;
+    const trackingUrl =
+      payload?.tracking_url ??
+      payload?.trackingUrl ??
+      payload?.tracking?.url ??
+      payload?.shipment?.tracking_url ??
+      payload?.data?.tracking_url;
+    const status = payload?.status ?? payload?.event_type ?? payload?.type ?? 'webhook_received';
 
-  const result = await pool().query(
-    `UPDATE lumera_vendor_order
-        SET status=$2,
-            payload = payload || jsonb_build_object(
-              'last_webhook_at', now(),
-              'tracking_number', $3::text,
-              'tracking_url', $4::text,
-              'last_webhook_payload', $5::jsonb
-            ),
-            updated_at=now()
-      WHERE id=$1 OR vendor_order_id=$1
-      RETURNING id`,
-    [String(vendorOrderId), String(status), trackingNumber ?? null, trackingUrl ?? null, JSON.stringify(payload ?? {})]
-  );
-  return { matched: result.rowCount > 0, vendor_order_id: String(vendorOrderId), status: String(status) };
+    const result = await pool().query(
+      `UPDATE lumera_vendor_order
+          SET status=$2,
+              payload = payload || jsonb_build_object(
+                'last_webhook_at', now(),
+                'tracking_number', $3::text,
+                'tracking_url', $4::text,
+                'last_webhook_payload', $5::jsonb
+              ),
+              updated_at=now()
+        WHERE id=$1 OR vendor_order_id=$1
+        RETURNING id`,
+      [String(vendorOrderId), String(status), trackingNumber ?? null, trackingUrl ?? null, JSON.stringify(payload ?? {})]
+    );
+    return { matched: result.rowCount > 0, vendor_order_id: String(vendorOrderId), status: String(status) };
+  } catch (e: unknown) {
+    // Report then re-throw — the webhook route still surfaces the failure to the caller.
+    captureException(e, { where: 'processVendorWebhook', vendor });
+    throw e;
+  }
 }
 
 export async function createReturnCase(input: { order_id?: string; email?: string; reason?: string; payload?: unknown }) {
