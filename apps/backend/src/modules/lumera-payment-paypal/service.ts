@@ -23,6 +23,10 @@ import type {
   UpdatePaymentInput,
   UpdatePaymentOutput,
 } from '@medusajs/framework/types';
+import { paypalBaseUrl, formatPayPalAmount } from './money';
+// Re-export the pure money-boundary helpers so existing importers (and tests) keep using './service'
+// while the implementation lives in the no-deps ./money module (also used by the sandbox proof script).
+export { paypalBaseUrl, formatPayPalAmount } from './money';
 
 type InjectedDependencies = { logger?: Logger };
 type PayPalOptions = {
@@ -270,13 +274,7 @@ export class LumeraPayPalProviderService extends AbstractPaymentProvider<PayPalO
 }
 
 // ── Pure helpers (unit-testable without network) ──────────────────────────────
-
-/** Select the PayPal API base URL. Live only when env === 'live'; everything else → sandbox. */
-export function paypalBaseUrl(env?: string): string {
-  return String(env).toLowerCase() === 'live'
-    ? 'https://api-m.paypal.com'
-    : 'https://api-m.sandbox.paypal.com';
-}
+// paypalBaseUrl + formatPayPalAmount live in ./money (no Medusa imports) and are re-exported above.
 
 /**
  * Map a PayPal Orders v2 status to a Medusa PaymentSessionStatus.
@@ -298,18 +296,6 @@ export function mapPayPalStatus(status?: string): PaymentSessionStatus {
     default:
       return 'pending';
   }
-}
-
-/**
- * Lumera money convention: amounts are stored as **integer cents** throughout (catalog, cart, email),
- * matching the storefront (which divides by 100 for display). PayPal's REST API wants a 2-decimal
- * string in major units, so we convert cents → dollars only here, at the external boundary.
- * (Verify with one PayPal sandbox capture before going live — see SECURITY.md money-unit note.)
- */
-export function formatPayPalAmount(amountCents: unknown): string {
-  const n = Number(amountCents);
-  if (!Number.isFinite(n) || n < 0) return '0.00';
-  return (n / 100).toFixed(2);
 }
 
 /** Pull a capture id out of a captured-order payload, if present. */

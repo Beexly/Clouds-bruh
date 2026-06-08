@@ -29,6 +29,7 @@
     "radar": "tsx scripts/radar.ts",
     "publish:approved": "tsx scripts/publish-approved.ts",
     "fulfillment:drill": "tsx scripts/fulfillment-drill.ts",
+    "paypal:proof": "tsx scripts/paypal-capture-proof.ts",
     "launch:preflight": "tsx scripts/launch-preflight.ts",
     "lint": "turbo run lint",
     "verify:api": "bash scripts/verify-api.sh"
