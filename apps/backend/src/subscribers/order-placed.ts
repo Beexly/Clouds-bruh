@@ -1,5 +1,6 @@
 import type { SubscriberArgs, SubscriberConfig } from '@medusajs/framework';
 import { Modules } from '@medusajs/framework/utils';
+import { persistVendorOrderDrafts } from '../lib/lumera-order-routing';
 
 export default async function orderPlaced({ event, container }: SubscriberArgs<{ id: string }>) {
   const orderId = event.data?.id;
@@ -10,7 +11,19 @@ export default async function orderPlaced({ event, container }: SubscriberArgs<{
     const orderModule = container.resolve(Modules.ORDER) as any;
     const [order] = await orderModule.listOrders(
       { id: orderId },
-      { relations: ['items'], select: ['id', 'customer_id', 'items.variant_id', 'items.product_id', 'items.quantity', 'items.unit_price', 'metadata'] }
+      {
+        relations: ['items'],
+        select: [
+          'id',
+          'customer_id',
+          'items.variant_id',
+          'items.product_id',
+          'items.quantity',
+          'items.unit_price',
+          'items.metadata',
+          'metadata',
+        ],
+      }
     ).catch(() => [null]);
 
     if (!order) return;
@@ -49,6 +62,11 @@ export default async function orderPlaced({ event, container }: SubscriberArgs<{
       } catch (e: any) {
         console.warn('[order-placed] reward grant failed:', e.message?.slice(0, 60));
       }
+    }
+
+    const vendorDrafts = await persistVendorOrderDrafts(order);
+    for (const draft of vendorDrafts) {
+      console.log(`[order-placed] Vendor order ${draft.status}: ${draft.id}`);
     }
 
     // Emit SIGNAL purchase event so ORACLE can attribute conversion reward

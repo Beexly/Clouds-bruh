@@ -1,7 +1,7 @@
 {
   "name": "intelligence",
   "version": "0.1.0",
-  "description": "Alter XIV autonomous agent departments + learning loop + introspection",
+  "description": "Lumera autonomous agent departments + learning loop + introspection",
   "scripts": {
     "dev": "tsx watch src/orchestrator/index.ts",
     "build": "tsc",

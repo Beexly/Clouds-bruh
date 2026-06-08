@@ -67,6 +67,14 @@ export async function getShippingOptions(cartId: string) {
   return (res.shipping_options ?? []) as any[];
 }
 
+export async function getShippingEstimate(items: Array<{ lead_time_days?: number }> = []) {
+  const res = await apiFetch('/store/shipping-estimate', {
+    method: 'POST',
+    body: JSON.stringify({ items }),
+  });
+  return res.promise as any;
+}
+
 export async function addShippingMethod(cartId: string, optionId: string) {
   return apiFetch(`/store/carts/${cartId}/shipping-methods`, {
     method: 'POST',

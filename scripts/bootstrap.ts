@@ -1,5 +1,5 @@
 /**
- * Alter XIV — one-command production bootstrap (idempotent; safe to re-run).
+ * Lumera — one-command production bootstrap (idempotent; safe to re-run).
  *
  *   pnpm bootstrap                 # from the repo root
  *   # or directly:
@@ -32,7 +32,7 @@ export default async function bootstrap(args: ExecArgs) {
     { name: 'publishable API key', run: ensurePublishableKey as (a: ExecArgs) => Promise<unknown> },
   ];
 
-  console.log('\n[bootstrap] ▸ Alter XIV store bootstrap starting…');
+  console.log('\n[bootstrap] ▸ Lumera store bootstrap starting...');
   for (const step of steps) {
     console.log(`\n[bootstrap] ── ${step.name} ──`);
     await step.run(args);

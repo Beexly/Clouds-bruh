@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "version": "0.1.0",
-  "description": "Alter XIV commerce core (Medusa v2) + intelligence modules",
+  "description": "Lumera commerce core (Medusa v2) + intelligence modules",
   "scripts": {
     "dev": "medusa develop",
     "build": "medusa build",

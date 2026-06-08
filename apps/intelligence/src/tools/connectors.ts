@@ -1,5 +1,6 @@
 import type { Tool } from './index';
 import { Pool } from 'pg';
+import { quoteSupplierSku } from '../vendors';
 
 /**
  * Connector adapters surfaced by the INTROSPECTION tool-registry audit (F01 lesson: every
@@ -120,15 +121,18 @@ export const pdfRender: Tool = {
 
 export const supplierApi: Tool = {
   name: 'supplier_api',
-  description: 'Query a supplier for price/stock/lead-time (mock until OXYLABS/supplier creds set). Read-only.',
-  inputSchema: { type: 'object', properties: { supplier_sku: { type: 'string' }, action: { type: 'string', default: 'quote' } } },
-  run: async ({ supplier_sku, action = 'quote' }) => ({
-    supplier_sku,
+  description: 'Query configured vendor adapters for price/stock/lead-time. Read-only; fixture-backed until vendor credentials are present.',
+  inputSchema: {
+    type: 'object',
+    properties: {
+      supplier_sku: { type: 'string' },
+      vendor: { type: 'string', enum: ['printify', 'printful', 'cj', 'manual', 'radar'] },
+      action: { type: 'string', default: 'quote' },
+    },
+  },
+  run: async ({ supplier_sku, vendor, action = 'quote' }) => ({
     action,
-    price: 12.5,
-    stock: 240,
-    lead_time_days: 7,
-    source: process.env.OXYLABS_USER ? 'live' : 'mock',
+    ...(await quoteSupplierSku(supplier_sku, vendor)),
   }),
 };
 

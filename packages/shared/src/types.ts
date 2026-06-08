@@ -13,7 +13,7 @@ export interface Variant {
   supplier_price?: number;
 }
 
-/** Product schema = best of Amazon/Walmart/Shein datasets + Alter XIV faith/drop fields. */
+/** Product schema = best of marketplace datasets + Lumera curation/drop fields. */
 export interface Product {
   id: string;
   sku: string;

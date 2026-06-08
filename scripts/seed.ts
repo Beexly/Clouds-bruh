@@ -1,6 +1,6 @@
 /**
- * Alter XIV catalog seed — real Medusa v2 exec script.
- * Run: pnpm seed  (from alter-xiv root, delegates to apps/backend medusa exec)
+ * Lumera catalog seed — real Medusa v2 exec script.
+ * Run: pnpm seed  (from repo root, delegates to apps/backend medusa exec)
  *
  * Reads Bright Data sample CSVs, maps products to the 5 chapters,
  * creates Medusa categories + products, then seeds 2 live drops.
@@ -72,7 +72,7 @@ function amazonToProduct(row: Record<string, string>) {
       rating: row.rating ? parseFloat(row.rating) : undefined,
       reviews_count: row.reviews_count ? parseInt(row.reviews_count) : undefined,
       main_image: row.image_url || '',
-      brand: row.brand || 'Alter XIV',
+      brand: row.brand || 'Lumera',
       scripture_ref: undefined as string | undefined,
     },
     variants: [{
@@ -102,7 +102,7 @@ function sheinToProduct(row: Record<string, string>) {
       rating: row.rating ? parseFloat(row.rating) : undefined,
       reviews_count: row.reviews_count ? parseInt(row.reviews_count) : undefined,
       main_image: mainImage,
-      brand: 'Alter XIV',
+      brand: 'Lumera',
       scripture_ref: undefined as string | undefined,
     },
     variants: [{
@@ -116,7 +116,7 @@ function sheinToProduct(row: Record<string, string>) {
 }
 
 export default async function ({ container }: ExecArgs) {
-  console.log('[seed] Starting Alter XIV catalog seed...');
+  console.log('[seed] Starting Lumera catalog seed...');
 
   const productModule = container.resolve(Modules.PRODUCT);
 

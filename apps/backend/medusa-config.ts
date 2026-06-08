@@ -5,13 +5,14 @@ loadEnv(process.env.NODE_ENV || 'development', process.cwd());
 if (process.env.NODE_ENV === 'production') {
   for (const k of ['JWT_SECRET', 'COOKIE_SECRET'] as const) {
     if (!process.env[k]) {
-      console.warn(`[alter-xiv] SECURITY WARNING: ${k} is not set — using an INSECURE default. Set it before launch.`);
+      console.warn(`[lumera] SECURITY WARNING: ${k} is not set — using an INSECURE default. Set it before launch.`);
     }
   }
 }
 
 /**
- * Lumera commerce core (internal codename Alter XIV). Standard Medusa modules + our four custom intelligence modules.
+ * Lumera commerce core (internal codename Alter XIV). Standard Medusa modules + our custom
+ * intelligence modules (signal · personalization · recommendation · drops · monetization · lumera).
  * The custom modules are the nervous system; Medusa's built-ins are the skeleton.
  */
 export default defineConfig({
@@ -37,6 +38,7 @@ export default defineConfig({
     { resolve: './src/modules/personalization' },
     { resolve: './src/modules/recommendation' },
     { resolve: './src/modules/monetization' },
+    { resolve: './src/modules/lumera' },
     // Redis-backed event bus + workflow engine ONLY when REDIS_URL is set. Without it Medusa
     // falls back to its in-memory defaults, so `db:migrate`, seed, and boot work on a clean
     // checkout with no Redis available (and never hang waiting on a Redis connection).
@@ -87,7 +89,7 @@ export default defineConfig({
                   access_key_id: process.env.S3_ACCESS_KEY_ID,
                   secret_access_key: process.env.S3_SECRET_ACCESS_KEY,
                   region: process.env.S3_REGION || 'us-east-1',
-                  bucket: process.env.S3_BUCKET || 'alter-xiv',
+                  bucket: process.env.S3_BUCKET || 'lumera',
                   endpoint: process.env.S3_ENDPOINT, // e.g. http://minio:9000
                   additional_client_config: { forcePathStyle: true }, // MinIO path-style
                 },

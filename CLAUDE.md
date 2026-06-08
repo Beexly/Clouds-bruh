@@ -1,9 +1,9 @@
 # CLAUDE.md — orientation for Claude Code
 
-You are building **Alter XIV**, an intelligent commerce platform. **Read `docs/ARCHITECTURE.md` first — it is the source of truth.**
+You are building **Lumera**, an intelligent autonomous commerce platform. **Read `docs/ARCHITECTURE.md` first — it is the source of truth.**
 
 ## What this is
-A faith-rooted, drop-culture luxury commerce platform ("The Broadcast") with a GSN-class intelligence layer: real-time personalization, a learning loop, autonomous Claude-agent departments, and continuous self-audit. Commerce core is Medusa v2; storefront is Next.js; the agents use the Claude Agent SDK.
+An editorial luxury commerce platform ("The Broadcast") with a GSN-class intelligence layer: real-time personalization, a learning loop, autonomous Claude-agent departments, and continuous self-audit. Commerce core is Medusa v2; storefront is Next.js; the agents use the Claude Agent SDK.
 
 ## Repo shape
 - `apps/backend` — Medusa v2 + custom modules: `signal` (events), `personalization` (MIND), `recommendation` (ORACLE), `drops`.
@@ -23,9 +23,16 @@ A faith-rooted, drop-culture luxury commerce platform ("The Broadcast") with a G
 ## Non-negotiables (do not violate)
 - **Verified, not assumed.** Don't mark anything done until it renders/compiles/passes. Write the test, run it.
 - **No autonomous money movement, publishing, or destructive action** by any agent without Garrett's explicit approval. Wire approvals as a gate.
-- **Brand integrity**: dark sacred editorial luxury. Off-brand assets don't ship. Use the frontend-design skill for UI.
+- **Brand integrity**: dark luminous editorial luxury. Off-brand assets don't ship. Use the frontend-design skill for UI.
 - Use the local Anthropic repos for patterns: `claude-agent-sdk-python`/typescript, `claude-cookbooks`, the `claude-code` action. Don't reinvent agent loops, tool use, or memory — adapt these.
 - Install the **claude-seo** plugin for the Scribe agent's SEO work instead of rebuilding SEO.
+
+## Lumera dropship lane
+- Founder flow: run `/lumera-curate`, open `/cockpit`, pick candidates, then use `/lumera-publish-approved`.
+- Safety flow: run `/lumera-vendor-preflight` before any live curation or publish work.
+- Fulfillment flow: run `/lumera-fulfillment-drill`; live supplier order submission stays off unless `VENDOR_LIVE_MODE=true` and `AUTO_SUBMIT_VENDOR_ORDERS=true`.
+- Product studio flow: use `/lumera-product-studio` for Garrett-designed Printify/Printful drafts and require sample approval for sizing-sensitive or unknown-quality products.
+- Launch flow: `/lumera-launch-preflight` must keep build, tests, commerce env, and vendor readiness as separate proof layers.
 
 ## Quality bar
 Galaxy Sports Network. If it isn't intelligent, dynamic, personalized, self-improving, and beautiful, it isn't finished.

@@ -1,4 +1,4 @@
-# ALTER XIV — INTEGRATIONS (v0.2, additive)
+# LUMERA — INTEGRATIONS (v0.2, additive)
 > 13 repos folded into the v1 architecture. **Nothing removed. Everything upgraded.**
 > Read alongside `ARCHITECTURE.md` (the v1 source of truth).
 
@@ -12,7 +12,7 @@
 - **agents/SKILLS.md** — each agent equipped with proven, named e-commerce skills.
 - **INTROSPECTION** — added a Voice-of-Customer pain-point check.
 
-## Repo → where it upgrades Alter XIV
+## Repo → where it upgrades Lumera
 | Repo | Subsystem upgraded | How it improves quality |
 |---|---|---|
 | **apify/apify-mcp-server** | Data Radar (Curator/Sourcer/Herald) | Thousands of ready scrapers (Amazon, Shein, TikTok, maps, social) as MCP tools via `mcp.apify.com` (OAuth/URL). Replaces single-source scraping with a marketplace. Connect it in Claude Code directly. |

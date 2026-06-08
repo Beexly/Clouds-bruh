@@ -5,33 +5,64 @@ export const metadata: Metadata = { title: 'Returns & Shipping' };
 
 export default function ReturnsPage() {
   return (
-    <LegalDoc title="Returns & Shipping" updated="[date]">
-      <p>How orders ship and how returns work. [Tailor every figure below to your real fulfilment terms.]</p>
+    <LegalDoc title="Returns & Shipping" updated="June 7, 2026">
+      <p>
+        This policy explains how Lumera handles shipping promises, supplier delays, returns, exchanges, damaged
+        items, and refunds. The checkout page and product page show the most specific promise for each item.
+      </p>
       <Section title="Shipping">
         <p>
-          Orders are processed within [1–2] business days and ship via [carrier(s)]. Estimated delivery:
-          [domestic X–Y days], [international X–Y days]. Shipping cost and method are shown at checkout. Drops
-          may ship on a stated schedule.
+          Orders are processed after payment authorization, fraud review, supplier stock verification, and
+          fulfillment routing. Standard delivery estimates are shown before payment. When an item is fulfilled by
+          a third-party supplier or print-on-demand partner, the supplier region and expected delivery window are
+          shown in the Product Truth panel or checkout promise.
+        </p>
+      </Section>
+      <Section title="Delay consent">
+        <p>
+          If Lumera learns that an order cannot ship within the stated promise, Lumera will provide a delay
+          notice when required and offer the available choices: continue waiting, accept an alternate item, or
+          cancel for a refund. Orders are not silently pushed beyond the stated promise.
         </p>
       </Section>
       <Section title="Returns window">
-        <p>Unused items in original condition may be returned within [30] days of delivery. [List exclusions — final-sale drops, opened goods, personalized items.]</p>
+        <p>
+          Unused, undamaged items in original condition may be returned within 30 days of delivery unless the
+          product page marks the item as final sale, custom-made, personalized, hygiene-sensitive, perishable, or
+          otherwise excluded before purchase.
+        </p>
       </Section>
-      <Section title="How to return">
-        <p>Start a return from your order confirmation or email [returns@lumera.example] with your order number. We will provide instructions and, where applicable, a return label.</p>
+      <Section title="How to start a return">
+        <p>
+          Start a return from the order confirmation or the returns form on the site. Include the order number,
+          email used at checkout, item, reason, and photos when the item is damaged, defective, or incorrect.
+          Lumera will provide next steps and, when applicable, return-label instructions.
+        </p>
       </Section>
       <Section title="Refunds">
         <p>
-          Approved refunds are issued to your original payment method, or — if you prefer — as Lumens (store
-          credit), typically within [5–10] business days of receiving the return. Original shipping is
-          [non-]refundable.
+          Approved refunds are issued to the original payment method after the return is received and inspected,
+          or earlier when Lumera confirms a supplier cancellation before shipment. Bank and payment processor
+          timing can vary. Store credit may be offered when requested or when a promotion clearly states that
+          credit is the remedy.
         </p>
       </Section>
-      <Section title="Damaged or wrong items">
-        <p>If something arrives damaged or incorrect, contact us within [7] days with a photo and we will make it right at no cost to you.</p>
+      <Section title="Damaged, defective, or wrong items">
+        <p>
+          If an item arrives damaged, defective, materially different from the listing, or incorrect, contact
+          Lumera support promptly with photos and order details. Lumera will arrange a replacement, repair path,
+          return, store credit, or refund depending on the item and supplier proof.
+        </p>
+      </Section>
+      <Section title="Return shipping">
+        <p>
+          Lumera covers return shipping for damaged, defective, or incorrect items when the claim is approved.
+          For discretionary returns, return shipping costs may be deducted from the refund unless the product
+          page, promotion, or checkout promise states otherwise.
+        </p>
       </Section>
       <Section title="Contact">
-        <p>[returns@lumera.example] · [Company legal name, registered address].</p>
+        <p>For shipping or returns help, contact Lumera support through the email listed in your order confirmation.</p>
       </Section>
     </LegalDoc>
   );

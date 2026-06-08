@@ -5,7 +5,7 @@ import { signal } from '../../lib/signal';
 import { PageSignal } from '../../components/PageSignal';
 import {
   apiFetch, getShippingOptions, addShippingMethod,
-  createPaymentCollection, initPaymentSession, completeCart,
+  createPaymentCollection, initPaymentSession, completeCart, getShippingEstimate,
 } from '../../lib/api';
 
 type Step = 'shipping' | 'payment' | 'complete';
@@ -20,6 +20,7 @@ export default function CheckoutPage() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [orderId, setOrderId] = useState('');
+  const [shippingPromise, setShippingPromise] = useState<any>(null);
 
   const items: any[] = cart?.items ?? [];
   const total = items.reduce((s: number, li: any) => s + (li.unit_price ?? 0) * (li.quantity ?? 1), 0);
@@ -48,6 +49,13 @@ export default function CheckoutPage() {
       if (options.length > 0) {
         await addShippingMethod(cart.id, options[0].id);
       }
+
+      const promise = await getShippingEstimate(
+        items.map((li: any) => ({
+          lead_time_days: Number(li.variant?.product?.metadata?.lead_time_days ?? li.metadata?.lead_time_days ?? 0),
+        }))
+      ).catch(() => null);
+      setShippingPromise(promise);
 
       await refresh();
       setStep('payment');
@@ -171,6 +179,15 @@ export default function CheckoutPage() {
               </p>
               <p className="text-[10px] text-neutral-700 uppercase tracking-widest">
                 Provider: pp_system_default
+              </p>
+            </div>
+            <div className="space-y-2 border border-amber-700/20 bg-amber-900/5 p-4">
+              <p className="text-[10px] uppercase tracking-widest text-amber-300/80">Fulfillment Promise</p>
+              <p className="text-xs text-neutral-400">
+                {shippingPromise?.message ?? 'Estimated delivery window: 8-12 business days.'}
+              </p>
+              <p className="text-[10px] uppercase tracking-widest text-neutral-700">
+                Orders that exceed the promised ship window require delay consent or refund handling.
               </p>
             </div>
             <div className="border border-neutral-900 p-3 text-[10px] text-neutral-700">

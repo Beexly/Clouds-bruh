@@ -53,7 +53,7 @@ export default async function setupCommerce({ container }: ExecArgs) {
     console.log(`[setup] Stock location exists: ${locationId}`);
   } else {
     const [loc] = await stockLocationModule.createStockLocations([{
-      name: 'Alter XIV Fulfillment',
+      name: 'Lumera Fulfillment',
       address: { address_1: '100 Commerce Blvd', city: 'Los Angeles', country_code: 'US' },
     }]);
     locationId = loc.id;
