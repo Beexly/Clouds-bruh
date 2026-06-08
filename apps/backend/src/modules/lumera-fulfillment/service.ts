@@ -4,6 +4,7 @@ import { vendorOrderDraftsFromOrder, persistVendorOrderDrafts } from '../../lib/
 import { createReturnCase, ensureLumeraTables, pool } from '../../lib/lumera-db';
 
 type InjectedDependencies = { logger?: Logger };
+type LumeraFulfillmentOptions = Record<string, unknown>;
 
 /**
  * Lumera dropship fulfillment provider — makes vendor routing native to Medusa's order lifecycle.
@@ -18,10 +19,12 @@ type InjectedDependencies = { logger?: Logger };
 export class LumeraDropshipFulfillmentService extends AbstractFulfillmentProviderService {
   static identifier = 'lumera';
   protected logger_?: Logger;
+  protected options_?: LumeraFulfillmentOptions;
 
-  constructor({ logger }: InjectedDependencies = {}) {
+  constructor({ logger }: InjectedDependencies = {}, options: LumeraFulfillmentOptions = {}) {
     super();
     this.logger_ = logger;
+    this.options_ = options;
   }
 
   async getFulfillmentOptions() {

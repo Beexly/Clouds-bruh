@@ -52,9 +52,10 @@ describe('radar sourcing normalizer', () => {
     expect(out.every((c) => c.vendor === 'radar')).toBe(true);
   });
 
-  it('toCents treats large numbers as cents and small as dollars', () => {
+  it('toCents reads scraped marketplace prices as dollars', () => {
     expect(toCents('19.99')).toBe(1999);
-    expect(toCents(4900)).toBe(4900);
+    expect(toCents(49)).toBe(4900);
+    expect(toCents('$1,499')).toBe(149900); // high-dollar item is not misread as cents
     expect(toCents(0)).toBe(0);
     expect(toCents('free')).toBe(0);
   });

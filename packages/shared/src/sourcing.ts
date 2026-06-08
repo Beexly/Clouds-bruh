@@ -88,11 +88,15 @@ export interface NormalizeOpts {
   markup?: number;
 }
 
-/** Cents-normalizer: treats values > 1000 as already-cents, else dollars. */
+/**
+ * Price-to-cents for SCRAPED marketplace listings, whose prices are in major currency units
+ * (dollars), e.g. "18.90", "$1,499", 42. Always treats the input as dollars → cents. (Vendor *API*
+ * responses that are already in cents are normalized separately in the vendor clients.)
+ */
 export function toCents(value: unknown): number {
   const n = typeof value === 'string' ? Number(value.replace(/[^0-9.]/g, '')) : Number(value);
   if (!Number.isFinite(n) || n <= 0) return 0;
-  return n > 1000 ? Math.round(n) : Math.round(n * 100);
+  return Math.round(n * 100);
 }
 
 export function slugify(value: string): string {

@@ -97,7 +97,12 @@ export function rankVendorOptions(options: VendorOption[], opts: RankVendorsOpti
 
   const chosen = ranked[0]?.vendor ?? null;
   // Failover = the highest-margin connected option was NOT chosen (health/speed overrode raw margin).
-  const byMargin = haveMargin ? [...ranked].sort((a, b) => b.gross_margin - a.gross_margin) : ranked;
+  // Deterministic tie-break so equal margins don't produce a false-positive failover flag.
+  const byMargin = haveMargin
+    ? [...ranked].sort(
+        (a, b) => b.gross_margin - a.gross_margin || b.score - a.score || priorityOf(a.vendor) - priorityOf(b.vendor)
+      )
+    : ranked;
   const failover = Boolean(chosen && byMargin[0] && byMargin[0].vendor !== chosen);
 
   return { chosen, ranked, failover };
@@ -118,5 +123,6 @@ export function selectFulfillmentVendor(input: {
   for (const v of priority) {
     if (v !== 'radar' && connected.has(v)) return v;
   }
-  return input.preferred ?? 'manual';
+  // Nothing connected to fail over to → the always-safe manual intake (never an unconnected vendor).
+  return 'manual';
 }

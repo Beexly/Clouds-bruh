@@ -264,7 +264,13 @@ export class CjClient extends BaseVendorClient {
   }
 
   protected async remoteSubmitOrder(vendorOrderId: string, source: VendorMode) {
-    return { vendor_order_id: vendorOrderId, status: process.env.CJ_SANDBOX === 'true' ? 'sandbox_submission_gated' : 'submitted', source };
+    // Honest status: CJ order confirmation/payment is a separate provider call not yet wired, so we
+    // never claim a fabricated "submitted". The order is created; confirmation stays pending.
+    return {
+      vendor_order_id: vendorOrderId,
+      status: process.env.CJ_SANDBOX === 'true' ? 'sandbox_submission_gated' : 'submission_pending_provider_confirm',
+      source,
+    };
   }
 
   protected async remoteCancelOrder(vendorOrderId: string, source: VendorMode) {

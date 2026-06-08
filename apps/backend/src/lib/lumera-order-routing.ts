@@ -1,5 +1,5 @@
-import type { VendorId } from '@alterxiv/shared';
-import { ensureLumeraTables, pool, bestConfiguredVendor } from './lumera-db';
+import { selectFulfillmentVendor, type VendorId } from '@alterxiv/shared';
+import { ensureLumeraTables, pool, connectedVendorIds } from './lumera-db';
 
 type OrderItemLike = {
   product_id?: string;
@@ -123,8 +123,8 @@ function vendorForItem(item: OrderItemLike, order: OrderLike): VendorId {
     order.metadata?.fulfillment_provider;
   // Respect an explicit assignment (never silently re-route a SKU to a vendor that may not carry it).
   if (explicit) return normalizeVendor(explicit);
-  // Unassigned items route to the best currently-connected vendor (falls back to 'manual').
-  return bestConfiguredVendor();
+  // Unassigned items route via the priority/failover selector to the best connected vendor ('manual' if none).
+  return selectFulfillmentVendor({ connected: connectedVendorIds() });
 }
 
 function normalizeVendor(value: unknown): VendorId {

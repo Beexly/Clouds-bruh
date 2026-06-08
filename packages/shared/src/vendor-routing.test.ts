@@ -53,8 +53,10 @@ describe('vendor routing intelligence', () => {
     expect(selectFulfillmentVendor({ preferred: 'cj', connected: ['printify', 'manual'] })).toBe('printify');
   });
 
-  it('selectFulfillmentVendor defaults to manual when nothing is connected', () => {
-    expect(selectFulfillmentVendor({ preferred: 'cj', connected: [] })).toBe('cj');
+  it('selectFulfillmentVendor never returns an unconnected vendor — defaults to manual', () => {
+    // Even with an explicit preference, if nothing is connected we fail over to the safe manual intake
+    // rather than route a SKU to a vendor that cannot fulfil it.
+    expect(selectFulfillmentVendor({ preferred: 'cj', connected: [] })).toBe('manual');
     expect(selectFulfillmentVendor({ connected: [] })).toBe('manual');
   });
 });
