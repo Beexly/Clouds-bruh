@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import crypto from 'node:crypto';
-import { verifyVendorWebhook } from './lumera-db';
+import { verifyVendorWebhook, verifyStripeWebhook } from './lumera-db';
 
 const sign = (secret: string, payload: unknown) =>
   crypto.createHmac('sha256', secret).update(JSON.stringify(payload)).digest('hex');
@@ -43,5 +43,38 @@ describe('verifyVendorWebhook (HMAC signature verification)', () => {
     process.env.STRIPE_WEBHOOK_SECRET = 'whsec';
     const res = verifyVendorWebhook('stripe', { id: 'evt' }, {});
     expect(res.valid).toBe(false);
+  });
+});
+
+describe('verifyStripeWebhook (Stripe t,v1 scheme over raw body)', () => {
+  const secret = 'whsec_test';
+  const raw = JSON.stringify({ id: 'evt_1', type: 'payment_intent.succeeded' });
+  const stripeSig = (t: number, body: string, key = secret) =>
+    `t=${t},v1=${crypto.createHmac('sha256', key).update(`${t}.${body}`).digest('hex')}`;
+
+  it('accepts a correctly signed, in-tolerance payload', () => {
+    const t = Math.floor(Date.now() / 1000);
+    const res = verifyStripeWebhook(raw, stripeSig(t, raw), secret);
+    expect(res.valid).toBe(true);
+    expect(res.proof).toBe('stripe_signature_verified');
+  });
+
+  it('rejects a stale timestamp outside tolerance', () => {
+    const t = Math.floor(Date.now() / 1000) - 10_000;
+    const res = verifyStripeWebhook(raw, stripeSig(t, raw), secret);
+    expect(res.valid).toBe(false);
+    expect(res.proof).toBe('timestamp_outside_tolerance');
+  });
+
+  it('rejects a signature computed with the wrong secret', () => {
+    const t = Math.floor(Date.now() / 1000);
+    const res = verifyStripeWebhook(raw, stripeSig(t, raw, 'wrong'), secret);
+    expect(res.valid).toBe(false);
+    expect(res.proof).toBe('signature_invalid');
+  });
+
+  it('rejects a malformed header and accepts-and-flags when no secret configured', () => {
+    expect(verifyStripeWebhook(raw, 'garbage', secret).proof).toBe('malformed_signature');
+    expect(verifyStripeWebhook(raw, undefined, undefined).valid).toBe(true);
   });
 });

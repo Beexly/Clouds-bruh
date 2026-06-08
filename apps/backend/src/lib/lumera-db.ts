@@ -286,6 +286,35 @@ export function verifyVendorWebhook(vendor: VendorId | 'stripe', payload: unknow
   return { valid, proof: valid ? 'hmac_sha256_verified' : 'signature_invalid' };
 }
 
+/**
+ * Verify a Stripe webhook using Stripe's real scheme: the `stripe-signature` header carries a
+ * timestamp `t` and one or more `v1` HMAC-SHA256 signatures over `${t}.${rawBody}`. Requires the
+ * RAW request body (not re-serialized JSON) to match. Returns accept-and-flag when no secret is set.
+ */
+export function verifyStripeWebhook(
+  rawBody: string,
+  sigHeader: string | undefined,
+  secret = process.env.STRIPE_WEBHOOK_SECRET,
+  toleranceSec = 300
+): { valid: boolean; proof: string } {
+  if (!secret) return { valid: true, proof: 'unsigned_no_secret_configured' };
+  if (!sigHeader) return { valid: false, proof: 'missing_signature' };
+  let t: string | undefined;
+  const v1: string[] = [];
+  for (const part of sigHeader.split(',')) {
+    const [k, val] = part.trim().split('=');
+    if (k === 't') t = val;
+    else if (k === 'v1' && val) v1.push(val);
+  }
+  if (!t || v1.length === 0) return { valid: false, proof: 'malformed_signature' };
+  if (toleranceSec > 0 && Math.abs(Math.floor(Date.now() / 1000) - Number(t)) > toleranceSec) {
+    return { valid: false, proof: 'timestamp_outside_tolerance' };
+  }
+  const expected = crypto.createHmac('sha256', secret).update(`${t}.${rawBody}`).digest('hex');
+  const valid = v1.some((sig) => safeEqual(sig, expected));
+  return { valid, proof: valid ? 'stripe_signature_verified' : 'signature_invalid' };
+}
+
 export async function processVendorWebhook(vendor: VendorId, payload: any) {
   await ensureLumeraTables();
   const vendorOrderId =
