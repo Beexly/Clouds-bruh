@@ -3,7 +3,7 @@
 You are building **Lumera**, an intelligent autonomous commerce platform. **Read `docs/ARCHITECTURE.md` first — it is the source of truth.**
 
 ## What this is
-An editorial luxury commerce platform ("The Broadcast") with a GSN-class intelligence layer: real-time personalization, a learning loop, autonomous Claude-agent departments, and continuous self-audit. Commerce core is Medusa v2; storefront is Next.js; the agents use the Claude Agent SDK.
+An editorial luxury commerce platform ("The Broadcast") with a GSN-class intelligence layer: real-time personalization, a learning loop, autonomous Claude-agent departments, and continuous self-audit. Commerce core is Medusa v2; storefront is Next.js; the agents currently run on a **custom tool-use loop built on the raw Anthropic SDK** (`@anthropic-ai/sdk`) in `apps/intelligence/src/orchestrator/run-agent.ts`. The `@anthropic-ai/claude-agent-sdk` package is declared but **not currently imported/used** — migrating onto it is a future step.
 
 ## Repo shape
 - `apps/backend` — Medusa v2 + custom modules: `signal` (events), `personalization` (MIND), `recommendation` (ORACLE), `drops`.
@@ -24,7 +24,7 @@ An editorial luxury commerce platform ("The Broadcast") with a GSN-class intelli
 - **Verified, not assumed.** Don't mark anything done until it renders/compiles/passes. Write the test, run it.
 - **No autonomous money movement, publishing, or destructive action** by any agent without Garrett's explicit approval. Wire approvals as a gate.
 - **Brand integrity**: dark luminous editorial luxury. Off-brand assets don't ship. Use the frontend-design skill for UI.
-- Use the local Anthropic repos for patterns: `claude-agent-sdk-python`/typescript, `claude-cookbooks`, the `claude-code` action. Don't reinvent agent loops, tool use, or memory — adapt these.
+- Use the local Anthropic repos for patterns: `claude-agent-sdk-python`/typescript, `claude-cookbooks`, the `claude-code` action. Prefer adapting these over reinventing agent loops, tool use, or memory. (Reality check: the current runtime hand-rolls the tool-use loop on the raw `@anthropic-ai/sdk`; the `@anthropic-ai/claude-agent-sdk` dep is declared but unused. Moving onto the agent SDK is the intended direction.)
 - Install the **claude-seo** plugin for the Scribe agent's SEO work instead of rebuilding SEO.
 
 ## Lumera dropship lane

@@ -71,5 +71,37 @@ instead, flip the single ÷100 in `formatPayPalAmount`). **Do one PayPal sandbox
 the captured total equals the displayed price before `PAYPAL_ENV=live`. It's a one-line change, isolated
 to the boundary helper.
 
+## Secret rotation
+All secrets come from env and are stored in the deploy platform's secret manager — never in git.
+Rotate on a schedule and **immediately** on any suspected exposure (lost laptop, leaked log, a secret
+that landed in a commit, contributor offboarding).
+
+- **What to rotate:** `JWT_SECRET`, `COOKIE_SECRET`, `COCKPIT_KEY`, `ANTHROPIC_API_KEY`, payment
+  keys (`STRIPE_*`, PayPal), every webhook secret (`STRIPE_WEBHOOK_SECRET`, `*_WEBHOOK_SECRET`),
+  vendor/supplier API keys, `S3_*` storage credentials, and `DATABASE_URL` / `REDIS_URL` passwords.
+- **Cadence:** rotate application secrets (`JWT_SECRET`, `COOKIE_SECRET`, `COCKPIT_KEY`) at least
+  every 90 days; rotate provider keys per that provider's guidance; rotate **immediately** on exposure.
+- **How (zero/low downtime):**
+  1. Generate a strong value (32+ bytes random for app secrets): `openssl rand -base64 32`.
+  2. Update it in the platform secret manager (not `.env` in git).
+  3. Redeploy / restart the affected service so it picks up the new value.
+  4. Where the provider supports overlap (e.g. a second valid API key, dual webhook secrets),
+     add the new secret, cut traffic over, then revoke the old one — avoids a hard cutover gap.
+  5. Verify: cockpit auth still works (`x-cockpit-key`), webhooks still verify, the app still boots
+     (prod refuses to boot without `JWT_SECRET`/`COOKIE_SECRET`), then **revoke the old secret**.
+- **`JWT_SECRET` caveat:** rotating it invalidates existing sessions/tokens — users re-authenticate.
+  Schedule it for a low-traffic window unless rotating in response to a live exposure.
+- **After a restore or incident:** rotate any secret that could have been exposed during the event
+  (see the incident runbook).
+- **If a secret was committed to git:** rotate it first (assume it's compromised the moment it's pushed),
+  then purge it from history. CI's secret scan fails the build on obvious leaked keys/tokens, but
+  rotation is the real remediation — scrubbing history is not enough.
+
+## Incident response
+For production incidents (Postgres/Redis down, Anthropic outage, orchestrator crash, vendor outage,
+restore-from-backup), follow [`docs/INCIDENT_RUNBOOK.md`](docs/INCIDENT_RUNBOOK.md). For backups,
+restore drills, and RPO/RTO targets, see [`docs/DR_RUNBOOK.md`](docs/DR_RUNBOOK.md). Any security
+incident, suspected secret exposure, or data-loss risk escalates **directly to the founder**.
+
 ## Reporting
 This is a private commercial platform. Report suspected vulnerabilities directly to the founder.

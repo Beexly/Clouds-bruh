@@ -3,7 +3,7 @@
 Building **Alter XIV**, an intelligent commerce platform. **Read `docs/ARCHITECTURE.md` first.** It is the source of truth; this file is the quick brief.
 
 ## Mission
-Ship a drop-culture luxury commerce platform with a first-class intelligence layer: personalization, a learning loop, autonomous agent "departments", and self-audit. Stack: Medusa v2 (TS) + Postgres/pgvector + Redis + Next.js + Claude Agent SDK.
+Ship a drop-culture luxury commerce platform with a first-class intelligence layer: personalization, a learning loop, autonomous agent "departments", and self-audit. Stack: Medusa v2 (TS) + Postgres/pgvector + Redis + Next.js + a custom agent tool-use loop on the Anthropic SDK (`@anthropic-ai/sdk`; the `@anthropic-ai/claude-agent-sdk` dep is declared but currently unused — see `docs/ARCHITECTURE.md` §1).
 
 ## Where to build what
 | Task | Location |
