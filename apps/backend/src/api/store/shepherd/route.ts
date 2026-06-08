@@ -1,11 +1,14 @@
 import type { MedusaRequest, MedusaResponse } from '@medusajs/framework';
 import { DROPS_MODULE } from '../../../modules/drops';
+import { llmChat, type LlmMessage } from '../../../lib/llm';
 
 /**
  * SHEPHERD (displayed as "Polaris") — the conversational guide. Advisory only: it guides, recommends, and answers in
  * the house voice; it never places orders, moves money, or publishes (those are escalations).
- * Live Claude when ANTHROPIC_API_KEY is set; otherwise a graceful, on-brand scripted reply so
- * the storefront is always usable. Grounded in live drops so it never invents inventory.
+ * Runs through the provider-flexible llmChat helper: a free/cheap OpenAI-compatible endpoint when
+ * LLM_BASE_URL+LLM_API_KEY are set, otherwise live Claude when ANTHROPIC_API_KEY is set; if neither
+ * is live it falls back to a graceful, on-brand scripted reply so the storefront is always usable.
+ * Grounded in live drops so it never invents inventory.
  */
 
 const SYSTEM = `You are Polaris — the guide for Lumera, a living marketplace for everything worth having,
@@ -55,35 +58,26 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
     /* non-fatal */
   }
 
-  const key = process.env.ANTHROPIC_API_KEY;
-  const live = key && key !== 'sk-ant-...';
+  // Cap the conversation we send (most-recent 10 turns) to bound token cost.
+  const chatMessages: LlmMessage[] = [
+    ...messages,
+    { role: 'user' as const, content: userText },
+  ].slice(-10);
 
-  if (!live) {
+  // llmChat picks the provider (openai_compat → anthropic → none), never throws, and returns
+  // { live:false } on the 'none' case or any network/parse failure — so the mock fallback below
+  // covers every path. Behavior with only ANTHROPIC_API_KEY set is unchanged.
+  const result = await llmChat({
+    system: SYSTEM + dropContext,
+    messages: chatMessages,
+    maxTokens: 400,
+  });
+
+  if (!result.live || !result.text) {
     return res.json({ reply: mockReply(userText), grounded: !!dropContext, live: false });
   }
 
-  try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      signal: AbortSignal.timeout(15_000),
-      headers: {
-        'content-type': 'application/json',
-        'x-api-key': key as string,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: process.env.CLAUDE_MODEL || 'claude-opus-4-8',
-        max_tokens: 400,
-        system: SYSTEM + dropContext,
-        messages: [...messages, { role: 'user', content: userText }].slice(-10),
-      }),
-    });
-    const data: any = await r.json();
-    const reply = data?.content?.[0]?.text ?? mockReply(userText);
-    res.json({ reply, grounded: !!dropContext, live: true });
-  } catch (e: any) {
-    res.json({ reply: mockReply(userText), grounded: !!dropContext, live: false, note: e.message?.slice(0, 80) });
-  }
+  res.json({ reply: result.text, grounded: !!dropContext, live: true });
 };
 
 function mockReply(userText: string): string {
