@@ -101,3 +101,95 @@ export async function initPaymentSession(collectionId: string, providerId: strin
 export async function completeCart(cartId: string) {
   return apiFetch(`/store/carts/${cartId}/complete`, { method: 'POST' });
 }
+
+// ── Payment providers ──────────────────────────────────────────────────────────
+
+/**
+ * The Medusa session provider id for our custom PayPal provider. Medusa builds it as
+ * `pp_{static identifier}_{config id}`; our provider's static identifier is `paypal` and it is wired
+ * in medusa-config with `id: 'paypal'`, so the resolved id is `pp_paypal_paypal`.
+ */
+export const PAYPAL_PROVIDER_ID = 'pp_paypal_paypal';
+
+/**
+ * List the payment providers Medusa has enabled for a region. Used to detect whether the PayPal
+ * provider is actually active on the backend before offering PayPal in the UI — so a stray
+ * NEXT_PUBLIC_PAYPAL_CLIENT_ID without a configured backend provider degrades to the test flow.
+ */
+export async function getPaymentProviders(regionId: string): Promise<Array<{ id: string }>> {
+  if (!regionId) return [];
+  try {
+    const res = await apiFetch(`/store/payment-providers?region_id=${encodeURIComponent(regionId)}`);
+    return (res.payment_providers ?? []) as Array<{ id: string }>;
+  } catch {
+    return [];
+  }
+}
+
+/** True if the PayPal provider is enabled for the region. */
+export async function paypalProviderAvailable(regionId: string): Promise<boolean> {
+  const providers = await getPaymentProviders(regionId);
+  return providers.some((p) => p.id === PAYPAL_PROVIDER_ID || p.id.includes('paypal'));
+}
+
+/**
+ * Resolve the active PayPal session id from a payment collection. Our backend provider stores the
+ * PayPal Orders v2 order id under session.data.id (the value the JS SDK's createOrder must return).
+ */
+export function paypalOrderIdFromCollection(collection: any): string | null {
+  const sessions = (collection?.payment_sessions ?? []) as any[];
+  const session = sessions.find(
+    (s) => s?.provider_id === PAYPAL_PROVIDER_ID || String(s?.provider_id ?? '').includes('paypal')
+  );
+  const id = session?.data?.id ?? session?.data?.order_id;
+  return id ? String(id) : null;
+}
+
+// ── Reviews ─────────────────────────────────────────────────────────────────────
+
+export interface StoreReview {
+  id: string;
+  product_id: string;
+  rating: number;
+  title: string | null;
+  body: string;
+  verified: boolean;
+  created_at: string;
+}
+
+export interface StoreReviewStats {
+  count: number;
+  average: number;
+}
+
+export async function getReviews(
+  productId: string
+): Promise<{ reviews: StoreReview[]; stats: StoreReviewStats }> {
+  try {
+    const res = await apiFetch(`/store/reviews?product_id=${encodeURIComponent(productId)}`);
+    return {
+      reviews: (res.reviews ?? []) as StoreReview[],
+      stats: (res.stats ?? { count: 0, average: 0 }) as StoreReviewStats,
+    };
+  } catch {
+    return { reviews: [], stats: { count: 0, average: 0 } };
+  }
+}
+
+export async function submitReview(input: {
+  product_id: string;
+  rating: number;
+  body: string;
+  title?: string;
+  email?: string;
+  order_id?: string;
+}): Promise<{ review?: StoreReview; error?: string }> {
+  const res = await fetch(`${BASE}/store/reviews`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(input),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) return { error: data?.error ?? `Could not submit review (${res.status})` };
+  return { review: data.review as StoreReview };
+}
