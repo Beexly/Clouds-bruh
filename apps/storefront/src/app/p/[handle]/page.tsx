@@ -11,7 +11,7 @@ import { getRegionId, PRODUCT_FIELDS, priceCents, priceStr } from '../../../lib/
 import { breadcrumbList, jsonLdScript } from '../../../lib/jsonld';
 import type { ProductTruth } from '@alterxiv/shared';
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://lumera.example';
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://lumeralabel.com';
 
 interface PdpReview {
   id: string;

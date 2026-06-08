@@ -28,7 +28,7 @@ const sans = Inter({
   display: 'swap',
 });
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://lumera.example';
+const SITE = process.env.NEXT_PUBLIC_SITE_URL || 'https://lumeralabel.com';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),

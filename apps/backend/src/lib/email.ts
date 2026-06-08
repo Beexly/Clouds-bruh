@@ -24,7 +24,7 @@ export async function sendEmail({ to, subject, html, from }: SendEmailInput): Pr
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return { sent: false, reason: 'no_api_key' };
 
-  const sender = from || process.env.NOTIFICATION_EMAIL_FROM || 'Lumera <no-reply@lumera.example>';
+  const sender = from || process.env.NOTIFICATION_EMAIL_FROM || 'Lumera <no-reply@lumeralabel.com>';
   try {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',

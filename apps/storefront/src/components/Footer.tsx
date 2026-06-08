@@ -27,7 +27,7 @@ export function Footer() {
         </nav>
         <div className="space-y-2 text-sm text-neutral-500">
           <div className="text-micro uppercase text-neutral-600">Contact</div>
-          <a href="mailto:hello@lumera.example" className="block transition-colors hover:text-foil">hello@lumera.example</a>
+          <a href="mailto:hello@lumeralabel.com" className="block transition-colors hover:text-foil">hello@lumeralabel.com</a>
         </div>
       </div>
       <div className="border-t border-white/[0.04] px-6 py-5 text-center text-micro uppercase text-neutral-700">
