@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { BRAND, EXPERIENCE } from '../lib/brand';
+import { NewsletterSignup } from './NewsletterSignup';
 
 const CHAPTERS = ['stillness', 'armor', 'signal', 'altar', 'relentless'] as const;
 
@@ -7,6 +8,15 @@ const CHAPTERS = ['stillness', 'armor', 'signal', 'altar', 'relentless'] as cons
 export function Footer() {
   return (
     <footer className="mt-24 border-t border-white/[0.06] bg-void/60">
+      <div className="mx-auto max-w-7xl px-6 pt-12">
+        <div className="flex flex-col gap-4 rounded-sm border border-white/[0.06] bg-white/[0.02] p-6 md:flex-row md:items-center md:justify-between md:gap-10">
+          <div>
+            <p className="text-micro uppercase text-neutral-600">The Broadcast</p>
+            <p className="mt-1 font-serif text-xl text-neutral-100">First access to every drop.</p>
+          </div>
+          <div className="w-full md:w-96"><NewsletterSignup source="footer" /></div>
+        </div>
+      </div>
       <div className="mx-auto grid max-w-7xl gap-8 px-6 py-12 md:grid-cols-4">
         <div>
           <div className="font-sans text-xl font-medium lowercase tracking-[0.1em] text-foil">{BRAND}</div>
