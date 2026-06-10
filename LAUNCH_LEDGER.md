@@ -56,6 +56,8 @@ About/brand-story page (founder voice session) · margin-safe referral · live t
 ---
 
 ## FOUNDER CRITICAL PATH (only you can do these — ordered, time-boxed)
+> **Executable version:** paste the prompt in `FOUNDER_COWORK.md` into a Claude session — it drives
+> you through every item below one at a time, with verification and no-skip rules.
 | # | Action | Time | Unblocks |
 |---|---|---|---|
 | 1 | **Push the `safety/` branch to origin** (Stripe rail + wallets) so the Director can see/verify it | 10 min | B1, D3 |

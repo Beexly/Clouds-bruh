@@ -6,7 +6,7 @@ name: CI
 
 on:
   push:
-    branches: [deploy/medusa-cloud, claude/epic-clarke-XPZhF]
+    branches: [deploy/medusa-cloud, claude/epic-clarke-XPZhF, claude/affectionate-clarke-KJ8O1]
   pull_request:
   workflow_dispatch:
 
