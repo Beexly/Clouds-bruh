@@ -47,3 +47,51 @@ export function gradeDrop(input: DropGradeInput): DropGrade {
   }
   return { grade: 'hold', sell_through: st, reason: `sell-through ${(st * 100).toFixed(0)}% — between thresholds; re-grade next cycle` };
 }
+
+export interface LiveDrop extends DropGradeInput {
+  id: string;
+  name?: string;
+}
+
+/** An action the LATR loop proposes for founder approval. agent+tool match that agent's real escalation gate. */
+export interface DropProposal {
+  drop_id: string;
+  name?: string;
+  grade: 'scale' | 'kill';
+  sell_through: number;
+  agent: 'forecaster' | 'warden';
+  tool: 'trigger_reorder' | 'delist_product';
+  input: Record<string, unknown>;
+  reason: string;
+}
+
+/**
+ * The actionable half of the LATR loop: grade live drops, emit founder-approval proposals — winners
+ * become a Forecaster restock (`trigger_reorder`), dead stock a Warden delist (`delist_product`).
+ * 'hold'/'early' produce nothing. Each proposal maps to that agent's REAL escalation gate, so the
+ * founder Approval Loop executes it on one tap. Sorted: restocks first (revenue), then kills (free
+ * the capital); within each, the most decisive sell-through leads.
+ */
+export function planDropActions(drops: LiveDrop[]): DropProposal[] {
+  const out: DropProposal[] = [];
+  for (const d of drops) {
+    const g = gradeDrop(d);
+    if (g.grade === 'scale') {
+      out.push({
+        drop_id: d.id, name: d.name, grade: 'scale', sell_through: g.sell_through,
+        agent: 'forecaster', tool: 'trigger_reorder',
+        input: { drop_id: d.id, qty: g.restock_qty }, reason: g.reason,
+      });
+    } else if (g.grade === 'kill') {
+      out.push({
+        drop_id: d.id, name: d.name, grade: 'kill', sell_through: g.sell_through,
+        agent: 'warden', tool: 'delist_product',
+        input: { drop_id: d.id }, reason: g.reason,
+      });
+    }
+  }
+  const rank = (p: DropProposal) => (p.grade === 'scale' ? 0 : 1);
+  return out.sort(
+    (a, b) => rank(a) - rank(b) || (a.grade === 'scale' ? b.sell_through - a.sell_through : a.sell_through - b.sell_through)
+  );
+}

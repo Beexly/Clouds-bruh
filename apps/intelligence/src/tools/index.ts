@@ -25,8 +25,10 @@ import {
   datasetQuery, productDraft, contentDraft, schemaWrite,
   imageTemplates, imageWrite, brandAudit, ledgerTool,
 } from './stubs';
+import { gradeDropsTool } from './drops';
 
 export const TOOLS: Record<string, Tool> = {
+  grade_drops: gradeDropsTool,
   medusa_admin_read: medusaAdminRead,
   medusa_admin_write_order: medusaAdminWriteOrder,
   shein_scraper: sheinScraper,
