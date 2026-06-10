@@ -114,7 +114,7 @@ export default function ReturnsPage() {
               value={form.email}
               onChange={set('email')}
               autoComplete="email"
-              placeholder="you@example.com"
+              placeholder="you@domain.com"
               className="w-full border border-white/10 bg-void px-3 py-2.5 text-sm text-neutral-200 outline-none focus:border-altar-gold/40"
             />
           </div>
