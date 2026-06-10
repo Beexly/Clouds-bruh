@@ -76,6 +76,17 @@ export function mintingBlocked(): boolean {
   return liveMoney && process.env.MONETIZATION_ALLOW_UNPAID_ISSUE !== 'true';
 }
 
+/**
+ * Whether a payment provider may return a SIMULATED (fixture) success in place of a real PSP result.
+ * Allowed ONLY outside production, so dev/test/CI can exercise checkout without live payment creds.
+ * In production a provider that cannot reach its API (unconfigured, network failure, non-OK response)
+ * MUST throw instead — a charge/refund that did not actually happen can never be reported to Medusa as
+ * success. This is the money-honesty invariant; see the PayPal provider's capture/refund paths.
+ */
+export function paymentSimulationAllowed(): boolean {
+  return process.env.NODE_ENV !== 'production';
+}
+
 // ── SSRF guard ──────────────────────────────────────────────────────────────
 const BLOCKED_HOSTS = new Set(['localhost', '0.0.0.0', '::1', '169.254.169.254', 'metadata.google.internal', 'metadata']);
 

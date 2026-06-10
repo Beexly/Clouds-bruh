@@ -24,6 +24,7 @@ import type {
   UpdatePaymentOutput,
 } from '@medusajs/framework/types';
 import { paypalBaseUrl, formatPayPalAmount } from './money';
+import { paymentSimulationAllowed } from '../../lib/security';
 // Re-export the pure money-boundary helpers so existing importers (and tests) keep using './service'
 // while the implementation lives in the no-deps ./money module (also used by the sandbox proof script).
 export { paypalBaseUrl, formatPayPalAmount } from './money';
@@ -183,8 +184,16 @@ export class LumeraPayPalProviderService extends AbstractPaymentProvider<PayPalO
         const captured = (await res.json()) as Record<string, unknown>;
         return { data: { ...data, ...captured, captured: true } };
       }
+      // Configured + a real capture was attempted but did NOT succeed — surface the failure instead of
+      // reporting a capture that never happened. Medusa marks the payment failed; the order is not paid.
+      throw new Error(`paypal_capture_failed${orderId ? `:${orderId}` : ''}`);
     }
-    return { data: { ...data, captured: true } };
+    // Unconfigured (or no order id): only a non-production runtime may simulate a capture so dev/test/CI
+    // can exercise checkout. In production we must never fake a charge — refuse loudly.
+    if (!paymentSimulationAllowed()) {
+      throw new Error('paypal_capture_unavailable:not_configured');
+    }
+    return { data: { ...data, captured: true, simulated: true } };
   }
 
   async cancelPayment(input: CancelPaymentInput): Promise<CancelPaymentOutput> {
@@ -207,8 +216,16 @@ export class LumeraPayPalProviderService extends AbstractPaymentProvider<PayPalO
         const refund = (await res.json()) as Record<string, unknown>;
         return { data: { ...data, refund } };
       }
+      // Configured + a real refund was attempted but did NOT succeed — surface it. Reporting a false
+      // refund success is the worst failure mode here (customer believes they were refunded, weren't).
+      throw new Error(`paypal_refund_failed:${captureId}`);
     }
-    return { data: { ...data, refunded_amount: amount } };
+    // Configured-but-missing-capture-id, or unconfigured: only simulate outside production. In
+    // production we must never report a refund that did not actually move money.
+    if (!paymentSimulationAllowed()) {
+      throw new Error(this.configured() ? 'paypal_refund_unavailable:missing_capture_id' : 'paypal_refund_unavailable:not_configured');
+    }
+    return { data: { ...data, refunded_amount: amount, simulated: true } };
   }
 
   async retrievePayment(input: RetrievePaymentInput): Promise<RetrievePaymentOutput> {

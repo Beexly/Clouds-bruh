@@ -128,3 +128,72 @@ describe('LumeraPayPalProviderService (gated, fixture-safe)', () => {
     expect(out.data?.session_id).toBe('c9');
   });
 });
+
+describe('LumeraPayPalProvider money-honesty (no false success)', () => {
+  const OLD_ENV = process.env.NODE_ENV;
+  afterEach(() => {
+    process.env.NODE_ENV = OLD_ENV;
+    delete process.env.PAYPAL_CLIENT_ID;
+    delete process.env.PAYPAL_CLIENT_SECRET;
+    vi.restoreAllMocks();
+  });
+
+  const svc = () => new (LumeraPayPalProviderService as any)({}, {}) as LumeraPayPalProviderService;
+
+  /** Mock fetch: PayPal OAuth token always succeeds; the action endpoint resolves to `actionOk`. */
+  function mockPayPal(actionOk: boolean, actionJson: Record<string, unknown> = {}) {
+    return vi.spyOn(globalThis, 'fetch').mockImplementation(async (url: any) => {
+      const u = String(url);
+      if (u.includes('/v1/oauth2/token')) {
+        return { ok: true, json: async () => ({ access_token: 't0ken', expires_in: 3000 }) } as any;
+      }
+      return { ok: actionOk, status: actionOk ? 200 : 422, json: async () => actionJson } as any;
+    });
+  }
+
+  it('capturePayment() THROWS when configured and the PayPal capture call fails (no false success)', async () => {
+    process.env.NODE_ENV = 'production';
+    process.env.PAYPAL_CLIENT_ID = 'id';
+    process.env.PAYPAL_CLIENT_SECRET = 'secret';
+    mockPayPal(false);
+    await expect(svc().capturePayment({ data: { id: 'o1' } } as any)).rejects.toThrow(/paypal_capture_failed/);
+  });
+
+  it('capturePayment() returns the real captured result (no simulated marker) when the call succeeds', async () => {
+    process.env.PAYPAL_CLIENT_ID = 'id';
+    process.env.PAYPAL_CLIENT_SECRET = 'secret';
+    mockPayPal(true, { id: 'o1', status: 'COMPLETED' });
+    const out = await svc().capturePayment({ data: { id: 'o1' } } as any);
+    expect((out.data as any).captured).toBe(true);
+    expect((out.data as any).simulated).toBeUndefined();
+  });
+
+  it('refundPayment() THROWS when configured and the PayPal refund call fails (never a false refund)', async () => {
+    process.env.PAYPAL_CLIENT_ID = 'id';
+    process.env.PAYPAL_CLIENT_SECRET = 'secret';
+    mockPayPal(false);
+    await expect(
+      svc().refundPayment({ data: { id: 'o1', capture_id: 'cap1' }, amount: 5 } as any)
+    ).rejects.toThrow(/paypal_refund_failed/);
+  });
+
+  it('capturePayment()/refundPayment() REFUSE to simulate in production when unconfigured', async () => {
+    process.env.NODE_ENV = 'production';
+    delete process.env.PAYPAL_CLIENT_ID;
+    delete process.env.PAYPAL_CLIENT_SECRET;
+    const fetchSpy = vi.spyOn(globalThis, 'fetch');
+    await expect(svc().capturePayment({ data: { id: 'o1' } } as any)).rejects.toThrow(/paypal_capture_unavailable/);
+    await expect(svc().refundPayment({ data: { id: 'o1' }, amount: 5 } as any)).rejects.toThrow(/paypal_refund_unavailable/);
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it('marks simulated results outside production so a fixture success is never mistaken for a real one', async () => {
+    process.env.NODE_ENV = 'test';
+    delete process.env.PAYPAL_CLIENT_ID;
+    delete process.env.PAYPAL_CLIENT_SECRET;
+    const cap = await svc().capturePayment({ data: { id: 'o1' } } as any);
+    const ref = await svc().refundPayment({ data: { id: 'o1' }, amount: 5 } as any);
+    expect((cap.data as any).simulated).toBe(true);
+    expect((ref.data as any).simulated).toBe(true);
+  });
+});
