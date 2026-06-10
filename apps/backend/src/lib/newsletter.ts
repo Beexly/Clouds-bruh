@@ -24,13 +24,17 @@ export function normalizeEmail(raw: unknown): string | null {
 let _ensured: Promise<void> | null = null;
 function ensureTable(): Promise<void> {
   if (_ensured) return _ensured;
+  // CREATE for fresh DBs; ALTER ADD COLUMN IF NOT EXISTS so pre-existing tables gain unsubscribed_at
+  // (the CAN-SPAM suppression marker) without a separate migration. Multi-statement, no params.
   _ensured = pool()
     .query(`
       CREATE TABLE IF NOT EXISTS lumera_newsletter_subscriber (
         email text primary key,
         source text,
-        created_at timestamptz not null default now()
+        created_at timestamptz not null default now(),
+        unsubscribed_at timestamptz
       );
+      ALTER TABLE lumera_newsletter_subscriber ADD COLUMN IF NOT EXISTS unsubscribed_at timestamptz;
     `)
     .then(() => undefined)
     .catch((e: any) => {
@@ -47,11 +51,55 @@ function ensureTable(): Promise<void> {
 export async function saveSubscriber(email: string, source = 'storefront'): Promise<boolean> {
   try {
     await ensureTable();
+    // Re-subscribing clears any prior unsubscribe (an explicit opt-in overrides a past opt-out).
     await pool().query(
-      `INSERT INTO lumera_newsletter_subscriber (email, source) VALUES ($1, $2) ON CONFLICT (email) DO NOTHING`,
+      `INSERT INTO lumera_newsletter_subscriber (email, source) VALUES ($1, $2)
+       ON CONFLICT (email) DO UPDATE SET unsubscribed_at = NULL`,
       [email, (source || 'storefront').slice(0, 40)]
     );
     return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Record a CAN-SPAM unsubscribe (idempotent; upserts the row if we never saw the address). Best-effort
+ * — returns false on an invalid address or any DB error so the unsubscribe handler still confirms to
+ * the user (the ESP also maintains its own suppression list).
+ */
+export async function recordUnsubscribe(email: string): Promise<boolean> {
+  const e = normalizeEmail(email);
+  if (!e) return false;
+  try {
+    await ensureTable();
+    await pool().query(
+      `INSERT INTO lumera_newsletter_subscriber (email, source, unsubscribed_at)
+       VALUES ($1, 'unsubscribe', now())
+       ON CONFLICT (email) DO UPDATE SET unsubscribed_at = now()`,
+      [e]
+    );
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Whether an address has opted out of marketing. Best-effort: on a DB error we return false (don't
+ * hard-block the whole marketing lane on a storage blip) — the per-recipient send path and the ESP
+ * provide additional suppression layers.
+ */
+export async function isSuppressed(email: string): Promise<boolean> {
+  const e = normalizeEmail(email);
+  if (!e) return false;
+  try {
+    await ensureTable();
+    const { rows } = await pool().query(
+      `SELECT 1 FROM lumera_newsletter_subscriber WHERE email = $1 AND unsubscribed_at IS NOT NULL LIMIT 1`,
+      [e]
+    );
+    return rows.length > 0;
   } catch {
     return false;
   }

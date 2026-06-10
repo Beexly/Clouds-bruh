@@ -57,4 +57,10 @@ describe('review-request render (no fake-review pressure)', () => {
     expect(out.html.toLowerCase()).toContain('honest');
     expect(out.html).not.toMatch(/\b(discount|coupon|% off|free gift|reward for)\b/i);
   });
+
+  it('carries the CAN-SPAM footer (it is a marketing email)', () => {
+    const out = renderReviewRequest({ email: 'patron@buyer.test', display_id: 42, items: [{ title: 'Eclipse Hoodie' }] });
+    expect(out.html.toLowerCase()).toContain('unsubscribe');
+    expect(out.html).toContain('/unsubscribe?token=');
+  });
 });

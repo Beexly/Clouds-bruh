@@ -5,6 +5,8 @@ import {
   stampReviewRequest,
 } from '../lib/review-request';
 import { renderReviewRequest, sendEmail, trackKlaviyoEvent } from '../lib/email';
+import { marketingAllowed } from '../lib/email-compliance';
+import { isSuppressed } from '../lib/newsletter';
 
 /**
  * Post-purchase review request — daily scheduled job.
@@ -28,6 +30,11 @@ export default async function reviewRequest(_container: MedusaContainer) {
     console.warn('[review-request] DATABASE_URL not set; skipping.');
     return;
   }
+  // CAN-SPAM: the review request is a marketing email — require a postal address (in production).
+  if (!marketingAllowed()) {
+    console.warn('[review-request] COMPANY_POSTAL_ADDRESS not set in production; skipping (CAN-SPAM).');
+    return;
+  }
 
   const now = new Date();
   let sent = 0;
@@ -49,6 +56,12 @@ export default async function reviewRequest(_container: MedusaContainer) {
           now
         );
         if (!eligible) {
+          skipped++;
+          continue;
+        }
+
+        // Honor unsubscribes (CAN-SPAM): never email an address that opted out.
+        if (await isSuppressed(order.email)) {
           skipped++;
           continue;
         }

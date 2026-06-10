@@ -5,6 +5,8 @@ import {
   stampAbandonedEmail,
 } from '../lib/abandoned-cart';
 import { renderAbandonedCart, sendEmail, trackKlaviyoEvent } from '../lib/email';
+import { marketingAllowed } from '../lib/email-compliance';
+import { isSuppressed } from '../lib/newsletter';
 
 /**
  * Abandoned-cart recovery — hourly scheduled job.
@@ -29,6 +31,11 @@ export default async function abandonedCart(_container: MedusaContainer) {
     console.warn('[abandoned-cart] DATABASE_URL not set; skipping.');
     return;
   }
+  // CAN-SPAM: never send a marketing email without a postal address (in production). Skip the run.
+  if (!marketingAllowed()) {
+    console.warn('[abandoned-cart] COMPANY_POSTAL_ADDRESS not set in production; skipping (CAN-SPAM).');
+    return;
+  }
 
   const now = new Date();
   let sent = 0;
@@ -51,6 +58,12 @@ export default async function abandonedCart(_container: MedusaContainer) {
           now
         );
         if (!eligible) {
+          skipped++;
+          continue;
+        }
+
+        // Honor unsubscribes (CAN-SPAM): never email an address that opted out.
+        if (await isSuppressed(cart.email)) {
           skipped++;
           continue;
         }

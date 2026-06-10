@@ -136,4 +136,20 @@ describe('email — renderAbandonedCart', () => {
     expect(out.html).toContain('Thing');
     expect(out.html).toContain('$50.00');
   });
+
+  it('carries the CAN-SPAM footer: unsubscribe link + postal address', () => {
+    const out = renderAbandonedCart({ email: 'patron@lumera.example', items: [{ title: 'Thing', quantity: 1, unit_price: 5000 }] });
+    expect(out.html.toLowerCase()).toContain('unsubscribe');
+    expect(out.html).toContain('/unsubscribe?token=');
+  });
+});
+
+describe('email — transactional mail is exempt (no marketing footer)', () => {
+  it('order confirmation has NO unsubscribe footer (transactional)', () => {
+    const out = renderOrderConfirmation({
+      id: 'o1', display_id: 1, email: 'x@y.com', currency_code: 'usd',
+      items: [{ title: 'Thing', quantity: 1, unit_price: 5000 }],
+    });
+    expect(out.html.toLowerCase()).not.toContain('unsubscribe');
+  });
 });

@@ -6,6 +6,8 @@
  * should treat a `{ sent: false }` result as benign.
  */
 
+import { marketingFooter } from './email-compliance';
+
 export interface SendEmailInput {
   to: string;
   subject: string;
@@ -313,6 +315,7 @@ export function renderAbandonedCart(cart: AbandonedCartLike): SendEmailInput {
       <p style="margin:36px 0 0;font-size:12px;line-height:1.6;color:#5C5C63;">
         Broadcast live, and shaped to you. &mdash; Lumera
       </p>
+      ${marketingFooter({ email: cart.email ?? '', reason: 'You’re receiving this because you started a checkout at Lumera.' })}
     </div>
   </body>
 </html>`;
@@ -371,6 +374,7 @@ export function renderReviewRequest(order: ReviewRequestLike): SendEmailInput {
       <p style="margin:36px 0 0;font-size:12px;line-height:1.6;color:#5C5C63;">
         Broadcast live, and shaped to you. &mdash; Lumera
       </p>
+      ${marketingFooter({ email: order.email ?? '', reason: 'You’re receiving this because you placed an order with Lumera.' })}
     </div>
   </body>
 </html>`;
