@@ -105,6 +105,12 @@ export function CommandPalette() {
                 ref={inputRef}
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && q.trim()) {
+                    signal('search', undefined, q, { surface: 'command_palette_submit' });
+                    go(`/search?q=${encodeURIComponent(q.trim())}`);
+                  }
+                }}
                 placeholder="Search the Broadcast — objects, chapters…"
                 aria-label="Search the Broadcast"
                 className="w-full bg-transparent px-5 py-4 font-serif text-lg text-neutral-100 placeholder:text-neutral-600 focus:outline-none"
@@ -158,6 +164,20 @@ export function CommandPalette() {
                     {!loading && q.trim() && results.length === 0 && (
                       <p className="px-2 py-3 text-sm text-neutral-600">Nothing found.</p>
                     )}
+                  </div>
+                )}
+                {q.trim() && !loading && (
+                  <div className="border-t border-white/5 px-3 py-2">
+                    <button
+                      onClick={() => {
+                        signal('search', undefined, q, { surface: 'command_palette_submit' });
+                        go(`/search?q=${encodeURIComponent(q.trim())}`);
+                      }}
+                      className="flex w-full items-center justify-between rounded-sm px-2 py-2 text-micro uppercase text-neutral-500 transition hover:bg-white/[0.04] hover:text-altar-goldlight"
+                    >
+                      <span>See all results for &ldquo;{q.trim()}&rdquo;</span>
+                      <span aria-hidden>&rarr;</span>
+                    </button>
                   </div>
                 )}
               </div>
