@@ -74,6 +74,11 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
          FROM signal_event WHERE ts > now() - interval '7 days'`
     ).catch(() => [{ total: 0, purchases: 0 }]);
 
+    // Email-list size — degrades to 0 if the table doesn't exist yet (no signups).
+    const [subs] = await q<{ count: number }>(
+      `SELECT COUNT(*)::int AS count FROM lumera_newsletter_subscriber`
+    ).catch(() => [{ count: 0 }]);
+
     // ── Founder business KPIs ────────────────────────────────────────────────
     // All read-only, all integer-cents (divide by 100 for display), each independently
     // .catch()-wrapped so a missing/empty table or schema drift degrades to zero — never a 500.
@@ -176,6 +181,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
       audits_7d: audits,
       drops,
       signals_7d: signals,
+      newsletter_subscribers: subs?.count ?? 0,
       kpis,
       integrations: integrationStatus(),
     });

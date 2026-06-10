@@ -181,9 +181,10 @@ export default async function Cockpit() {
         </section>
 
         {/* Stats */}
-        <section className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <section className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           <Stat label="Signals · 7d" value={d?.signals_7d?.total ?? 0} />
           <Stat label="Purchases · 7d" value={d?.signals_7d?.purchases ?? 0} />
+          <Stat label="Email list" value={d?.newsletter_subscribers ?? 0} />
           <Stat label="Audit warnings" value={`${warns + errors}`} />
           <Stat label="Approvals waiting" value={inbox.length} />
         </section>
