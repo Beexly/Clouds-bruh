@@ -12,6 +12,7 @@ import Loyalist from './loyalist';
 import Rainmaker from './rainmaker';
 import Forecaster from './forecaster';
 import Refiner from './refiner';
+import Warden from './warden';
 import type { AgentDef } from './types';
 
 export const AGENTS: Record<string, AgentDef> = {
@@ -20,5 +21,6 @@ export const AGENTS: Record<string, AgentDef> = {
   sourcer: Sourcer, treasurer: Treasurer, oracle_keeper: OracleKeeper,
   analyst: Analyst,
   loyalist: Loyalist, rainmaker: Rainmaker, forecaster: Forecaster, refiner: Refiner,
+  warden: Warden,
 };
 export type { AgentDef };

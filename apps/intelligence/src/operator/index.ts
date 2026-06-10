@@ -25,8 +25,9 @@ interface ValidatedStep {
   runId: string;
 }
 
-// The daily order of operations — sourcing/curation first, then make, then sell, then account.
+// The daily order of operations — compliance screens first, then sourcing/curation, make, sell, account.
 const DAILY_PIPELINE = [
+  'warden',
   'sourcer',
   'curator',
   'artisan',

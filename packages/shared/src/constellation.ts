@@ -41,6 +41,7 @@ export const CONSTELLATION: ConstellationMember[] = [
   { key: 'rainmaker', name: 'Rainmaker', department: 'Growth / Revenue', role: 'Proposes new revenue streams — bundles, memberships, wholesale.', cadence: 'Weekly · Tue 09:00', gated: ['launch_experiment', 'change_pricing', 'publish_offer'] },
   { key: 'forecaster', name: 'Forecaster', department: 'Forecasting / Planning', role: 'Predicts demand, revenue, stockouts, and runway before they hit.', cadence: 'Daily · 05:00', gated: ['trigger_reorder', 'commit_purchase_plan'] },
   { key: 'refiner', name: 'Refiner', department: 'Product Optimization / CRO', role: 'Tunes PDP titles, copy, price, and placement from real behavior.', cadence: 'Daily · 04:00', gated: ['apply_product_changes', 'change_pricing'] },
+  { key: 'warden', name: 'Warden', department: 'Compliance / Quality Control', role: 'Screens every product and supplier for IP, safety, and policy risk; vets quality before anything ships.', cadence: 'Daily · 01:00', gated: ['delist_product', 'suspend_supplier', 'approve_restricted_category'] },
 ];
 
 /** Quick lookup by registry key. */
