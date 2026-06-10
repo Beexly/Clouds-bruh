@@ -130,6 +130,69 @@ export function computeReviewStats(ratings: Array<number | { rating: number }>):
   return { count: values.length, average: Math.round((sum / values.length) * 10) / 10 };
 }
 
+/**
+ * Whether a review must be tied to a verified purchase to be published. Default: required in
+ * production (a store's AggregateRating must not be fed by reviews from people who never bought —
+ * an FTC fake-review exposure and a trust hole). Overridable via REVIEWS_REQUIRE_VERIFIED_PURCHASE.
+ */
+export function reviewsRequireVerifiedPurchase(): boolean {
+  const flag = process.env.REVIEWS_REQUIRE_VERIFIED_PURCHASE;
+  if (flag === 'true') return true;
+  if (flag === 'false') return false;
+  return process.env.NODE_ENV === 'production';
+}
+
+/**
+ * PURE policy decision: given the verified-purchase requirement and whether this purchase was
+ * verified, decide whether to accept the review and what its `verified` flag should be. Unit-tested.
+ */
+export function decideReviewAcceptance(opts: {
+  requireVerified: boolean;
+  purchaseVerified: boolean;
+}): { accept: boolean; verified: boolean; error?: string } {
+  if (opts.requireVerified && !opts.purchaseVerified) {
+    return {
+      accept: false,
+      verified: false,
+      error:
+        'We only publish reviews from verified purchases. Include the order number and the email on the order so we can confirm it.',
+    };
+  }
+  return { accept: true, verified: opts.purchaseVerified };
+}
+
+/**
+ * Confirm the address actually bought the product on the referenced order. Matches by email +
+ * product_id and either the internal order id or the display number. Best-effort (→ false on any
+ * error) so a storage blip can't crash the review path. Real-DB behavior is proven on CI verify:api.
+ */
+export async function verifyReviewPurchase(
+  email: string | null | undefined,
+  orderRef: string | null | undefined,
+  productId: string
+): Promise<boolean> {
+  const e = String(email ?? '').trim().toLowerCase();
+  const ref = String(orderRef ?? '').trim().replace(/^#/, '');
+  if (!e || !ref || !productId) return false;
+  try {
+    const { rows } = await pool().query(
+      `SELECT 1
+         FROM "order" o
+         JOIN order_item oi ON oi.order_id = o.id AND oi.deleted_at IS NULL
+         JOIN order_line_item li ON li.id = oi.item_id AND li.deleted_at IS NULL
+        WHERE o.deleted_at IS NULL
+          AND lower(o.email) = $1
+          AND li.product_id = $2
+          AND (o.id = $3 OR CAST(o.display_id AS text) = $3)
+        LIMIT 1`,
+      [e, productId, ref]
+    );
+    return rows.length > 0;
+  } catch {
+    return false;
+  }
+}
+
 // ── DB operations (parameterized SQL only) ─────────────────────────────────────
 
 export async function createReview(input: ReviewInput): Promise<Review> {

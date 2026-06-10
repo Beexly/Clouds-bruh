@@ -1,5 +1,10 @@
-import { describe, it, expect } from 'vitest';
-import { validateReviewInput, computeReviewStats } from './reviews-db';
+import { describe, it, expect, afterEach } from 'vitest';
+import {
+  validateReviewInput,
+  computeReviewStats,
+  reviewsRequireVerifiedPurchase,
+  decideReviewAcceptance,
+} from './reviews-db';
 
 describe('validateReviewInput', () => {
   const base = { product_id: 'prod_1', rating: 5, body: 'Excellent piece, well made.' };
@@ -88,5 +93,44 @@ describe('computeReviewStats', () => {
 
   it('handles a single review', () => {
     expect(computeReviewStats([4])).toEqual({ count: 1, average: 4 });
+  });
+});
+
+describe('verified-purchase review policy (anti fake-review)', () => {
+  const OLD = process.env.REVIEWS_REQUIRE_VERIFIED_PURCHASE;
+  const OLD_ENV = process.env.NODE_ENV;
+  afterEach(() => {
+    if (OLD === undefined) delete process.env.REVIEWS_REQUIRE_VERIFIED_PURCHASE;
+    else process.env.REVIEWS_REQUIRE_VERIFIED_PURCHASE = OLD;
+    process.env.NODE_ENV = OLD_ENV;
+  });
+
+  it('requires verified purchase in production by default; allows opt-out/opt-in', () => {
+    delete process.env.REVIEWS_REQUIRE_VERIFIED_PURCHASE;
+    process.env.NODE_ENV = 'production';
+    expect(reviewsRequireVerifiedPurchase()).toBe(true);
+    process.env.NODE_ENV = 'test';
+    expect(reviewsRequireVerifiedPurchase()).toBe(false);
+    process.env.REVIEWS_REQUIRE_VERIFIED_PURCHASE = 'true';
+    expect(reviewsRequireVerifiedPurchase()).toBe(true);
+    process.env.REVIEWS_REQUIRE_VERIFIED_PURCHASE = 'false';
+    process.env.NODE_ENV = 'production';
+    expect(reviewsRequireVerifiedPurchase()).toBe(false);
+  });
+
+  it('rejects an unverified review when verification is required', () => {
+    const d = decideReviewAcceptance({ requireVerified: true, purchaseVerified: false });
+    expect(d.accept).toBe(false);
+    expect(d.verified).toBe(false);
+    expect(d.error).toMatch(/verified purchases/i);
+  });
+
+  it('accepts and marks verified when the purchase is verified', () => {
+    expect(decideReviewAcceptance({ requireVerified: true, purchaseVerified: true })).toEqual({ accept: true, verified: true });
+  });
+
+  it('when not required, accepts but reflects the true verified status', () => {
+    expect(decideReviewAcceptance({ requireVerified: false, purchaseVerified: false })).toEqual({ accept: true, verified: false });
+    expect(decideReviewAcceptance({ requireVerified: false, purchaseVerified: true })).toEqual({ accept: true, verified: true });
   });
 });

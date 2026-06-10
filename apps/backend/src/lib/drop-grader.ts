@@ -9,7 +9,7 @@
  * Approval Loop runs it. Everything DB is best-effort/fixture-safe; the shaping is pure + tested.
  */
 
-import { pool } from './lumera-db';
+import { pool, ensureAgentRunTable } from './lumera-db';
 import { type LiveDrop, type DropProposal } from '@alterxiv/shared';
 
 /** Read live drops (fixture-safe → []). created_at gives days_live; matches the grade_drops tool. */
@@ -85,6 +85,8 @@ export async function openProposalDropIds(): Promise<Set<string>> {
 /** Best-effort insert of one proposal run into the shared agent_run table (cockpit reads it). */
 export async function insertProposalRun(run: ProposalRun): Promise<boolean> {
   try {
+    // Make the write safe on a fresh Cloud DB where intelligence's Ledger hasn't created agent_run yet.
+    await ensureAgentRunTable();
     await pool().query(
       `INSERT INTO agent_run
          (id, agent, trigger, input, output, tools_used, decisions, status, escalated, pending_actions, started_at, finished_at)

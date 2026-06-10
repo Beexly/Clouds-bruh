@@ -122,6 +122,36 @@ export async function ensureLumeraTables() {
   `);
 }
 
+/**
+ * Ensure the shared `agent_run` table (+ its pending_actions column) exists before the BACKEND writes
+ * to it. `agent_run` is normally created lazily by the intelligence service's Ledger, but the backend
+ * drop-grader writes proposals into the founder approval inbox independently — on a fresh Cloud DB
+ * where the intelligence service hasn't booted yet, that INSERT would silently fail (no column).
+ *
+ * DDL is kept byte-for-byte in sync with apps/intelligence/src/memory/ledger.ts so there is no drift
+ * between the two writers. Idempotent (IF NOT EXISTS / ADD COLUMN IF NOT EXISTS).
+ */
+export async function ensureAgentRunTable(): Promise<void> {
+  await pool().query(`
+    CREATE TABLE IF NOT EXISTS agent_run (
+      id text primary key,
+      agent text not null,
+      trigger text,
+      input jsonb,
+      output jsonb,
+      tools_used text[] not null default '{}',
+      decisions text[] not null default '{}',
+      status text not null default 'unknown',
+      escalated boolean not null default false,
+      outcome text,
+      started_at timestamptz not null default now(),
+      finished_at timestamptz
+    );
+    CREATE INDEX IF NOT EXISTS agent_run_agent_started_idx ON agent_run (agent, started_at DESC);
+    ALTER TABLE agent_run ADD COLUMN IF NOT EXISTS pending_actions jsonb;
+  `);
+}
+
 export function vendorConnections(): VendorConnection[] {
   const liveMode = process.env.VENDOR_LIVE_MODE === 'true';
   const autoSubmit = process.env.AUTO_SUBMIT_VENDOR_ORDERS === 'true';

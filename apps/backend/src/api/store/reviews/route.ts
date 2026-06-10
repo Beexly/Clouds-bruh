@@ -4,6 +4,9 @@ import {
   listReviews,
   productReviewStats,
   validateReviewInput,
+  reviewsRequireVerifiedPurchase,
+  decideReviewAcceptance,
+  verifyReviewPurchase,
   type ReviewInput,
 } from '../../../lib/reviews-db';
 
@@ -36,7 +39,21 @@ export const POST = async (req: MedusaRequest, res: MedusaResponse) => {
     if (!validated.ok) {
       return res.status(400).json({ error: validated.error });
     }
-    const review = await createReview(validated.value);
+
+    // Verified-purchase gate: confirm the reviewer actually bought this product before publishing,
+    // so the AggregateRating can never be inflated by reviews from non-buyers.
+    const requireVerified = reviewsRequireVerifiedPurchase();
+    const purchaseVerified = await verifyReviewPurchase(
+      validated.value.email,
+      validated.value.order_id,
+      validated.value.product_id
+    );
+    const decision = decideReviewAcceptance({ requireVerified, purchaseVerified });
+    if (!decision.accept) {
+      return res.status(403).json({ error: decision.error });
+    }
+
+    const review = await createReview({ ...validated.value, verified: decision.verified });
     return res.status(201).json({ review });
   } catch (e) {
     return res.status(500).json({ error: 'Could not submit review', detail: (e as Error)?.message?.slice(0, 200) });
