@@ -41,7 +41,8 @@ export default async function orderPlaced({ event, container }: SubscriberArgs<{
         const totalQty = (order.items ?? [])
           .filter((i: any) => overlap.includes(i.product_id))
           .reduce((s: number, i: any) => s + (i.quantity ?? 1), 0);
-        await drops.consumeUnits(drop.id, totalQty).catch((e: Error) =>
+        // Post-order accounting: take what's available (floor at 0), never block on insufficiency.
+        await drops.consumeUnits(drop.id, totalQty, { allowPartial: true }).catch((e: Error) =>
           console.warn(`[order-placed] consumeUnits failed for drop ${drop.id}:`, e.message?.slice(0, 60))
         );
         console.log(`[order-placed] Drop ${drop.name}: consumed ${totalQty} units`);
