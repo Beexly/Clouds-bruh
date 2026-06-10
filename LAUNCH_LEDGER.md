@@ -38,6 +38,7 @@ Launch gate = **Payments + Commerce core + Trust & legal + Security must be GREE
 | B4 | **Rotate `COCKPIT_KEY`** (in history) — fresh value in Cloud env only (docs already scrubbed) | **Founder rotates in prod** | `GO_LIVE_TODAY.md` |
 | B5 | **Tax decision**: configure (Stripe Tax recommended) or *knowingly* defer, documented | **Founder decision** | no tax provider found (verified) |
 | B6 | **Real catalog**: ≥ ~20 Warden-screened, founder-approved products seeded on Cloud (not the 10 samples) | **Founder curation** (Curator/Warden assist) | `packages/data/fixtures/*` = 10 rows |
+| B7 | **Storefront deploys fail at platform activation — EVERY deploy since 2026-06-01 15:46 UTC.** Live `.site` serves the June-1 build (`89adb41`); B1 rail/Ignition/Stripe-deps builds all compile clean (OpenNext/Cloudflare bundle OK) then die ~70s later in activation with **no error via CLI** (`strfdepl_01KTSA6M3SP8QQ0E1N0STMQQHV`, `external_id: null`). Not code — first failing commit touched zero storefront files. Suspects: gegege→lumeralabel subdomain switch (same window) or CF worker activation. **Error visible only in the Cloud dashboard deploy view → founder reads it / files support ticket (draft prepared).** ⚠️ Note: this failure is currently the accidental **live-mode firewall** — the stale storefront has no card form, so `pk_live` can't charge anyone. Fixing B7 + live keys + fixture catalog = real charges for sample products. **Sequence: test keys BEFORE B7 fix.** | **Founder** (dashboard/support) → Director drafts ticket | local-agent diagnosis, 2026-06-10 |
 
 ### 🟡 LAUNCH-DEGRADING (works, but underperforms/under-impresses — ships with a knowing note)
 - ~~D1~~ ✅ **DONE** — approval executes stored action (no injection) + `approval_id` idempotency.
@@ -74,6 +75,19 @@ About/brand-story page (founder voice session) · margin-safe referral · live t
 ---
 
 ## CHANGELOG
+- **v2.3 (3b5c6cc, 2026-06-10):** Local-agent prod diagnosis ingested. **NEW BLOCKER B7**: storefront
+  platform-activation failures since June 1 (live .site = June-1 build; builds clean, activation dies,
+  error dashboard-only). Verified env truths: `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` missing on
+  Production; `MEDUSA_BACKEND_URL` still gegege (repoint correct — lumeralabel is the
+  custom_subdomain); **JWT_SECRET2 does NOT exist on Production** (earlier screenshots were another
+  env/stale — nothing to delete); `custom_domain: null` (lumeralabel.com not attached yet → set
+  `NEXT_PUBLIC_SITE_URL` at DNS cutover, not before, to avoid canonicals to an unattached domain).
+  Security notes: `mcloud environments get --json` prints the DB connection string in plaintext
+  (scrollback hygiene); E2E slice still blocked on a test key. Shipped: **daily 6am deterministic
+  curation-board refresh** in the backend (CI #76 green) — the founder's research/quality cadence no
+  longer depends on the un-deployed orchestrator. Deploy FF to 3b5c6cc **held** (classifier + Director
+  concur): a storefront deploy success while `pk_live` is set would light up live checkout on a fixture
+  catalog — test-keys decision comes first.
 - **v2.2 (f48ca0d, 2026-06-10):** B1 card rail (built by a prior session, money-path code) **reviewed
   by the Director** — all 4 files read; verdict PASS (correct provider id `pp_stripe_stripe` + tested,
   server-side amount, honest failure guard, native-webhook capture). CI green on both branches (#70
