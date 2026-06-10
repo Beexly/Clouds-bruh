@@ -35,8 +35,10 @@ export function Footer() {
           <Link href="/legal/terms" className="block transition-colors hover:text-foil">Terms of Service</Link>
           <Link href="/legal/returns" className="block transition-colors hover:text-foil">Returns &amp; Shipping</Link>
         </nav>
-        <div className="space-y-2 text-sm text-neutral-500">
-          <div className="text-micro uppercase text-neutral-600">Contact</div>
+        <div className="space-y-2 text-sm text-neutral-400">
+          <div className="text-micro uppercase text-neutral-600">Help</div>
+          <Link href="/track" className="block transition-colors hover:text-foil">Track order</Link>
+          <Link href="/returns" className="block transition-colors hover:text-foil">Start a return</Link>
           <a href="mailto:hello@lumeralabel.com" className="block transition-colors hover:text-foil">hello@lumeralabel.com</a>
         </div>
       </div>
