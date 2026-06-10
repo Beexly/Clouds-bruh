@@ -75,6 +75,13 @@ About/brand-story page (founder voice session) · margin-safe referral · live t
 ---
 
 ## CHANGELOG
+- **v2.4 (2026-06-10):** ✅ **Stripe keys swapped LIVE→TEST on Production** (verified `sk_test_` /
+  `pk_test_` by the local agent). The prod env previously held `rk_live_` (restricted live secret) +
+  `pk_live_` — checkout was double-wrong and the B7 deploy failure was the accidental live-mode
+  firewall; both now neutralized. **Live-charge risk = gone.** `rk_live_…tHtT` (a Stripe "Agent"-minted
+  live key Garrett didn't knowingly create) → **roll/revoke post-verify** (added to security list).
+  Live `pk_live`/`sk_live` pair stays parked in Stripe for go-live day only. Next fresh session: set
+  `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` + read the B7 activation error + redeploy → run the E2E slice.
 - **v2.3 (3b5c6cc, 2026-06-10):** Local-agent prod diagnosis ingested. **NEW BLOCKER B7**: storefront
   platform-activation failures since June 1 (live .site = June-1 build; builds clean, activation dies,
   error dashboard-only). Verified env truths: `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY` missing on
