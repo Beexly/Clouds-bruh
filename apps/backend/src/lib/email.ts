@@ -323,3 +323,61 @@ export function renderAbandonedCart(cart: AbandonedCartLike): SendEmailInput {
     html,
   };
 }
+
+interface ReviewRequestLike {
+  email?: string;
+  display_id?: string | number;
+  /** Optional link to leave a review (or back to the order). */
+  url?: string;
+  items?: Array<{ title?: string }>;
+}
+
+/**
+ * Brand-aligned post-purchase review request — same dark luminous editorial palette. Sent ONCE,
+ * after the customer has had time to live with the piece. Asks for an honest word; never bribed or
+ * incentivized (the Warden's no-fake-review gate is absolute — we want truth, not stars). CTA optional.
+ */
+export function renderReviewRequest(order: ReviewRequestLike): SendEmailInput {
+  const items = order.items ?? [];
+  const displayId = order.display_id ?? '';
+  const lead = items[0]?.title ? escapeHtml(items[0].title as string) : 'your piece';
+
+  const ctaBlock = order.url
+    ? `
+      <p style="margin:32px 0 0;">
+        <a href="${escapeHtml(order.url)}" style="display:inline-block;padding:14px 28px;border:1px solid #C7A24B;border-radius:2px;color:#C7A24B;text-decoration:none;font-size:12px;letter-spacing:0.18em;text-transform:uppercase;">
+          Share a word &rarr;
+        </a>
+      </p>`
+    : '';
+
+  const html = `<!doctype html>
+<html lang="en">
+  <body style="margin:0;padding:0;background:#0B0B0D;">
+    <div style="max-width:560px;margin:0 auto;padding:48px 32px;background:#0B0B0D;font-family:Inter,Helvetica,Arial,sans-serif;color:#ECECEE;">
+      <p style="margin:0 0 4px;letter-spacing:0.32em;text-transform:uppercase;font-size:11px;color:#C7A24B;">Lumera</p>
+      <p style="margin:0 0 32px;letter-spacing:0.18em;text-transform:uppercase;font-size:10px;color:#7A7A82;">The Broadcast</p>
+
+      <h1 style="margin:0 0 12px;font-family:'Cormorant Garamond',Georgia,serif;font-weight:400;font-size:30px;line-height:1.2;color:#FFFFFF;">
+        How did it land?
+      </h1>
+      <p style="margin:0 0 28px;font-size:14px;line-height:1.6;color:#9A9AA2;">
+        You&rsquo;ve had ${lead} a little while now. If it earned its place, a few honest words would mean
+        a great deal &mdash; and help the next person find what&rsquo;s worth having. No stars required, just the truth.
+      </p>
+
+      ${ctaBlock}
+
+      <p style="margin:36px 0 0;font-size:12px;line-height:1.6;color:#5C5C63;">
+        Broadcast live, and shaped to you. &mdash; Lumera
+      </p>
+    </div>
+  </body>
+</html>`;
+
+  return {
+    to: order.email ?? '',
+    subject: `How did it land? — your Lumera ${displayId ? `order #${displayId}` : 'piece'}`,
+    html,
+  };
+}
