@@ -10,6 +10,29 @@ export function isGated(def: AgentDef, toolName: string, input?: any): boolean {
 }
 
 /**
+ * Replay guard for approval execution. Redis streams deliver at-least-once (XAUTOCLAIM reclaim, a
+ * double XADD, or a redelivered un-acked entry), so the same approval job can arrive twice. We claim
+ * each approval_id exactly once per process so an approved action executes once. Bounded so the set
+ * can't grow unbounded. Returns false when this approval_id was already claimed (caller skips).
+ * A missing approval_id can't be deduped — we proceed (legacy/manual calls) rather than block.
+ */
+const processedApprovals = new Set<string>();
+export function claimApproval(approvalId?: string): boolean {
+  if (!approvalId) return true;
+  if (processedApprovals.has(approvalId)) return false;
+  processedApprovals.add(approvalId);
+  if (processedApprovals.size > 5000) {
+    // Drop the oldest ~1000 (insertion order) to keep memory bounded.
+    let n = 0;
+    for (const k of processedApprovals) {
+      processedApprovals.delete(k);
+      if (++n >= 1000) break;
+    }
+  }
+  return true;
+}
+
+/**
  * The founder approved a previously-escalated gated action — close the human-in-the-loop circuit.
  * If the approved tool resolves in the registry it is EXECUTED (with the founder's authority);
  * abstract directives (e.g. `publish_product`) are recorded as approved directives the agent reads
@@ -28,6 +51,25 @@ export async function executeApprovedAction(approval: {
   if (!def) throw new Error(`unknown_agent:${approval.agent}`);
   if (!isGated(def, approval.tool, approval.input)) {
     throw new Error(`not_a_gated_action:${approval.agent}:${approval.tool}`);
+  }
+
+  // Idempotency: ignore a redelivered approval so the action never executes twice (at-least-once
+  // stream delivery). Returns a benign no-op run; the tool is NOT re-run and no outcome is re-recorded.
+  if (!claimApproval(approval.approval_id)) {
+    console.log(`[approval] duplicate ${approval.agent}.${approval.tool} (approval ${approval.approval_id}) ignored`);
+    return {
+      id: crypto.randomUUID(),
+      agent: approval.agent,
+      trigger: 'approval',
+      input: approval,
+      output: { duplicate: true, approval_id: approval.approval_id },
+      tools_used: [],
+      decisions: [`DUPLICATE approval ${approval.approval_id} ignored (idempotent replay guard)`],
+      status: 'success',
+      escalated: false,
+      started_at: new Date().toISOString(),
+      finished_at: new Date().toISOString(),
+    };
   }
 
   const decisions: string[] = [];

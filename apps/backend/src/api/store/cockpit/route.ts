@@ -1,6 +1,7 @@
 import type { MedusaRequest, MedusaResponse } from '@medusajs/framework';
 import pg from 'pg';
 import { integrationStatus } from '../../../lib/integrations';
+import { authorizeOps } from '../../../lib/lumera-auth';
 
 let _pool: pg.Pool | null = null;
 function pool() {
@@ -27,18 +28,11 @@ async function q<T = any>(sql: string, params: any[] = []): Promise<T[]> {
 /**
  * GET /store/cockpit — the Founder's Cockpit: a read-only snapshot of the company running
  * itself. Latest OPERATOR loop, the founder approval inbox (escalations), recent agent runs,
- * open audits, and drop status. Gated by COCKPIT_KEY when set (?key= or x-cockpit-key).
+ * open audits, and drop status. Gated by COCKPIT_KEY (header-only) via authorizeOps.
  */
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
-  // Internal ops surface — fail CLOSED in production. Requires the COCKPIT_KEY header.
-  // Open in non-production for local/dev convenience. Header-only (no query string — avoids log leakage).
-  const required = process.env.COCKPIT_KEY;
-  const provided = req.headers['x-cockpit-key'] as string;
-  if (required) {
-    if (provided !== required) return res.status(401).json({ error: 'unauthorized' });
-  } else if (process.env.NODE_ENV === 'production') {
-    return res.status(401).json({ error: 'unauthorized — set COCKPIT_KEY to expose the cockpit' });
-  }
+  // Internal ops surface — fail CLOSED in production (and in staging via COCKPIT_REQUIRE_KEY).
+  if (!authorizeOps(req, res)) return;
 
   try {
     const [operator] = await q(

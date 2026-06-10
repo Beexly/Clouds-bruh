@@ -51,4 +51,21 @@ describe('executeApprovedAction', () => {
   it('refuses unknown agents', async () => {
     await expect(executeApprovedAction({ agent: 'nobody', tool: 'x' })).rejects.toThrow(/unknown_agent/);
   });
+
+  it('ignores a redelivered approval_id (idempotent — action executes once)', async () => {
+    const approval = {
+      agent: 'artisan',
+      tool: 'image_write',
+      input: { product_id: 'prod_dup_1' },
+      approval_id: `apr_dup_${Date.now()}`,
+    };
+    const first = await executeApprovedAction(approval);
+    expect(first.tools_used).toEqual(['image_write']);
+    expect((first.output as any).duplicate).toBeUndefined();
+
+    const second = await executeApprovedAction(approval);
+    expect((second.output as any).duplicate).toBe(true);
+    expect(second.tools_used).toEqual([]);
+    expect(second.decisions.join(' ')).toMatch(/DUPLICATE/);
+  });
 });

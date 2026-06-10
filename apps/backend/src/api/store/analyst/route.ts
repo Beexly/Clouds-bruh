@@ -1,6 +1,7 @@
 import type { MedusaRequest, MedusaResponse } from '@medusajs/framework';
 import pg from 'pg';
 import { matchQuery, buildInsight, buildChart } from './bi';
+import { authorizeOps } from '../../../lib/lumera-auth';
 
 let _pool: pg.Pool | null = null;
 function pool() {
@@ -10,15 +11,9 @@ function pool() {
 }
 
 export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
-  // Internal BI surface (margins, demand/churn forecasts) — fail CLOSED in production. Open in dev.
-  const opsKey = process.env.COCKPIT_KEY;
-  // Header-only (no query string — avoids key leakage into logs/proxies/history).
-  const opsProvided = req.headers['x-cockpit-key'] as string;
-  if (opsKey) {
-    if (opsProvided !== opsKey) return res.status(401).json({ error: 'unauthorized' });
-  } else if (process.env.NODE_ENV === 'production') {
-    return res.status(401).json({ error: 'unauthorized — set COCKPIT_KEY to expose analytics' });
-  }
+  // Internal BI surface (margins, demand/churn forecasts) — fail CLOSED in production
+  // (and in staging via COCKPIT_REQUIRE_KEY). Header-only key.
+  if (!authorizeOps(req, res)) return;
 
   const question = (req.query.q as string)?.trim();
   if (!question) {

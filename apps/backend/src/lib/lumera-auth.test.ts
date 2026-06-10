@@ -106,6 +106,20 @@ describe("authorizeOps", () => {
     expect(cap.statusCode).toBeUndefined();
   });
 
+  it("fails closed in non-production when COCKPIT_REQUIRE_KEY=true and no key is set (staging guard)", () => {
+    process.env.NODE_ENV = "development";
+    delete process.env.COCKPIT_KEY;
+    process.env.COCKPIT_REQUIRE_KEY = "true";
+    const req = makeReq();
+    const cap = makeRes();
+    try {
+      expect(authorizeOps(req, cap.res)).toBe(false);
+      expect(cap.statusCode).toBe(401);
+    } finally {
+      delete process.env.COCKPIT_REQUIRE_KEY;
+    }
+  });
+
   it("does not accept the key via query string (header-only)", () => {
     process.env.NODE_ENV = "production";
     process.env.COCKPIT_KEY = "secret-key";
