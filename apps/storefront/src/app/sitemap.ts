@@ -16,6 +16,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     })),
     { url: `${SITE}/drops`, lastModified: new Date(), changeFrequency: 'daily' as const, priority: 0.7 },
+    { url: `${SITE}/faq`, lastModified: new Date(), changeFrequency: 'monthly' as const, priority: 0.5 },
     // Static, indexable trust pages (previously absent from the sitemap).
     ...['/gift-cards', '/legal/terms', '/legal/privacy', '/legal/returns'].map((path) => ({
       url: `${SITE}${path}`,

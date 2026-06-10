@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { absUrl, breadcrumbList, webSite, organization, jsonLdScript } from './jsonld';
+import { absUrl, breadcrumbList, webSite, organization, faqPage, jsonLdScript } from './jsonld';
 
 const SITE = 'https://lumera.example';
 
@@ -85,5 +85,27 @@ describe('organization', () => {
     const ld = organization({ name: 'Lumera', url: SITE });
     expect('logo' in ld).toBe(false);
     expect('sameAs' in ld).toBe(false);
+  });
+});
+
+describe('faqPage', () => {
+  it('builds a FAQPage with Question/Answer pairs', () => {
+    const ld = faqPage([
+      { q: 'How long is shipping?', a: 'About 12 business days.' },
+      { q: 'Returns?', a: '30 days, unused.' },
+    ]);
+    expect(ld['@type']).toBe('FAQPage');
+    expect(ld.mainEntity).toHaveLength(2);
+    expect(ld.mainEntity[0]).toMatchObject({
+      '@type': 'Question',
+      name: 'How long is shipping?',
+      acceptedAnswer: { '@type': 'Answer', text: 'About 12 business days.' },
+    });
+  });
+
+  it('drops empty or half-filled items', () => {
+    const ld = faqPage([{ q: 'Only a question', a: '' }, { q: '', a: 'orphan answer' }, { q: 'ok', a: 'yes' }]);
+    expect(ld.mainEntity).toHaveLength(1);
+    expect(ld.mainEntity[0].name).toBe('ok');
   });
 });

@@ -107,3 +107,23 @@ export function organization(input: OrgInput) {
     ...(sameAs.length ? { sameAs } : {}),
   };
 }
+
+export interface FaqItem {
+  q: string;
+  a: string;
+}
+
+/** FAQPage — drives FAQ rich results. Empty/half-filled items are dropped so nothing malformed ships. */
+export function faqPage(items: FaqItem[]) {
+  return {
+    '@context': SCHEMA,
+    '@type': 'FAQPage',
+    mainEntity: items
+      .filter((i) => i && i.q?.trim() && i.a?.trim())
+      .map((i) => ({
+        '@type': 'Question',
+        name: i.q,
+        acceptedAnswer: { '@type': 'Answer', text: i.a },
+      })),
+  };
+}
