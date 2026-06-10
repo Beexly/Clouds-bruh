@@ -85,11 +85,17 @@ export interface Recommendation {
   converted: boolean;
 }
 
+/** A gated tool call an agent wanted to make but parked for founder approval (never executed). */
+export interface PendingAction {
+  tool: string;
+  input: unknown;
+}
+
 /** Every autonomous agent action — fully auditable. */
 export interface AgentRun {
   id: string;
   agent: string;
-  trigger: 'cron' | 'event' | 'manual';
+  trigger: 'cron' | 'event' | 'manual' | 'approval';
   input: unknown;
   output: unknown;
   tools_used: string[];
@@ -97,6 +103,8 @@ export interface AgentRun {
   outcome?: string;
   status: 'running' | 'success' | 'error' | 'awaiting_approval';
   escalated: boolean;
+  /** Populated when escalated: the exact gated calls awaiting the founder. */
+  pending_actions?: PendingAction[];
   started_at: string;
   finished_at?: string;
 }

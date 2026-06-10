@@ -46,8 +46,11 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
          FROM agent_run WHERE agent='operator' ORDER BY started_at DESC LIMIT 1`
     ).catch(() => []);
 
+    // pending_actions read via to_jsonb so a pre-migration DB (column absent) degrades to null.
     const inbox = await q(
-      `SELECT id, agent, decisions, started_at FROM agent_run
+      `SELECT id, agent, decisions, started_at,
+              (to_jsonb(agent_run.*)->'pending_actions') AS pending_actions
+         FROM agent_run
         WHERE status='awaiting_approval' ORDER BY started_at DESC LIMIT 20`
     ).catch(() => []);
 
@@ -167,6 +170,7 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
         agent: r.agent,
         reason: (r.decisions ?? []).filter((d: string) => d.startsWith('ESCALATE')).join('; ') || 'awaiting approval',
         at: r.started_at,
+        pending_actions: r.pending_actions ?? [],
       })),
       recent_runs: recentRuns,
       audits_7d: audits,

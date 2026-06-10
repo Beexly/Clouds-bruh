@@ -111,6 +111,19 @@ async function consumeRedisStream() {
 async function handleJobEntry(msgId: string, fields: string[]): Promise<void> {
   const obj = fieldsToObj(fields);
   const payload = safeJson(obj.payload);
+  // Founder approval decisions from the Cockpit: execute the approved gated action (or record the
+  // rejection) — this closes the human-in-the-loop circuit. Runs even without an Anthropic key.
+  if (payload.type === 'approval') {
+    const { executeApprovedAction } = await import('./run-agent');
+    const { Ledger } = await import('../memory/ledger');
+    if (payload.decision === 'approve') {
+      executeApprovedAction(payload).catch((e: Error) =>
+        console.error('[orchestrator] approval execution error:', e.message?.slice(0, 80)));
+    } else if (payload.run_id) {
+      Ledger.outcome(payload.run_id, 'rejected_by_founder').catch(() => {});
+    }
+    return;
+  }
   const agentName = String(payload.type ?? '').replace(/^agent:/, '');
   if (AGENTS[agentName]) {
     runAgent(agentName, payload.trigger ?? 'event', payload)

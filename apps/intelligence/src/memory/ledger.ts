@@ -35,6 +35,7 @@ export function ensureLedgerTables(): Promise<void> {
         finished_at timestamptz
       );
       CREATE INDEX IF NOT EXISTS agent_run_agent_started_idx ON agent_run (agent, started_at DESC);
+      ALTER TABLE agent_run ADD COLUMN IF NOT EXISTS pending_actions jsonb;
 
       CREATE TABLE IF NOT EXISTS audit (
         id text primary key,
@@ -115,15 +116,17 @@ export const Ledger = {
       async () => {
         await ensureLedgerTables();
         await pool().query(
-          `INSERT INTO agent_run (id, agent, trigger, input, output, tools_used, decisions, status, escalated, started_at, finished_at)
-           VALUES ($1,$2,$3,$4::jsonb,$5::jsonb,$6,$7,$8,$9,$10,$11)
+          `INSERT INTO agent_run (id, agent, trigger, input, output, tools_used, decisions, status, escalated, pending_actions, started_at, finished_at)
+           VALUES ($1,$2,$3,$4::jsonb,$5::jsonb,$6,$7,$8,$9,$10::jsonb,$11,$12)
            ON CONFLICT (id) DO UPDATE SET
              output = EXCLUDED.output, tools_used = EXCLUDED.tools_used, decisions = EXCLUDED.decisions,
-             status = EXCLUDED.status, escalated = EXCLUDED.escalated, finished_at = EXCLUDED.finished_at`,
+             status = EXCLUDED.status, escalated = EXCLUDED.escalated,
+             pending_actions = EXCLUDED.pending_actions, finished_at = EXCLUDED.finished_at`,
           [
             run.id, run.agent, run.trigger,
             JSON.stringify(run.input), JSON.stringify(run.output),
             run.tools_used, run.decisions, run.status, run.escalated,
+            run.pending_actions ? JSON.stringify(run.pending_actions) : null,
             run.started_at, run.finished_at ?? null,
           ]
         );

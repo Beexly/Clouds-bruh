@@ -6,6 +6,8 @@ import {
   rejectCandidate,
   requestSample,
   runCuration,
+  approveEscalation,
+  rejectEscalation,
 } from './actions';
 import { CONSTELLATION } from '@alterxiv/shared';
 
@@ -382,12 +384,39 @@ export default async function Cockpit() {
             <p className="text-sm text-neutral-600">Nothing needs you. The gate is quiet.</p>
           ) : (
             <ul className="space-y-3">
-              {inbox.map((i) => (
-                <li key={i.id} className="border-b border-white/5 pb-2">
-                  <span className="text-micro uppercase text-altar-goldlight">{i.agent}</span>
-                  <p className="text-sm text-neutral-300">{i.reason}</p>
-                </li>
-              ))}
+              {inbox.map((i) => {
+                const pending: any[] = Array.isArray(i.pending_actions) ? i.pending_actions : [];
+                const first = pending[0];
+                return (
+                  <li key={i.id} className="border-b border-white/5 pb-3">
+                    <span className="text-micro uppercase text-altar-goldlight">{i.agent}</span>
+                    <p className="text-sm text-neutral-300">{i.reason}</p>
+                    {first && (
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <span className="rounded-full border border-altar-gold/25 px-2 py-0.5 text-micro uppercase text-altar-goldlight">
+                          {String(first.tool).replace(/_/g, ' ')}
+                        </span>
+                        <form action={approveEscalation}>
+                          <input type="hidden" name="run_id" value={i.id} />
+                          <input type="hidden" name="agent" value={i.agent} />
+                          <input type="hidden" name="tool" value={String(first.tool)} />
+                          <input type="hidden" name="input" value={JSON.stringify(first.input ?? {})} />
+                          <button className="border border-altar-gold/40 px-3 py-1.5 text-micro uppercase text-altar-goldlight transition hover:border-altar-gold">
+                            Approve &amp; Execute
+                          </button>
+                        </form>
+                        <form action={rejectEscalation}>
+                          <input type="hidden" name="run_id" value={i.id} />
+                          <input type="hidden" name="agent" value={i.agent} />
+                          <button className="border border-white/10 px-3 py-1.5 text-micro uppercase text-neutral-500 transition hover:text-neutral-300">
+                            Reject
+                          </button>
+                        </form>
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           )}
         </section>

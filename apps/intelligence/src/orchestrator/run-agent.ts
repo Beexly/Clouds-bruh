@@ -2,7 +2,73 @@ import Anthropic from '@anthropic-ai/sdk';
 import { AGENTS, type AgentDef } from '../agents';
 import { toolsFor } from '../tools';
 import { Ledger } from '../memory/ledger';
-import type { AgentRun } from '@alterxiv/shared';
+import type { AgentRun, PendingAction } from '@alterxiv/shared';
+
+/** Pure gate check: is this tool-use a privileged action this agent must escalate? */
+export function isGated(def: AgentDef, toolName: string, input?: any): boolean {
+  return def.escalation.includes(toolName) || def.escalation.includes(input?.action);
+}
+
+/**
+ * The founder approved a previously-escalated gated action — close the human-in-the-loop circuit.
+ * If the approved tool resolves in the registry it is EXECUTED (with the founder's authority);
+ * abstract directives (e.g. `publish_product`) are recorded as approved directives the agent reads
+ * from its Ledger history on the next run. Refuses anything that is not actually gated for that
+ * agent, so the approval path can never become an arbitrary tool-execution API.
+ * Deliberately requires no ANTHROPIC_API_KEY — approvals execute even with the LLM asleep.
+ */
+export async function executeApprovedAction(approval: {
+  run_id?: string;
+  agent: string;
+  tool: string;
+  input?: any;
+  approval_id?: string;
+}): Promise<AgentRun> {
+  const def = AGENTS[approval.agent];
+  if (!def) throw new Error(`unknown_agent:${approval.agent}`);
+  if (!isGated(def, approval.tool, approval.input)) {
+    throw new Error(`not_a_gated_action:${approval.agent}:${approval.tool}`);
+  }
+
+  const decisions: string[] = [];
+  let output: unknown = null;
+  let status: AgentRun['status'] = 'success';
+
+  const tool = toolsFor([approval.tool])[0];
+  if (tool) {
+    try {
+      output = await tool.run(approval.input ?? {});
+      decisions.push(`FOUNDER-APPROVED → ${approval.tool} EXECUTED (approval ${approval.approval_id ?? 'manual'})`);
+    } catch (e: any) {
+      status = 'error';
+      decisions.push(`FOUNDER-APPROVED → ${approval.tool} FAILED: ${e.message?.slice(0, 80)}`);
+    }
+  } else {
+    // Abstract gated directive (no registry tool). Durable approval: the agent sees it in history.
+    output = { directive: approval.tool, input: approval.input ?? null, approved: true };
+    decisions.push(`FOUNDER-APPROVED DIRECTIVE → ${approval.tool} (recorded; agent acts on next run)`);
+  }
+
+  const run: AgentRun = {
+    id: crypto.randomUUID(),
+    agent: approval.agent,
+    trigger: 'approval',
+    input: approval,
+    output,
+    tools_used: tool ? [approval.tool] : [],
+    decisions,
+    status,
+    escalated: false,
+    started_at: new Date().toISOString(),
+    finished_at: new Date().toISOString(),
+  };
+  await Ledger.record(run);
+  if (approval.run_id) {
+    await Ledger.outcome(approval.run_id, status === 'success' ? 'approved_and_executed' : 'approved_but_failed').catch(() => {});
+  }
+  console.log(`[approval] ${approval.agent}.${approval.tool}: ${status}`);
+  return run;
+}
 
 /**
  * Assemble the system prompt sent to Claude for an agent run.
@@ -37,6 +103,7 @@ export async function runAgent(name: string, trigger: AgentRun['trigger'], input
   const tools = toolsFor(def.tools);
   const decisions: string[] = [];
   const toolsUsed: string[] = [];
+  const pendingActions: PendingAction[] = [];
   let escalated = false;
   let output: unknown = null;
 
@@ -79,9 +146,11 @@ export async function runAgent(name: string, trigger: AgentRun['trigger'], input
     const results: Anthropic.ToolResultBlockParam[] = [];
     for (const tu of toolUses as any[]) {
       toolsUsed.push(tu.name);
-      // ESCALATION GATE: hard stop for privileged actions
-      if (def.escalation.includes(tu.name) || def.escalation.includes(tu.input?.action)) {
+      // ESCALATION GATE: hard stop for privileged actions — parked as a pending action the
+      // founder can approve (one click in the Cockpit) for real execution via executeApprovedAction.
+      if (isGated(def, tu.name, tu.input)) {
         escalated = true;
+        pendingActions.push({ tool: tu.name, input: tu.input });
         decisions.push(`ESCALATE → ${tu.name} queued for Garrett's approval (NOT executed)`);
         results.push({ type: 'tool_result', tool_use_id: tu.id, content: 'QUEUED_FOR_APPROVAL: This action requires human approval. Not executed.' });
         continue;
@@ -115,6 +184,7 @@ export async function runAgent(name: string, trigger: AgentRun['trigger'], input
     decisions,
     status: escalated ? 'awaiting_approval' : 'success',
     escalated,
+    ...(pendingActions.length ? { pending_actions: pendingActions } : {}),
     started_at: new Date().toISOString(),
     finished_at: new Date().toISOString(),
   };
