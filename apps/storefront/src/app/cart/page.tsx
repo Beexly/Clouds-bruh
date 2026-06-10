@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { useCart } from '../../context/cart';
 import { PageSignal } from '../../components/PageSignal';
 import { RewardsPanel } from '../../components/RewardsPanel';
+import { shippingLadder } from '../../lib/shipping-ladder';
 
 export default function CartPage() {
   const { cart, remove } = useCart();
@@ -55,6 +56,27 @@ export default function CartPage() {
               <span className="text-sm text-neutral-400">Total</span>
               <span className="font-serif text-xl text-neutral-100">${(total / 100).toFixed(2)}</span>
             </div>
+
+            {(() => {
+              const ladder = shippingLadder(total);
+              if (!ladder.enabled) return null;
+              return (
+                <div className="mt-4">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className={ladder.remainingCents === 0 ? 'text-altar-goldlight' : 'text-neutral-400'}>
+                      {ladder.message}
+                    </span>
+                    <span className="text-neutral-600">${(ladder.thresholdCents / 100).toFixed(0)}</span>
+                  </div>
+                  <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-neutral-900">
+                    <div
+                      className="h-full rounded-full bg-altar-gold/70 transition-all"
+                      style={{ width: `${Math.round(ladder.progress * 100)}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })()}
 
             <div className="mt-6">
               <RewardsPanel cartTotalCents={total} />
