@@ -24,7 +24,7 @@
 STORE_CORS=https://lumeralabel.com,https://www.lumeralabel.com
 AUTH_CORS=https://lumeralabel.com
 NOTIFICATION_EMAIL_FROM=no-reply@lumeralabel.com
-COCKPIT_KEY=731b563aae28b8ee103f8eadf034942e9bd32d29c7769e2ea2f61d63d0cd895c
+COCKPIT_KEY=<generate-your-own-and-NEVER-commit-it: `openssl rand -hex 32`>
 ANTHROPIC_API_KEY=sk-ant-PASTE
 RESEND_API_KEY=re_PASTE
 STRIPE_API_KEY=sk_test_PASTE
@@ -47,7 +47,7 @@ NEXT_PUBLIC_SITE_URL=https://lumeralabel.com
 NEXT_PUBLIC_MEDUSA_URL=<backend url, e.g. https://gegege.medusajs.app>
 MEDUSA_BACKEND_URL=<same backend url>
 NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=<pk_… from step 3>
-COCKPIT_KEY=731b563aae28b8ee103f8eadf034942e9bd32d29c7769e2ea2f61d63d0cd895c
+COCKPIT_KEY=<generate-your-own-and-NEVER-commit-it: `openssl rand -hex 32`>
 ```
 `NEXT_PUBLIC_*` are public by design: Sensitive OFF, Build ON. Redeploy.
 
