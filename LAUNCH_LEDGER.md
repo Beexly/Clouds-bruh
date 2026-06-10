@@ -14,7 +14,7 @@ Launch gate = **Payments + Commerce core + Trust & legal + Security must be GREE
 
 | Domain | Score | Evidence |
 |---|---|---|
-| **Commerce core** | 🟡 | browse→cart→checkout→order verified in `verify:api` 23/23 (test mode). ✅ **Oversell race fixed** (B2): `consumeUnits()` is now a single guarded atomic UPDATE (`modules/drops/service.ts`, unit-tested; Postgres concurrency proof pending CI). Still 🟡 on **no real catalog on Cloud** (10 sample fixtures, B6). |
+| **Commerce core** | 🟡 | browse→cart→checkout→order verified in `verify:api` (test mode). ✅ **Oversell race fixed** (B2): `consumeUnits()` is a single guarded atomic UPDATE (unit-tested; **CI run #67 green** — migrate·seed·boot·regressions on real Postgres with this code). Still 🟡 on **no real catalog on Cloud** (10 sample fixtures, B6). |
 | **Payments** | 🔴 | **No card input in this tree** — Stripe Elements is a TODO on the unmerged `safety/` branch (`checkout/page.tsx:252`); **Stripe webhook records but never drives capture** (`api/hooks/stripe/route.ts`). ✅ **PayPal false-success fixed** (D6): capture/refund now throw on real failure + refuse to simulate in prod (`modules/lumera-payment-paypal/service.ts`). Still 🔴 until the **card rail** (B1) lands. |
 | **Email engine** | 🟢* | ✅ **CAN-SPAM done** (B3): marketing emails carry a postal address + one-click signed-token unsubscribe (`lib/email-compliance.ts`, `/unsubscribe` route, suppression in `lib/newsletter.ts`); jobs skip without an address in prod + skip suppressed recipients; transactional mail stays exempt. *Asterisk: founder must set `COMPANY_POSTAL_ADDRESS` in prod env. |
 | **Search & discovery** | 🟡 | `/search` + ⌘K wired & tested on fixtures; **not calibrated on real catalog** (the "intelligent" standard can't be GREEN on 10 samples). |
@@ -82,4 +82,12 @@ About/brand-story page (founder voice session) · margin-safe referral · live t
   moves** (B1 card rail, B4 key rotation, B5 tax, B6 catalog, + set `COMPANY_POSTAL_ADDRESS`).
   Held to the bar: nothing unverifiable shipped to the money path as "done" — B2's Postgres
   concurrency + the DB-backed paths are flagged for CI proof, not assumed.
+- **v2.1 (ab12c39, 2026-06-10):** CI restored on the work branch (PR #7, the old vehicle, was
+  merged/closed — pushes ran NO CI since). `ci.yml` push trigger now includes this branch; **run #67
+  GREEN end-to-end**: `build·lint·test` + `verify:api` (migrate · seed · pgvector · boot ·
+  regressions) on real Postgres/Redis — first DB-backed proof of the v2 hardening (atomic
+  consumeUnits, ensureAgentRunTable, /unsubscribe, approvals rework). `FOUNDER_COWORK.md` added
+  (executable founder critical path). Noted: **repo is public** — founder to confirm intent.
+  Verified: no `safety/*` branch on origin; all 13 remote branches grepped for Stripe Elements —
+  zero hits. If the founder's local hunt comes up empty, Director builds the rail on this branch.
 - **v1 (dc2a3f6, 2026-06-10):** Full-state audit (3 lanes, spot-verified). Scorecard 0/4 gate GREEN. Three lists + founder path established. COCKPIT_KEY scrubbed from docs (rotation still required).
