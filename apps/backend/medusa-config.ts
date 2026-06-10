@@ -61,7 +61,19 @@ export default defineConfig({
           ...(process.env.STRIPE_API_KEY ? [{
             resolve: '@medusajs/medusa/payment-stripe',
             id: 'stripe',
-            options: { apiKey: process.env.STRIPE_API_KEY },
+            options: {
+              apiKey: process.env.STRIPE_API_KEY,
+              // Native webhook route (REGISTER THIS URL in the Stripe dashboard):
+              //   {BACKEND_URL}/hooks/payment/stripe_stripe
+              // Medusa core verifies the signature with this secret and drives authorize/capture
+              // idempotently. The custom /hooks/stripe route is audit-recording only.
+              webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+              // Capture on authorization (dropship default). Set STRIPE_MANUAL_CAPTURE=true to hold
+              // funds and capture from admin instead.
+              capture: process.env.STRIPE_MANUAL_CAPTURE !== 'true',
+              // Required for PaymentElement (cards + Apple/Google Pay ride the same intent).
+              automaticPaymentMethods: true,
+            },
           }] : []),
           ...(process.env.PAYPAL_CLIENT_ID ? [{
             resolve: './src/modules/lumera-payment-paypal',

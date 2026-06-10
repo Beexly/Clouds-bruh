@@ -4,17 +4,19 @@ import { useCart } from '../../context/cart';
 import { signal } from '../../lib/signal';
 import { PageSignal } from '../../components/PageSignal';
 import { PayPalButtons } from '../../components/payment/PayPalButtons';
+import { StripeCardForm } from '../../components/payment/StripeCardForm';
 import {
   apiFetch, getShippingOptions, addShippingMethod,
   createPaymentCollection, initPaymentSession, completeCart, getShippingEstimate,
-  paypalProviderAvailable,
+  paypalProviderAvailable, stripeProviderAvailable,
 } from '../../lib/api';
 
 type Step = 'shipping' | 'payment' | 'complete';
 
-// Real-payment rail is gated on a configured PayPal client id. When absent we keep the existing
-// pp_system_default test flow exactly as-is. Stripe Elements is the follow-up (see TODO below).
+// Real-payment rails are gated on configured client-side keys AND backend provider availability.
+// When neither rail is configured we keep the existing pp_system_default test flow exactly as-is.
 const PAYPAL_CLIENT_ID = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || '';
+const STRIPE_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '';
 
 export default function CheckoutPage() {
   const { cart, refresh } = useCart();
@@ -30,6 +32,8 @@ export default function CheckoutPage() {
   // Whether the backend PayPal provider is actually enabled for this cart's region. Defaults false
   // so a misconfigured env (client id set, provider not wired) safely falls back to the test flow.
   const [paypalEnabled, setPaypalEnabled] = useState(false);
+  // Same defensive default for the Stripe card rail: key set but provider not wired → test flow.
+  const [stripeEnabled, setStripeEnabled] = useState(false);
 
   const items: any[] = cart?.items ?? [];
   const total = items.reduce((s: number, li: any) => s + (li.unit_price ?? 0) * (li.quantity ?? 1), 0);
@@ -48,9 +52,24 @@ export default function CheckoutPage() {
     return () => { active = false; };
   }, [cart?.region_id, cart?.region?.id]);
 
-  const usePayPal = Boolean(PAYPAL_CLIENT_ID) && paypalEnabled;
+  // Detect Stripe availability the same way. Defensive: any failure → test flow.
+  useEffect(() => {
+    let active = true;
+    const regionId = cart?.region_id ?? cart?.region?.id;
+    if (!STRIPE_PUBLISHABLE_KEY || !regionId) {
+      setStripeEnabled(false);
+      return;
+    }
+    stripeProviderAvailable(regionId)
+      .then((ok) => { if (active) setStripeEnabled(ok); })
+      .catch(() => { if (active) setStripeEnabled(false); });
+    return () => { active = false; };
+  }, [cart?.region_id, cart?.region?.id]);
 
-  const handlePayPalSuccess = (newOrderId: string) => {
+  const usePayPal = Boolean(PAYPAL_CLIENT_ID) && paypalEnabled;
+  const useStripeRail = Boolean(STRIPE_PUBLISHABLE_KEY) && stripeEnabled;
+
+  const handleRailSuccess = (newOrderId: string) => {
     signal('purchase', newOrderId, total / 100);
     localStorage.removeItem('axiv_cart');
     setOrderId(newOrderId);
@@ -205,7 +224,7 @@ export default function CheckoutPage() {
         {step === 'payment' && (
           <div className="space-y-4">
             <p className="text-[10px] uppercase tracking-widest text-neutral-600">
-              {usePayPal ? 'Payment' : 'Payment (Test Mode)'}
+              {useStripeRail || usePayPal ? 'Payment' : 'Payment (Test Mode)'}
             </p>
 
             <div className="space-y-2 border border-amber-700/20 bg-amber-900/5 p-4">
@@ -225,17 +244,31 @@ export default function CheckoutPage() {
 
             {error && <p className="text-xs text-red-400">{error}</p>}
 
-            {/* Real payment rail (PayPal) when configured + enabled; otherwise the test flow below. */}
-            {usePayPal && cart ? (
+            {/* Real payment rails when configured + enabled; otherwise the test flow below.
+                Card rail (Stripe Elements; Apple/Google Pay ride the same PaymentElement) is primary;
+                PayPal renders alongside it. */}
+            {useStripeRail && cart && (
+              <StripeCardForm
+                cartId={cart.id}
+                publishableKey={STRIPE_PUBLISHABLE_KEY}
+                onSuccess={handleRailSuccess}
+                onError={(msg) => setError(msg)}
+              />
+            )}
+            {useStripeRail && usePayPal && (
+              <p className="text-center text-[10px] uppercase tracking-widest text-neutral-700">— or —</p>
+            )}
+            {usePayPal && cart && (
               <PayPalButtons
                 cartId={cart.id}
                 clientId={PAYPAL_CLIENT_ID}
                 totalCents={total}
                 currency={(cart?.region?.currency_code ?? cart?.currency_code ?? 'USD').toUpperCase()}
-                onSuccess={handlePayPalSuccess}
+                onSuccess={handleRailSuccess}
                 onError={(msg) => setError(msg)}
               />
-            ) : (
+            )}
+            {!useStripeRail && !usePayPal && (
               <>
                 <div className="border border-neutral-800 p-4 space-y-2">
                   <p className="text-xs text-neutral-500">
@@ -249,11 +282,6 @@ export default function CheckoutPage() {
                     enable the PayPal provider on the backend).
                   </p>
                 </div>
-                {/* TODO(stripe): add a Stripe Elements card form as the follow-up real-payment rail.
-                    Deferred here because Stripe Elements needs the @stripe/stripe-js + react-stripe-js
-                    npm packages, which this task may not add. Mirror the PayPal gating: render only
-                    when NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY is set AND the backend stripe provider is
-                    enabled for the region. */}
                 <button
                   onClick={handleComplete}
                   disabled={busy}

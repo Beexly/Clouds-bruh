@@ -59,9 +59,13 @@ COCKPIT_KEY=<generate-your-own-and-NEVER-commit-it: `openssl rand -hex 32`>
 3. Propagation can take minutes→hours; poll, don't panic: `dig +short lumeralabel.com`.
 
 ## 6 · Stripe webhook (~5 min)
-Stripe dashboard → Developers → Webhooks → Add endpoint → point at the backend's Medusa Stripe
-hook URL (your agent can confirm the exact v2 path from the Medusa docs MCP) → copy the signing
-secret → backend env `STRIPE_WEBHOOK_SECRET=whsec_…` → redeploy.
+Stripe dashboard → Developers → Webhooks → Add endpoint → URL:
+`{BACKEND_URL}/hooks/payment/stripe_stripe` (Medusa v2 native payment-webhook route — verified
+against the medusa-config wiring: provider identifier `stripe`, config id `stripe`). Events:
+`payment_intent.succeeded`, `payment_intent.amount_capturable_updated`, `payment_intent.payment_failed`.
+Copy the signing secret → backend env `STRIPE_WEBHOOK_SECRET=whsec_…` → redeploy. Medusa core
+verifies the signature and drives authorize/capture idempotently; the custom `/hooks/stripe`
+route is audit-recording only — do NOT register it as the Stripe endpoint.
 
 ## 7 · Verify (the gate — all must pass before you tell a soul)
 - [ ] Backend deploy green (no `FATAL: … must be set` in the build log)

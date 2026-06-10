@@ -145,6 +145,41 @@ export function paypalOrderIdFromCollection(collection: any): string | null {
   return id ? String(id) : null;
 }
 
+// ── Stripe ────────────────────────────────────────────────────────────────────
+
+/**
+ * Medusa v2 resolves payment provider ids as `pp_{static identifier}_{config id}`; the official
+ * Stripe provider's identifier is `stripe` and it is wired in medusa-config with `id: 'stripe'`,
+ * so the resolved id is `pp_stripe_stripe`.
+ */
+export const STRIPE_PROVIDER_ID = 'pp_stripe_stripe';
+
+/** Pure matcher (unit-tested): true if a region's provider list contains the Stripe provider. */
+export function hasStripeProvider(providers: Array<{ id: string }>): boolean {
+  return providers.some((p) => p?.id === STRIPE_PROVIDER_ID || String(p?.id ?? '').includes('stripe'));
+}
+
+/** True if the Stripe provider is enabled for the region. Defensive: any failure → false. */
+export async function stripeProviderAvailable(regionId: string): Promise<boolean> {
+  const providers = await getPaymentProviders(regionId);
+  return hasStripeProvider(providers);
+}
+
+/**
+ * Resolve the Stripe PaymentIntent client_secret from a payment collection. The official provider
+ * stores it under session.data.client_secret. Money note: the intent (and its amount, integer cents)
+ * is created server-side by the provider — the browser only references the server-issued secret and
+ * never computes or transmits the charge amount.
+ */
+export function stripeClientSecretFromCollection(collection: any): string | null {
+  const sessions = (collection?.payment_sessions ?? []) as any[];
+  const session = sessions.find(
+    (s) => s?.provider_id === STRIPE_PROVIDER_ID || String(s?.provider_id ?? '').includes('stripe')
+  );
+  const secret = session?.data?.client_secret;
+  return secret ? String(secret) : null;
+}
+
 // ── Reviews ─────────────────────────────────────────────────────────────────────
 
 export interface StoreReview {
