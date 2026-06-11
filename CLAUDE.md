@@ -1,105 +1,38 @@
-# WEEK-SAVER MODE — CLAUDE CODE USAGE CONSERVATION STACK
+# CLAUDE.md — orientation for Claude Code
 
-You are operating under strict Claude Code usage conservation for the next 5 days.
+You are building **Lumera**, an intelligent autonomous commerce platform. **Read `docs/ARCHITECTURE.md` first — it is the source of truth.**
 
-My current problem:
-I have already used a large portion of my Claude Code usage, but I still need high-integrity work. The goal is not to work slower. The goal is maximum output per token: tighter context, fewer wasted file reads, smaller diffs, fewer failed loops, and better handoffs.
+## What this is
+An editorial luxury commerce platform ("The Broadcast") with a GSN-class intelligence layer: real-time personalization, a learning loop, autonomous Claude-agent departments, and continuous self-audit. Commerce core is Medusa v2; storefront is Next.js; the agents currently run on a **custom tool-use loop built on the raw Anthropic SDK** (`@anthropic-ai/sdk`) in `apps/intelligence/src/orchestrator/run-agent.ts`. The `@anthropic-ai/claude-agent-sdk` package is declared but **not currently imported/used** — migrating onto it is a future step.
 
-Core rule:
-Do not sacrifice correctness, architecture integrity, security, testability, or production safety. Save usage by reducing waste, not by lowering standards.
+## Repo shape
+- `apps/backend` — Medusa v2 + custom modules: `signal` (events), `personalization` (MIND), `recommendation` (ORACLE), `drops`.
+- `apps/storefront` — Next.js "The Broadcast".
+- `apps/intelligence` — the autonomous agent runtime (CONGREGATION) + Learning Loop + INTROSPECTION.
+- `packages/shared` — types + the SIGNAL event taxonomy (the contract between apps).
+- `packages/data` — Bright Data sample datasets for seeding/benchmarks.
+- `scripts/seed.ts` — seed the catalog from the datasets.
 
-Use these repositories/concepts as the operating reference set:
+## How to work
+1. Build in the order in `docs/ARCHITECTURE.md` §7 and `BUILD.md`.
+2. Data models first (`packages/shared/src/types.ts`) — they are hard to reverse.
+3. Every custom Medusa module follows the EverShop-style anatomy: model + service + migration + api route + subscriber.
+4. Personalize anything that can be personalized. Every storefront interaction must emit a SIGNAL event.
+5. Agents follow `apps/intelligence/src/agents/_contract.md` — least privilege, self-audit, escalation.
 
-Usage tracking:
-- https://github.com/ccusage/ccusage
-- https://github.com/cobra91/better-ccusage
-- https://github.com/Nihondo/AgentLimits
+## Non-negotiables (do not violate)
+- **Verified, not assumed.** Don't mark anything done until it renders/compiles/passes. Write the test, run it.
+- **No autonomous money movement, publishing, or destructive action** by any agent without Garrett's explicit approval. Wire approvals as a gate.
+- **Brand integrity**: dark luminous editorial luxury. Off-brand assets don't ship. Use the frontend-design skill for UI.
+- Use the local Anthropic repos for patterns: `claude-agent-sdk-python`/typescript, `claude-cookbooks`, the `claude-code` action. Prefer adapting these over reinventing agent loops, tool use, or memory. (Reality check: the current runtime hand-rolls the tool-use loop on the raw `@anthropic-ai/sdk`; the `@anthropic-ai/claude-agent-sdk` dep is declared but unused. Moving onto the agent SDK is the intended direction.)
+- Install the **claude-seo** plugin for the Scribe agent's SEO work instead of rebuilding SEO.
 
-Claude Code routing / model discipline:
-- https://github.com/musistudio/claude-code-router
-- https://github.com/9j/claude-code-mux
-- https://github.com/finch-xu/cc-router
+## Lumera dropship lane
+- Founder flow: run `/lumera-curate`, open `/cockpit`, pick candidates, then use `/lumera-publish-approved`.
+- Safety flow: run `/lumera-vendor-preflight` before any live curation or publish work.
+- Fulfillment flow: run `/lumera-fulfillment-drill`; live supplier order submission stays off unless `VENDOR_LIVE_MODE=true` and `AUTO_SUBMIT_VENDOR_ORDERS=true`.
+- Product studio flow: use `/lumera-product-studio` for Garrett-designed Printify/Printful drafts and require sample approval for sizing-sensitive or unknown-quality products.
+- Launch flow: `/lumera-launch-preflight` must keep build, tests, commerce env, and vendor readiness as separate proof layers.
 
-Context compression / repo packing:
-- https://github.com/yamadashy/repomix
-- https://github.com/mufeedvh/code2prompt
-- https://github.com/cyclotruc/gitingest
-- https://github.com/microsoft/LLMLingua
-- https://github.com/scaledown-team/semantic-code-compression
-
-Claude memory / context management:
-- https://github.com/zilliztech/claude-context
-- https://github.com/thedotmack/claude-mem
-- https://github.com/coleam00/context-engineering-intro
-
-Observability / cost visibility:
-- https://github.com/langfuse/langfuse
-- https://github.com/Helicone/helicone
-- https://github.com/Portkey-AI/gateway
-- https://github.com/BerriAI/litellm
-
-Coding-agent efficiency references:
-- https://github.com/Aider-AI/aider
-- https://github.com/sst/opencode
-- https://github.com/continuedev/continue
-- https://github.com/openai/codex
-
-Important:
-Do not clone, install, or deeply inspect all of these automatically. Treat them as reference architecture. Only recommend or use one if it directly helps the current task.
-
-Operating protocol:
-
-1. Before every task, reduce scope.
-   - Identify the smallest file set needed.
-   - Do not scan the full repo unless absolutely required.
-   - Do not inspect unrelated routes, components, tests, docs, or config.
-
-2. Before editing, give me:
-   - target files
-   - why each file matters
-   - intended change
-   - risk level
-   - smallest validation command
-   - whether any repo/tool above would help
-
-3. Context budget rules:
-   - Prefer `repomix`, `code2prompt`, or focused grep/search over dumping large files.
-   - Prefer summarized working memory over rereading the same files.
-   - Keep a running handoff note after each task.
-   - Do not paste large file contents unless necessary.
-   - Do not generate broad implementation essays.
-
-4. Change rules:
-   - Surgical patches only.
-   - No broad refactors.
-   - No unrelated cleanup.
-   - No architecture changes unless explicitly approved.
-   - No touching more than 5 files without asking first.
-   - Prefer existing project patterns.
-
-5. Validation rules:
-   - Run the smallest meaningful validation first.
-   - Do not repeatedly run expensive commands without reason.
-   - If a test fails, diagnose narrowly.
-   - Do not chase unrelated failures unless they block the task.
-
-6. Stop conditions:
-   Stop and ask before continuing if:
-   - uncertainty becomes expensive
-   - more than 5 files are needed
-   - database/schema/auth/payment behavior changes
-   - production behavior changes
-   - the repo structure is unclear
-   - you are about to explore broadly
-   - you need to choose between multiple architectural paths
-
-7. Handoff required after every task:
-   - files changed
-   - exact behavior changed
-   - tests/checks run
-   - remaining risk
-   - next safest step
-   - current working memory summary
-
-Default answer style:
-Brief. Direct. No long explanations unless I ask.
+## Quality bar
+Galaxy Sports Network. If it isn't intelligent, dynamic, personalized, self-improving, and beautiful, it isn't finished.
