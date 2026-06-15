@@ -17,17 +17,17 @@
     "@medusajs/dashboard": "^2.15.5",
     "@medusajs/framework": "^2.15.5",
     "@medusajs/medusa": "^2.15.5",
-    "ioredis": "^5.11.0",
+    "ioredis": "^5.11.1",
     "pg": "^8.13.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
   },
   "devDependencies": {
-    "@swc/core": "^1.15.40",
+    "@swc/core": "^1.15.41",
     "@swc/helpers": "^0.5.23",
-    "@types/node": "^25.9.1",
+    "@types/node": "^25.9.3",
     "ts-node": "^10.9.2",
-    "tsx": "^4.19.0",
-    "typescript": "^5.6.0"
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
   }
 }
