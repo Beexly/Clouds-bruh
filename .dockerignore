@@ -1,0 +1,32 @@
+# Keep the Docker build context small and secret-free. The images install deps and build from
+# source inside the container, so host build artifacts and local env files must never be shipped in.
+
+# Dependencies + package manager state (reinstalled in-image from the lockfile)
+**/node_modules
+.pnpm-store
+.npm
+
+# Secrets / local env — NEVER copy into an image (.env.example is kept for reference)
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.local.example
+
+# Build outputs (rebuilt in-image)
+**/.next
+**/.medusa
+**/dist
+**/build
+**/.turbo
+
+# VCS + CI + editor
+.git
+.github
+.gitignore
+.vscode
+.idea
+
+# Tests, coverage, logs, OS cruft
+**/coverage
+**/*.log
+**/.DS_Store
