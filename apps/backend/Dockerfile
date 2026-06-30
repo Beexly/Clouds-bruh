@@ -18,12 +18,17 @@ RUN pnpm install --frozen-lockfile --filter @alterxiv/shared... --filter backend
 
 COPY packages/shared packages/shared
 COPY apps/backend apps/backend
+# Admin UI is built by default; pass --build-arg MEDUSA_ADMIN_DISABLED=true to skip it (API-only image).
+ARG MEDUSA_ADMIN_DISABLED=false
+ENV MEDUSA_ADMIN_DISABLED=$MEDUSA_ADMIN_DISABLED
 RUN pnpm --filter @alterxiv/shared build && pnpm --filter backend build
-# Fail fast if the admin bundle is incomplete (e.g. restricted egress during `medusa build`) rather
-# than crash-looping on `medusa start` at runtime. See MEDUSA_CLOUD_IMPORT_READINESS.md. To skip the
-# admin UI entirely, set MEDUSA_ADMIN_DISABLED=true and remove this check.
-RUN test -f apps/backend/.medusa/server/public/admin/index.html \
-  || (echo "ERROR: admin bundle missing after medusa build (restricted egress?). Set MEDUSA_ADMIN_DISABLED=true to skip admin." && exit 1)
+# When admin is enabled, fail fast if its bundle is incomplete (e.g. restricted egress during
+# `medusa build`) rather than crash-looping on `medusa start` at runtime — the bundle lands at
+# .medusa/server/public/admin/index.html (verified). See MEDUSA_CLOUD_IMPORT_READINESS.md.
+RUN if [ "$MEDUSA_ADMIN_DISABLED" != "true" ]; then \
+      test -f apps/backend/.medusa/server/public/admin/index.html \
+      || { echo "ERROR: admin bundle missing after medusa build (restricted egress?). Build with --build-arg MEDUSA_ADMIN_DISABLED=true for an API-only image."; exit 1; }; \
+    fi
 
 ENV NODE_ENV=production
 EXPOSE 9000
