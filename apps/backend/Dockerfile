@@ -19,6 +19,11 @@ RUN pnpm install --frozen-lockfile --filter @alterxiv/shared... --filter backend
 COPY packages/shared packages/shared
 COPY apps/backend apps/backend
 RUN pnpm --filter @alterxiv/shared build && pnpm --filter backend build
+# Fail fast if the admin bundle is incomplete (e.g. restricted egress during `medusa build`) rather
+# than crash-looping on `medusa start` at runtime. See MEDUSA_CLOUD_IMPORT_READINESS.md. To skip the
+# admin UI entirely, set MEDUSA_ADMIN_DISABLED=true and remove this check.
+RUN test -f apps/backend/.medusa/server/public/admin/index.html \
+  || (echo "ERROR: admin bundle missing after medusa build (restricted egress?). Set MEDUSA_ADMIN_DISABLED=true to skip admin." && exit 1)
 
 ENV NODE_ENV=production
 EXPOSE 9000

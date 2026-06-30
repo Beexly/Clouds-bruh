@@ -45,9 +45,11 @@ export function validateSignal(raw: unknown): { event: SignalEvent } | { error: 
 
 // POST /store/signal — the storefront fires every interaction here (unauthenticated).
 export async function POST(req: MedusaRequest, res: MedusaResponse) {
-  // Cheap size guard before any module work (DoS / oversized-write protection).
+  // Cheap size guard before any module work (DoS / oversized-write protection). Prefer the
+  // Content-Length header (real byte count); fall back to a byte-accurate measure of the parsed body
+  // for header-less/chunked requests.
   const declared = Number(req.headers['content-length'] ?? 0);
-  const actual = declared || (typeof req.body === 'object' ? JSON.stringify(req.body ?? '').length : 0);
+  const actual = declared || (typeof req.body === 'object' ? Buffer.byteLength(JSON.stringify(req.body ?? '')) : 0);
   if (actual > MAX_BODY_BYTES) return res.status(413).json({ error: 'event payload too large' });
 
   const parsed = validateSignal(req.body);

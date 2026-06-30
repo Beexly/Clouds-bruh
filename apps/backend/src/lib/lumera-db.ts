@@ -181,7 +181,8 @@ export async function persistVendorConnections() {
        ON CONFLICT (id) DO UPDATE SET
          label=EXCLUDED.label, mode=EXCLUDED.mode, connected=EXCLUDED.connected,
          can_publish=EXCLUDED.can_publish, can_submit_orders=EXCLUDED.can_submit_orders,
-         last_checked_at=now(), missing_env=EXCLUDED.missing_env, message=EXCLUDED.message`,
+         last_checked_at=now(), missing_env=EXCLUDED.missing_env, message=EXCLUDED.message,
+         updated_at=now()`,
       [c.id, c.label, c.mode, c.connected, c.can_publish, c.can_submit_orders, JSON.stringify(c.missing_env), c.message]
     );
   }

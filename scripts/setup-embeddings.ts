@@ -18,6 +18,11 @@ const CHAPTER_VEC: Record<string, number[]> = {
 const DEFAULT_VEC = [0.2, 0.2, 0.2, 0.2, 0.2];
 
 async function main() {
+  // Run via `pnpm setup:embeddings` (plain tsx — does NOT auto-load Medusa env files). Refuse the
+  // localhost fallback in production so we never create the table in the wrong database silently.
+  if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL) {
+    throw new Error('[setup-embeddings] DATABASE_URL must be set in production (refusing localhost fallback).');
+  }
   const pool = new Pool({ connectionString: process.env.DATABASE_URL || 'postgres://alterxiv:alterxiv@localhost:5432/alterxiv' });
   try {
     await pool.query('CREATE EXTENSION IF NOT EXISTS vector');

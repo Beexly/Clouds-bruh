@@ -28,10 +28,13 @@ pnpm setup:embeddings
 ## Run the whole stack with Docker Compose
 
 ```bash
+# Pass a real publishable key so the storefront image (NEXT_PUBLIC_* are build-time inlined) can
+# reach the backend: NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY=pk_... docker compose up --build
 docker compose up --build
 # one-time, after backend is healthy:
 docker compose run --rm backend pnpm exec medusa db:migrate
 docker compose run --rm backend pnpm --filter backend seed
+docker compose run --rm backend pnpm setup:embeddings   # recs/search vectors (idempotent)
 ```
 
 The Dockerfiles (`apps/*/Dockerfile`) are **correctness-first** — they replicate the verified
