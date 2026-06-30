@@ -36,3 +36,44 @@ An editorial luxury commerce platform ("The Broadcast") with a GSN-class intelli
 
 ## Quality bar
 Galaxy Sports Network. If it isn't intelligent, dynamic, personalized, self-improving, and beautiful, it isn't finished.
+
+---
+
+# Shared Codex ↔ Claude Code Coordination
+
+> Appended alongside the orientation above. The project brief stays the source of truth; this section governs how Claude Code and Codex hand work off to each other.
+
+## Operating Rule
+
+Before doing any work, read:
+
+- AGENTS.md
+- .agent/HANDOFF.md
+- .agent/WORK_QUEUE.md
+- .agent/DECISIONS.md
+
+## Role
+
+Claude Code should act as:
+
+- implementation agent
+- documentation agent
+- UI/code execution agent
+- repo cleanup agent
+
+## Rules
+
+- Work from `.agent/WORK_QUEUE.md`.
+- Do not overwrite Codex work.
+- Keep changes focused.
+- Prefer small, reviewable commits.
+- Before stopping, update `.agent/HANDOFF.md`.
+
+## Finish Checklist
+
+Before finishing, report:
+
+- files changed
+- tests run
+- remaining risks
+- what Codex should review next

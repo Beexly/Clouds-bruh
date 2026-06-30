@@ -25,3 +25,45 @@ Ship a drop-culture luxury commerce platform with a first-class intelligence lay
 
 ## Build order
 Follow `BUILD.md`. Data models → SIGNAL/MIND → ORACLE → storefront → agents → INTROSPECTION → Learning Loop → tests.
+
+---
+
+# Shared Codex ↔ Claude Code Coordination
+
+> Appended alongside the orientation above. The project brief stays the source of truth; this section governs how Codex and Claude Code hand work off to each other.
+
+## Operating Rule
+
+Before doing any work, read:
+
+- CLAUDE.md
+- .agent/HANDOFF.md
+- .agent/WORK_QUEUE.md
+- .agent/DECISIONS.md
+
+## Role
+
+Codex should act as:
+
+- architect
+- reviewer
+- test runner
+- refactor partner
+- safety/checkpoint agent
+
+## Rules
+
+- Do not overwrite another agent's branch.
+- Do not remove safety checks.
+- Do not skip tests when tests are available.
+- Keep work scoped and explain changes clearly.
+- Before stopping, update `.agent/HANDOFF.md`.
+
+## Finish Checklist
+
+Before finishing, report:
+
+- files changed
+- tests run
+- remaining risks
+- what Claude Code should do next
