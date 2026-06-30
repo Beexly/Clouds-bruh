@@ -2,13 +2,18 @@
 import { signal } from '../lib/signal';
 import { WishlistButton } from './WishlistButton';
 import { ProductImage } from './ProductImage';
-import type { Product } from '@alterxiv/shared';
+import { priceBand, type Product } from '@alterxiv/shared';
 
 /** The conversion primitives, mined from the Amazon/Walmart/Shein datasets, made tasteful. */
 export function ProductCard({ p }: { p: Product }) {
   const lowStock = (p.merch.units_remaining ?? 99) <= 10;
   return (
-    <a href={`/p/${p.handle}`} onClick={() => signal('product_view', p.id, undefined, { chapter: p.chapter })}
+    <a href={`/p/${p.handle}`}
+       onClick={() => signal('product_view', p.id, undefined, {
+         chapter: p.chapter,
+         category: p.category_tree?.[0],
+         price_band: p.price?.final != null ? priceBand(p.price.final) : undefined,
+       })}
        className="group block">
       <div className="relative aspect-[3/4] overflow-hidden bg-neutral-950">
         <ProductImage src={p.media.main_image} alt={p.title} chapter={p.chapter} imgClassName="h-full w-full object-cover transition group-hover:scale-[1.03]" />

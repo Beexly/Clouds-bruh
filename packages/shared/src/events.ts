@@ -30,10 +30,25 @@ export type EventType = (typeof EVENT_TYPES)[number];
 
 export interface EventContext {
   chapter?: Chapter;
+  category?: string;       // primary category (from the product's category_tree) — feeds category affinity
+  price_band?: PriceBand;  // coarse price tier of the entity — feeds price-sensitivity affinity
+  aesthetic?: string;      // aesthetic/style tag — feeds aesthetic affinity (reserved for a future taxonomy)
   channel?: 'web' | 'mobile' | 'app';
   device?: 'desktop' | 'mobile' | 'tablet';
   referrer?: string;
   experiment?: string;     // experiment variant id, if assigned
+}
+
+/** Coarse price tiers — the emitter (storefront) classifies, so personalization stays O(1) (no DB lookup). */
+export const PRICE_BANDS = ['entry', 'core', 'premium', 'luxury'] as const;
+export type PriceBand = (typeof PRICE_BANDS)[number];
+
+/** Classify a final price (in major currency units, e.g. dollars) into a price band. */
+export function priceBand(finalPrice: number): PriceBand {
+  if (!Number.isFinite(finalPrice) || finalPrice < 50) return 'entry';
+  if (finalPrice < 150) return 'core';
+  if (finalPrice < 400) return 'premium';
+  return 'luxury';
 }
 
 export interface SignalEvent {

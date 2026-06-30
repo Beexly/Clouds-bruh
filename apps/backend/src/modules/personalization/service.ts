@@ -28,9 +28,11 @@ function decayAffinity(a: StoredAffinity): StoredAffinity {
 
 function addSignal(affinity: StoredAffinity, event: SignalEvent, weight: number, intentDelta: number): StoredAffinity {
   const a = { ...affinity, chapter: { ...affinity.chapter }, category: { ...affinity.category }, price_band: { ...affinity.price_band }, aesthetic: { ...affinity.aesthetic } };
-  if (event.context.chapter) {
-    a.chapter[event.context.chapter] = (a.chapter[event.context.chapter] ?? 0) + weight;
-  }
+  const ctx = event.context;
+  if (ctx.chapter) a.chapter[ctx.chapter] = (a.chapter[ctx.chapter] ?? 0) + weight;
+  if (ctx.category) a.category[ctx.category] = (a.category[ctx.category] ?? 0) + weight;
+  if (ctx.price_band) a.price_band[ctx.price_band] = (a.price_band[ctx.price_band] ?? 0) + weight;
+  if (ctx.aesthetic) a.aesthetic[ctx.aesthetic] = (a.aesthetic[ctx.aesthetic] ?? 0) + weight;
   a._intent = (a._intent ?? 0) + intentDelta;
   return a;
 }

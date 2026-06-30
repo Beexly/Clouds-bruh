@@ -11,7 +11,7 @@ import { ReviewForm } from '../../../components/ReviewForm';
 import { getRegionId, PRODUCT_FIELDS, priceCents, priceStr } from '../../../lib/catalog';
 import { breadcrumbList, jsonLdScript } from '../../../lib/jsonld';
 import { SITE } from '../../../lib/site';
-import type { ProductTruth } from '@alterxiv/shared';
+import { priceBand, type ProductTruth } from '@alterxiv/shared';
 
 interface PdpReview {
   id: string;
@@ -202,7 +202,11 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
     <main className="min-h-screen bg-void bg-sacred-grain">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbs) }} />
-      <PageSignal type="product_view" context={{ chapter }} entityId={product.id} />
+      <PageSignal
+        type="product_view"
+        context={{ chapter, price_band: price != null ? priceBand(price / 100) : undefined }}
+        entityId={product.id}
+      />
 
       <div className="mx-auto max-w-7xl px-6 py-10">
         {/* breadcrumb */}
