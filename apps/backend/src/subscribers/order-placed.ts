@@ -1,5 +1,6 @@
 import type { SubscriberArgs, SubscriberConfig } from '@medusajs/framework';
 import { Modules } from '@medusajs/framework/utils';
+import type { SignalEvent } from '@alterxiv/shared';
 import { persistVendorOrderDrafts } from '../lib/lumera-order-routing';
 import { captureException } from '../lib/observability';
 
@@ -71,18 +72,23 @@ export default async function orderPlaced({ event, container }: SubscriberArgs<{
       console.log(`[order-placed] Vendor order ${draft.status}: ${draft.id}`);
     }
 
-    // Emit SIGNAL purchase event so ORACLE can attribute conversion reward
+    // Emit a SIGNAL purchase event so ORACLE/the Learning Loop can attribute conversion reward.
+    // Must be the canonical SignalEvent shape — chapter lives in `context`, not at the top level,
+    // and there is no `entity_type` field. `satisfies` makes the type-checker enforce this so the
+    // event can't silently lose its context again (the previous flat shape did exactly that).
     const signalModule = container.resolve('signal') as any;
-    await signalModule.ingest({
-      visitor_id: order.metadata?.visitor_id ?? 'unknown',
-      session_id: order.metadata?.session_id ?? 'unknown',
-      type: 'purchase',
-      entity_id: orderId,
-      entity_type: 'order',
-      value: (order.items ?? []).reduce((s: number, i: any) => s + (i.unit_price ?? 0) * (i.quantity ?? 1), 0) / 100,
-      chapter: order.metadata?.chapter,
-      ts: new Date().toISOString(),
-    }).catch(() => {});
+    await signalModule
+      .ingest({
+        id: `purchase_${orderId}`,
+        visitor_id: order.metadata?.visitor_id ?? order.customer_id ?? 'unknown',
+        session_id: order.metadata?.session_id ?? 'unknown',
+        type: 'purchase',
+        entity_id: orderId,
+        value: orderTotalCents / 100,
+        context: { channel: 'web', chapter: order.metadata?.chapter },
+        ts: new Date().toISOString(),
+      } satisfies SignalEvent)
+      .catch(() => {});
 
   } catch (e: any) {
     console.error('[order-placed] subscriber error:', e.message?.slice(0, 120));
