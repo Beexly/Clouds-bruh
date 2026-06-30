@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "medusa develop",
     "build": "medusa build",
+    "start": "medusa start",
     "seed": "medusa exec ../../scripts/seed.ts",
     "bootstrap": "medusa exec ../../scripts/bootstrap.ts",
     "test": "vitest run",

@@ -1,3 +1,10 @@
+# Lumera — full local/staging stack: datastores + the three runtime services (commerce core,
+# storefront, and the autonomous CONGREGATION). Production should use managed Postgres/Redis and
+# real secrets; the defaults below are DEV-ONLY.
+#
+# First run (one-time, after the backend image is up): apply migrations + seed:
+#   docker compose run --rm backend pnpm exec medusa db:migrate
+#   docker compose run --rm backend pnpm --filter backend seed
 services:
   postgres:
     image: pgvector/pgvector:pg16
@@ -16,6 +23,60 @@ services:
     image: redis:7-alpine
     ports: ["6379:6379"]
     volumes: ["redisdata:/data"]
+
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://alterxiv:alterxiv@postgres:5432/alterxiv
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:-dev_jwt_change_me}
+      COOKIE_SECRET: ${COOKIE_SECRET:-dev_cookie_change_me}
+      STORE_CORS: ${STORE_CORS:-http://localhost:3000}
+      ADMIN_CORS: ${ADMIN_CORS:-http://localhost:9000}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    ports: ["9000:9000"]
+
+  storefront:
+    build:
+      context: .
+      dockerfile: apps/storefront/Dockerfile
+      args:
+        # NEXT_PUBLIC_* are inlined at build time; override for non-local targets.
+        NEXT_PUBLIC_MEDUSA_URL: ${NEXT_PUBLIC_MEDUSA_URL:-http://localhost:9000}
+        NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY: ${NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY:-}
+    depends_on:
+      - backend
+    environment:
+      NODE_ENV: production
+      MEDUSA_BACKEND_URL: http://backend:9000
+      NEXT_PUBLIC_MEDUSA_URL: ${NEXT_PUBLIC_MEDUSA_URL:-http://localhost:9000}
+    ports: ["3000:3000"]
+
+  intelligence:
+    build:
+      context: .
+      dockerfile: apps/intelligence/Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://alterxiv:alterxiv@postgres:5432/alterxiv
+      REDIS_URL: redis://redis:6379
+      MEDUSA_BACKEND_URL: http://backend:9000
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      CLAUDE_MODEL: ${CLAUDE_MODEL:-claude-opus-4-8}
+
 volumes:
   pgdata:
   redisdata:

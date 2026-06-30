@@ -5,6 +5,8 @@
   "scripts": {
     "dev": "tsx watch src/orchestrator/index.ts",
     "build": "tsc",
+    "start": "node dist/orchestrator/index.js",
+    "start:operator": "node dist/operator/index.js",
     "test": "vitest run",
     "operator": "tsx src/operator/index.ts",
     "lint": "tsc --noEmit -p tsconfig.json"
