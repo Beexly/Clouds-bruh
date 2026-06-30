@@ -43,6 +43,8 @@ export async function ensureLumeraTables() {
       last_checked_at timestamptz not null default now(),
       missing_env jsonb not null default '[]'::jsonb,
       message text not null default '',
+      created_at timestamptz not null default now(),
+      updated_at timestamptz not null default now(),
       deleted_at timestamptz
     );
 

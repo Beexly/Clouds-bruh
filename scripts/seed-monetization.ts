@@ -1,9 +1,14 @@
 /**
- * Seed the default membership tiers (idempotent). Run from apps/backend:
- *   npx medusa exec ../../scripts/seed-monetization.ts
+ * Seed the default membership tiers (idempotent).
+ *
+ * Standalone: from apps/backend → `npx medusa exec ../../scripts/seed-monetization.ts`
+ * Also called by scripts/seed.ts so the main catalog seed guarantees the tiers exist — without
+ * them monetization.subscribe() throws 'Unknown tier' and the entire Memberships/Patron feature
+ * (entitlements + the 2x Luminance reward multiplier) silently no-ops.
  */
-const MONETIZATION_MODULE = 'monetization';
-const TIERS = [
+export const MONETIZATION_MODULE = 'monetization';
+
+export const MEMBERSHIP_TIERS = [
   {
     key: 'disciple',
     name: 'Ember',
@@ -22,9 +27,9 @@ const TIERS = [
   },
 ];
 
-export default async function seedMonetization({ container }: { container: any }) {
-  const svc: any = container.resolve(MONETIZATION_MODULE);
-  for (const t of TIERS) {
+/** Upsert the default tiers against a resolved monetization service. Idempotent. */
+export async function seedMembershipTiers(svc: any): Promise<void> {
+  for (const t of MEMBERSHIP_TIERS) {
     const existing = await svc.listMembershipTiers({ key: t.key });
     if (existing.length) {
       await svc.updateMembershipTiers([{ selector: { key: t.key }, data: t }]);
@@ -34,5 +39,10 @@ export default async function seedMonetization({ container }: { container: any }
       console.log(`[seed-monetization] created tier: ${t.key}`);
     }
   }
+}
+
+export default async function seedMonetization({ container }: { container: any }) {
+  const svc: any = container.resolve(MONETIZATION_MODULE);
+  await seedMembershipTiers(svc);
   console.log('[seed-monetization] done.');
 }

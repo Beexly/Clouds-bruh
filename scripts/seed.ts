@@ -11,6 +11,7 @@ import { parse } from 'csv-parse/sync';
 import type { ExecArgs } from '@medusajs/framework/types';
 import { Modules } from '@medusajs/framework/utils';
 import type { Chapter } from '@alterxiv/shared';
+import { seedMembershipTiers } from './seed-monetization';
 
 const DATA = join(__dirname, '../packages/data');
 
@@ -232,6 +233,17 @@ export default async function ({ container }: ExecArgs) {
       },
     ]);
     console.log('[seed] ✅ 2 drops created (THE IRON GATE live, UNBROKEN scheduled).');
+  }
+
+  // ── 4b. Membership tiers (idempotent) ─────────────────────────────────────
+  // Without these, monetization.subscribe() throws 'Unknown tier' and Patron entitlements / the 2x
+  // Luminance multiplier are inert. Guarded so a monetization hiccup never fails the catalog seed.
+  try {
+    const monetization = container.resolve('monetization') as any;
+    await seedMembershipTiers(monetization);
+    console.log('[seed] ✅ Membership tiers ready (disciple, patron).');
+  } catch (e) {
+    console.warn('[seed] membership tier seed skipped:', (e as Error).message);
   }
 
   // ── 5. Report ─────────────────────────────────────────────────────────────

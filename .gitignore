@@ -7,6 +7,8 @@ dist/
 *.rdb
 *.tsbuildinfo
 .env
+.env.local
+.env*.local
 .DS_Store
 packages/data/*.csv
 .claude/worktrees/
