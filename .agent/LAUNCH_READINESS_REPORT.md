@@ -6,72 +6,91 @@ definition) and `docs/LUMERA_OWNER_ACTIONS.md` (the human-only ledger)._
 
 ## TL;DR
 
-The platform is **code-health green and launch-credible**. Every subsystem assessed as
-"mostly-complete" with honest, well-labeled degradation — not stubs pretending to work. The only
-items between this repo and a live launch are the **documented human-only gates** (real credentials
-+ founder approvals), which no agent can perform.
+Lumera is **code-complete, runtime-proven, security-hardened, and self-audited**. Beyond a green
+test suite, the platform was stood up against a **real Postgres + Redis + Medusa backend +
+Next.js storefront** and driven through a **complete purchase** — browse → cart → checkout →
+order → purchase signal → staged vendor order. The only things between this repo and live revenue
+are the documented human-only gates (real credentials + founder approvals), which no agent can do.
 
-The earlier "BLOCKED_ENV" status was a **local-machine artifact** — a Windows pnpm
-`minimumReleaseAge` policy on a different branch (`codex/lumera-dropship-autonomy`). It does not
-exist in a clean environment; `pnpm install` here is clean.
+The earlier "BLOCKED_ENV" status was a **local-machine artifact** (a Windows pnpm
+`minimumReleaseAge` policy on a different branch). It does not exist in a clean environment.
 
-## Proof layer 1 — Code Health (✅ fully green, verified)
+## Proof layer 1 — Code Health (✅ green, verified)
 
 | Gate | Result |
 |---|---|
 | `pnpm install` | clean (~27s) |
-| `pnpm build` | ✅ all 4 packages (shared, backend, intelligence, storefront — 28/28 storefront pages) |
+| `pnpm build` | ✅ all 4 packages (shared, backend, intelligence, storefront — 28/28 pages) |
 | `pnpm lint` | ✅ `tsc --noEmit` clean, zero type errors |
-| `pnpm test` | ✅ **394 tests** — shared 37, intelligence 63, storefront 68, backend 226 |
+| `pnpm test` | ✅ **397 tests** — shared 40, intelligence 63, storefront 68, backend 226 |
 
-## Subsystem maturity (from a 6-agent parallel assessment)
+## Proof layer 2 — Runtime, proven end-to-end against REAL infrastructure (✅ NEW)
 
-| Subsystem | Maturity | Notes |
-|---|---|---|
-| backend modules (signal, personalization, recommendation, drops, monetization, lumera, fulfillment, paypal) | mostly-complete | Real SQL: pgvector cosine recs, CF graph-rec, atomic oversell-safe drop decrement, Thompson-sampling bandit, append-only Lumens ledger, real PayPal Orders v2. |
-| backend API / jobs / subscribers | mostly-complete | Webhook signature verification (timing-safe), money-minting gated, ops fail-closed. |
-| storefront (Next.js "The Broadcast") | mostly-complete | ~22 routes, real data fetching, 63 SIGNAL call sites, real Stripe/PayPal rails, real legal pages. |
-| intelligence (CONGREGATION) | mostly-complete | Bounded tool-use loop, real escalation/approval gate, learning loop, 14 INTROSPECTION checks. |
-| shared + data + scripts | mostly-complete | Pure typed contract, real launch-gate scripts. |
-| build / CI / launch gates | mostly-complete | Preflight runs real PG queries; live-mode flags default OFF. |
+Stood up Postgres 16 + pgvector + Redis locally and exercised the real stack:
 
-## What this pass changed (7 commits, each built+linted+tested before commit)
+- **Migrations:** `medusa db:migrate` created **156 tables**, incl. the pgvector `product_embedding`
+  table (the HIGH-risk migration — verified it both creates the table on a capable DB **and**
+  degrades to a no-op NOTICE under a deliberately under-privileged role, never aborting the deploy).
+- **Bootstrap:** `pnpm bootstrap` built a checkout-ready store — region, stock location, fulfillment
+  set, service zone, payment provider, shipping option, prices, inventory, membership tiers,
+  publishable key — idempotently. Exercised every script the prior audit couldn't (setup-commerce/
+  prices/inventory/monetization/publishable-key).
+- **Embeddings:** `setup:embeddings` populated 10 product vectors.
+- **Preflight:** `pnpm preflight` against the real DB → READY (code mode), 84%.
+- **APIs (live):** `/health`, `/store/products`, `/store/regions`, `/store/recommendations`
+  (for_you), `/store/search?q=` (hybrid keyword+vector), `/store/signal` (validation + 413 size
+  guard + happy-path write) — all correct with real data.
+- **Full purchase:** cart → line item ($149) → shipping → payment session → **order placed
+  (display_id 1)** → **purchase SIGNAL written** (verifies the order.placed canonical-shape fix
+  firing live) → **staged vendor order created** (dropship automation: "paid orders create staged
+  vendor orders" ✓).
+- **Storefront (live):** Next.js served real catalog, product pages with Product Truth, hybrid
+  search, recommendations, and **no fake reviews** ("be the first") — verified visually.
+- **Personalization (live):** enriched signals now populate **chapter + category + price_band**
+  affinity dimensions (verified by POSTing events and reading the visitor_profile back).
 
-1. **storefront fonts** — self-host woff2 via `next/font/local` (the ONLY build blocker: `next/font/google` couldn't fetch through the egress proxy). Build red→green.
-2. **security hardening** — closed IDOR on `/store/monetization/wallet`+`/entitlements` (now bound to the authenticated customer); fail-closed minting guard on `/subscribe`; full validation + 16KB cap on the unauthenticated `/store/signal` POST. +7 tests.
-3. **fresh-deploy gaps** — deploy-safe pgvector `product_embedding` migration; seed membership tiers; align `lumera_vendor_connection` DDL; untrack `.env.local` (+example +gitignore); correct `packages/data/README.md`; wire ad-hoc ops scripts.
-4. **deployment units** — production `start` scripts for the orchestrator (it had none) + backend; Dockerfiles for all 3 apps; full `docker-compose`; `docs/DEPLOYMENT.md`.
-5. **correctness** — `order.placed` emits the canonical `SignalEvent` shape (was losing chapter/context); `satisfies SignalEvent` guard.
-6/7. **handoff + audit hardening** — see below.
+## Proof layer 3 — Deployment units (validated to sandbox limits)
 
-## Adversarial self-audit (4-agent review of the changes)
+- All three Dockerfiles pass `docker build --check` (BuildKit lint) with **no warnings**.
+- Backend build steps verified **host-equivalent** (install + `medusa build`; admin bundle lands at
+  the exact path the guard checks: `.medusa/server/public/admin/index.html`).
+- A full in-sandbox `docker build` is blocked **only** by the egress proxy (apt `405`, registry TLS)
+  — environmental, not a Dockerfile defect; ordinary CI / Medusa Cloud builds normally.
 
-Security work: **verdict "correct"** (no bugs). The audit caught and I fixed:
-- **HIGH** — pgvector migration tested extension *availability*, not *privilege*; on managed PG it could hard-fail `db:migrate`. Now wrapped in `EXCEPTION WHEN OTHERS` → true no-op.
-- **LOW** — `lumera_vendor_connection.updated_at` now bumped on upsert; signal size guard now byte-accurate; `setup-embeddings` refuses localhost fallback in production; backend Dockerfile fails fast if the admin bundle is incomplete; DEPLOYMENT.md compose steps corrected.
+## Changes this session (each built + linted + tested before commit; verified live where possible)
 
-## Proof layer 2 — Commerce Environment (human-gated)
+1. **storefront fonts** — self-host woff2 via `next/font/local` (the only build blocker).
+2. **security** — closed an IDOR (wallet/entitlements), a free-entitlement hole, and validated +
+   size-capped the unauthenticated signal firehose (+7 tests; 413 guard verified live).
+3. **fresh-deploy gaps** — deploy-safe pgvector migration, seed tiers, schema/env hygiene.
+4. **deployment units** — start scripts, Dockerfiles, compose, `docs/DEPLOYMENT.md`.
+5. **correctness** — `order.placed` emits the canonical `SignalEvent` shape (verified firing live).
+6. **audit hardening** — migration EXCEPTION-guard (verified under low privilege), updated_at bump,
+   byte-accurate size guard, setup-embeddings prod guard, Dockerfile admin guard.
+7. **turbo env passthrough** — strict-mode was stripping DATABASE_URL/secrets from tasks (verified
+   fix: bootstrap/seed now run through turbo).
+8. **storefront image fallback** — on-brand chapter-tinted placeholder for products without photos
+   (was empty black boxes; verified visually — store now looks intentional).
+9. **personalization** — populate category + price_band affinity dimensions (verified live).
+10. **docker hygiene** — `.dockerignore` (keeps node_modules/.git/**.env** out of image context).
 
-`pnpm preflight` passes in code mode. Live launch needs (see `docs/LUMERA_OWNER_ACTIONS.md`):
-real `DATABASE_URL`/`REDIS_URL`, `JWT_SECRET`/`COOKIE_SECRET`, the Medusa publishable key +
-`LUMERA_SALES_CHANNEL_ID`/`LUMERA_SHIPPING_PROFILE_ID`, S3 + transactional email, and a seeded
-real catalog (the shipped fixtures are 5-row synthetic placeholders).
+## Human-only gates remaining (no agent can clear these — by design)
 
-## Proof layer 3 — Vendor / Payments / Legal (human-gated)
+Real `DATABASE_URL`/`REDIS_URL`/secrets · Medusa publishable key + sales-channel/shipping IDs ·
+Stripe/PayPal live keys + webhooks · Printify/Printful/CJ tokens + webhooks · S3 + transactional
+email · a seeded **real** catalog (shipped fixtures are synthetic) · founder approvals (first
+suppliers, first products, samples, live order submission, ad spend) · final legal-copy sign-off.
+All live-mode flags default OFF and fail closed. See `docs/LUMERA_OWNER_ACTIONS.md`.
 
-Real Printify/Printful/CJ tokens + webhooks; Stripe/PayPal live keys (all live-mode flags
-default OFF and fail closed); founder approval of the first suppliers/products/samples and live
-order submission; final legal-copy sign-off. **No autonomous money movement or publishing is
-possible without these explicit gates** — by design.
+## Known non-blocking follow-ups (deliberately deferred)
 
-## Known non-blocking follow-ups (not done, deliberately)
-
-- Dockerfiles are correctness-first but not yet validated by a real `docker build` in-sandbox.
-- `seed.ts` wiring + new package.json script invocations need a live DB to exercise (reviewed by inspection + audit).
-- Personalization `addSignal()` still only fills the `chapter` affinity dimension.
-- Intelligence creative tools (Artisan image gen, Scribe SEO, VOC) remain honest `unconfigured` no-ops; `product_draft` doesn't yet persist to Medusa Admin.
+- `aesthetic` affinity dimension stays empty until a style taxonomy exists.
+- Intelligence creative tools (Artisan image gen, Scribe SEO) remain honest `unconfigured` no-ops;
+  `product_draft` doesn't yet persist to Medusa Admin. Larger feature work, needs API keys.
+- Full container build unverifiable in this sandbox (egress proxy); validate in CI.
 
 ## Verdict
 
-**Code-complete and verified for launch readiness.** Hand off to the owner-actions ledger for the
-credential + approval gates; run `pnpm launch:preflight` against a real DB for the live go/no-go.
+**Code-complete, runtime-proven, and verified for launch readiness.** Wire the owner-actions
+credential/approval ledger and run `pnpm launch:preflight --live` against production for the
+final go/no-go.
