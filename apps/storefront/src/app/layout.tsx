@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Cormorant_Garamond, Inter } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 import { CartProvider } from '../context/cart';
 import { CustomerProvider } from '../context/customer';
@@ -17,14 +17,20 @@ import { organization, webSite, jsonLdScript } from '../lib/jsonld';
 import { SITE } from '../lib/site';
 
 // Editorial serif for display accents; a quiet grotesque for the body.
-const serif = Cormorant_Garamond({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600'],
+// Self-hosted (next/font/local) so production builds never depend on a runtime
+// Google Fonts fetch — reproducible, offline-capable, and faster cold builds.
+const serif = localFont({
+  src: [
+    { path: './fonts/cormorant-garamond-300.woff2', weight: '300', style: 'normal' },
+    { path: './fonts/cormorant-garamond-400.woff2', weight: '400', style: 'normal' },
+    { path: './fonts/cormorant-garamond-500.woff2', weight: '500', style: 'normal' },
+    { path: './fonts/cormorant-garamond-600.woff2', weight: '600', style: 'normal' },
+  ],
   variable: '--font-serif',
   display: 'swap',
 });
-const sans = Inter({
-  subsets: ['latin'],
+const sans = localFont({
+  src: [{ path: './fonts/inter-latin-variable.woff2', weight: '100 900', style: 'normal' }],
   variable: '--font-sans',
   display: 'swap',
 });
