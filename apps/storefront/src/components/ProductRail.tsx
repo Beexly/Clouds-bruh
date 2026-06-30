@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { signal } from '../lib/signal';
 import { priceStr } from '../lib/catalog';
 import { useCart } from '../context/cart';
+import { ProductImage } from './ProductImage';
 
 const RAIL_LABELS: Record<string, string> = {
   the_drop: 'The Pieces',
@@ -85,16 +86,13 @@ function RailCard({ p, index, block, onAdd }: { p: any; index: number; block: st
         className="block"
       >
         <div className="relative aspect-[3/4] overflow-hidden rounded-sm bg-obsidian">
-          {img ? (
-            <img
-              src={img}
-              alt={p.title}
-              className="h-full w-full object-cover transition-transform duration-700 ease-sacred group-hover:scale-[1.05]"
-              loading="lazy"
-            />
-          ) : (
-            <div className="h-full w-full bg-neutral-900" />
-          )}
+          <ProductImage
+            src={img}
+            alt={p.title}
+            chapter={chapter}
+            imgClassName="h-full w-full object-cover transition-transform duration-700 ease-sacred group-hover:scale-[1.05]"
+            loading="lazy"
+          />
           {/* veil for legibility */}
           <span className="pointer-events-none absolute inset-0 bg-altar-veil opacity-60" />
           {chapter && (

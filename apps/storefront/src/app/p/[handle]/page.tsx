@@ -6,6 +6,7 @@ import { AddToCartButton } from '../../../components/AddToCartButton';
 import { WishlistButton } from '../../../components/WishlistButton';
 import { PageSignal } from '../../../components/PageSignal';
 import { ProductRail } from '../../../components/ProductRail';
+import { ProductImage } from '../../../components/ProductImage';
 import { ReviewForm } from '../../../components/ReviewForm';
 import { getRegionId, PRODUCT_FIELDS, priceCents, priceStr } from '../../../lib/catalog';
 import { breadcrumbList, jsonLdScript } from '../../../lib/jsonld';
@@ -218,11 +219,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
         <div className="grid gap-12 md:grid-cols-2">
           {/* Image */}
           <div className="relative aspect-[3/4] overflow-hidden rounded-sm bg-obsidian">
-            {mainImg ? (
-              <img src={mainImg} alt={product.title} className="h-full w-full object-cover" />
-            ) : (
-              <div className="h-full w-full bg-neutral-900" />
-            )}
+            <ProductImage src={mainImg} alt={product.title} chapter={chapter} imgClassName="h-full w-full object-cover" />
             {inDemand && (
               <span className="absolute left-4 top-4 animate-pulse-scarce rounded-full bg-black/60 px-3 py-1 text-micro uppercase text-altar-goldlight backdrop-blur">
                 Rising demand

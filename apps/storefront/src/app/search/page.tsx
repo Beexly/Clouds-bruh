@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { PageSignal } from '../../components/PageSignal';
+import { ProductImage } from '../../components/ProductImage';
 import { getRegionId, PRODUCT_FIELDS, priceStr } from '../../lib/catalog';
 
 /**
@@ -110,16 +111,13 @@ export default async function SearchPage({ searchParams }: { searchParams: Promi
               return (
                 <Link key={p.id} href={`/p/${p.handle}`} className="group block">
                   <div className="relative aspect-[3/4] overflow-hidden rounded-sm bg-obsidian">
-                    {img ? (
-                      <img
-                        src={img}
-                        alt={p.title}
-                        className="h-full w-full object-cover transition-transform duration-700 ease-sacred group-hover:scale-[1.05]"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="h-full w-full bg-neutral-900" />
-                    )}
+                    <ProductImage
+                      src={img}
+                      alt={p.title}
+                      chapter={chapter}
+                      imgClassName="h-full w-full object-cover transition-transform duration-700 ease-sacred group-hover:scale-[1.05]"
+                      loading="lazy"
+                    />
                     <span className="pointer-events-none absolute inset-0 bg-altar-veil opacity-60" />
                     {chapter && (
                       <span className="absolute left-3 top-3 text-micro uppercase text-altar-goldlight/80">{chapter}</span>
