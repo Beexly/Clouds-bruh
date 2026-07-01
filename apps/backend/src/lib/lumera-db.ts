@@ -20,7 +20,7 @@ let _pool: pg.Pool | null = null;
 export function pool() {
   if (_pool) return _pool;
   _pool = new pg.Pool({
-    connectionString: process.env.DATABASE_URL || 'postgres://alterxiv:alterxiv@localhost:5432/alterxiv',
+    connectionString: process.env.DATABASE_URL || 'postgres://lumera:lumera@localhost:5432/lumera',
   });
   return _pool;
 }

@@ -14,7 +14,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
 
-export DATABASE_URL="${DATABASE_URL:-postgres://alterxiv:alterxiv@localhost:5432/alterxiv}"
+export DATABASE_URL="${DATABASE_URL:-postgres://lumera:lumera@localhost:5432/lumera}"
 export PUBLISHABLE_KEY="${PUBLISHABLE_KEY:-pk_3597340b67d6e63689846700f8264afde0105aed898356d6d630df566afd3050}"
 
 # Ephemeral secrets so `medusa start` (which boots in production mode) clears the launch-safety guard
@@ -30,7 +30,7 @@ export AUTH_CORS="${AUTH_CORS:-http://localhost:9000,http://localhost:3000}"
 export COCKPIT_KEY="${COCKPIT_KEY:-verify_ephemeral_cockpit_key}"
 
 PORT="${PORT:-9000}"
-LOG="/tmp/alterxiv-verify-backend.log"
+LOG="/tmp/lumera-verify-backend.log"
 BACKEND_PID=""
 
 say()  { printf '\n\033[1;33m▸ %s\033[0m\n' "$*"; }
@@ -69,24 +69,24 @@ fi
 # dist/index.js). Medusa's loader resolves it from node_modules and does NOT transpile
 # workspace deps, so without this build every migrate/seed/boot crashes at config load.
 say "Building @lumera/shared"
-( cd "$ROOT" && pnpm --filter @lumera/shared build ) >/tmp/alterxiv-verify-shared.log 2>&1 \
+( cd "$ROOT" && pnpm --filter @lumera/shared build ) >/tmp/lumera-verify-shared.log 2>&1 \
   && ok "@lumera/shared built" \
-  || { tail -50 /tmp/alterxiv-verify-shared.log; die "@lumera/shared build failed — see log above"; }
+  || { tail -50 /tmp/lumera-verify-shared.log; die "@lumera/shared build failed — see log above"; }
 
 cd "$ROOT/apps/backend"
 
 # ── 2. Migrate (timeout so it can never hang the run) ────────────────────────
 say "Running migrations"
-timeout 180 npx medusa db:migrate >/tmp/alterxiv-verify-migrate.log 2>&1 \
+timeout 180 npx medusa db:migrate >/tmp/lumera-verify-migrate.log 2>&1 \
   && ok "Migrations complete" \
-  || { tail -80 /tmp/alterxiv-verify-migrate.log; die "Migrations failed/timed out — see log above"; }
+  || { tail -80 /tmp/lumera-verify-migrate.log; die "Migrations failed/timed out — see log above"; }
 
 # ── 3. Seed (idempotent chain) ───────────────────────────────────────────────
 say "Seeding (idempotent — skips when data already present)"
 # Parse the target DB name from DATABASE_URL so the idempotency check hits the SAME database
 # the backend will boot against (not a hardcoded one).
 DBNAME="$(printf '%s' "$DATABASE_URL" | sed -E 's#.*/([^/?]+).*#\1#')"
-PRODUCTS=$(PGPASSWORD=alterxiv psql -U alterxiv -h localhost -d "$DBNAME" -tAc "SELECT count(*) FROM product WHERE deleted_at IS NULL;" 2>/dev/null || echo 0)
+PRODUCTS=$(PGPASSWORD=lumera psql -U lumera -h localhost -d "$DBNAME" -tAc "SELECT count(*) FROM product WHERE deleted_at IS NULL;" 2>/dev/null || echo 0)
 if [ "${PRODUCTS:-0}" -lt 1 ]; then
   timeout 300 npx medusa exec ../../scripts/seed.ts            || die "catalog seed failed"
   timeout 180 npx medusa exec ../../scripts/setup-commerce.ts  || die "commerce setup failed"

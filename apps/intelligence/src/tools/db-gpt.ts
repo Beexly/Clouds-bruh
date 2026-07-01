@@ -5,7 +5,7 @@ import type { Tool } from './index';
 let _pool: Pool | null = null;
 function pool(): Pool {
   if (_pool) return _pool;
-  _pool = new Pool({ connectionString: process.env.DATABASE_URL || 'postgres://alterxiv:alterxiv@localhost:5432/alterxiv' });
+  _pool = new Pool({ connectionString: process.env.DATABASE_URL || 'postgres://lumera:lumera@localhost:5432/lumera' });
   return _pool;
 }
 

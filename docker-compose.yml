@@ -9,13 +9,13 @@ services:
   postgres:
     image: pgvector/pgvector:pg16
     environment:
-      POSTGRES_USER: alterxiv
-      POSTGRES_PASSWORD: alterxiv
-      POSTGRES_DB: alterxiv
+      POSTGRES_USER: lumera
+      POSTGRES_PASSWORD: lumera
+      POSTGRES_DB: lumera
     ports: ["5432:5432"]
     volumes: ["pgdata:/var/lib/postgresql/data"]
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U alterxiv"]
+      test: ["CMD-SHELL", "pg_isready -U lumera"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -35,7 +35,7 @@ services:
         condition: service_started
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgres://alterxiv:alterxiv@postgres:5432/alterxiv
+      DATABASE_URL: postgres://lumera:lumera@postgres:5432/lumera
       REDIS_URL: redis://redis:6379
       JWT_SECRET: ${JWT_SECRET:-dev_jwt_change_me}
       COOKIE_SECRET: ${COOKIE_SECRET:-dev_cookie_change_me}
@@ -71,7 +71,7 @@ services:
         condition: service_started
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgres://alterxiv:alterxiv@postgres:5432/alterxiv
+      DATABASE_URL: postgres://lumera:lumera@postgres:5432/lumera
       REDIS_URL: redis://redis:6379
       MEDUSA_BACKEND_URL: http://backend:9000
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}

@@ -264,7 +264,7 @@ spend, or move real money in mock mode:
   `seed.ts`. Cherry-picked **surgically** from `codex/verify-api-clean-checkout` — **only those 3 files**;
   the rest of that branch (verify-api.ts, doc edits, medusa-config admin toggle, verify-api.sh changes)
   was **not** merged, honoring handoff §9.
-- **Proven end-to-end:** against the empty `alterxiv_verify` DB the seed logged
+- **Proven end-to-end:** against the empty `lumera_verify` DB the seed logged
   *“amazon-products.sample.csv not found; using committed fixture fixtures/amazon-products.fixture.csv”*
   and seeded **10 products + 2 drops**, after which the full commerce/prices/inventory/embeddings/
   monetization chain completed green (§16).
@@ -274,7 +274,7 @@ spend, or move real money in mock mode:
   `recommendation/service.ts` and `api/store/search/route.ts` use the `<=> ::vector` operator. The whole
   ORACLE / personalization / hybrid-search layer is **pgvector-native**.
 - **✅ Verified (2026-06-01):** with `postgresql-16-pgvector` (0.6.0) installed, `CREATE EXTENSION vector`,
-  the HNSW index, and **10 product embeddings** all succeeded against `alterxiv_verify`.
+  the HNSW index, and **10 product embeddings** all succeeded against `lumera_verify`.
 - **Still required for Cloud:** the Medusa Cloud database role must have **pgvector available** and
   **`CREATE EXTENSION` privilege**. **Confirm this before import** — if the managed Postgres can't create
   the `vector` extension, migration/embeddings will fail. **[verify in console]**
@@ -360,7 +360,7 @@ safety posture:
 | `pnpm lint` | ✅ **PASS** — 4/4 packages, `tsc --noEmit`. |
 | `pnpm test` | ✅ **PASS** — all unit tests green (exit 0). |
 | `pnpm build` | ✅ backend + shared + intelligence green; storefront green **once Google-Fonts egress is reachable**. In this sandbox the egress proxy's self-signed cert blocks `next/font/google` by default (environment limitation, not a code defect — confirmed green with the cert tolerated). |
-| `DATABASE_URL=…/alterxiv_verify pnpm verify:api` | ◑ **Data pipeline GREEN; final HTTP sweep not run in-sandbox.** After the §13.1/§13.2 fixes the full clean-DB chain passed: **migrations ✓ → seed via committed fixtures (10 products + 2 drops) ✓ → commerce/region/shipping ✓ → prices ✓ → inventory ✓ → pgvector embeddings (10) ✓ → monetization tiers ✓ → publishable key ✓ → backend build ✓**. The 21 API regressions did **not** execute here: `medusa start` (from the source dir) couldn't serve the production admin build under the sandbox's restricted egress (`Could not find index.html …`). That is a `medusa start` admin-serving quirk, **not** an app/code defect and **not** how Medusa Cloud runs the app — its managed runtime serves admin itself, and the handoff records these regressions as 21/21 in a normal environment. |
+| `DATABASE_URL=…/lumera_verify pnpm verify:api` | ◑ **Data pipeline GREEN; final HTTP sweep not run in-sandbox.** After the §13.1/§13.2 fixes the full clean-DB chain passed: **migrations ✓ → seed via committed fixtures (10 products + 2 drops) ✓ → commerce/region/shipping ✓ → prices ✓ → inventory ✓ → pgvector embeddings (10) ✓ → monetization tiers ✓ → publishable key ✓ → backend build ✓**. The 21 API regressions did **not** execute here: `medusa start` (from the source dir) couldn't serve the production admin build under the sandbox's restricted egress (`Could not find index.html …`). That is a `medusa start` admin-serving quirk, **not** an app/code defect and **not** how Medusa Cloud runs the app — its managed runtime serves admin itself, and the handoff records these regressions as 21/21 in a normal environment. |
 | **Repo-root restructure** (`deploy/medusa-cloud`) | ✅ **PASS** — after promoting the project to the repo root so `pnpm-lock.yaml` sits where Medusa Cloud looks, `pnpm install --frozen-lockfile` (*"Lockfile is up to date"*) and `pnpm lint` (4/4, FULL TURBO) both pass from the new root — the workspace + `@lumera/shared` still resolve. |
 
 > **Two minor in-sandbox notes (not blockers):** (1) `scripts/verify-api.sh:91` decides "build present

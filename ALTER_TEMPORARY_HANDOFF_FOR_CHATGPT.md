@@ -49,7 +49,7 @@ _Generated 2026-06-01 from the Claude/Codex cloud build session. **Temporary con
 7. **PPR** deferred (canary-only); sub-second-perceived Broadcast achieved via React Compiler + Suspense streaming on stable Next.
 
 ## 5. Bugs, blockers, unresolved questions
-- **Codex's 24h research (`docs/alter14/`, ~561 evidence files, V5/V6/V7 ledgers) is LOCAL-ONLY** on Garrett's Windows machine and the external cache `C:\Users\Garrett\Documents\Codex\alterxiv-repo-intel`. It is **NOT in the cloud repo and NOT on any remote branch** Claude-cloud can fetch. To use it, push `docs/alter14` to a branch or upload it.
+- **Codex's 24h research (`docs/alter14/`, ~561 evidence files, V5/V6/V7 ledgers) is LOCAL-ONLY** on Garrett's Windows machine and the external cache `C:\Users\Garrett\Documents\Codex\lumera-repo-intel`. It is **NOT in the cloud repo and NOT on any remote branch** Claude-cloud can fetch. To use it, push `docs/alter14` to a branch or upload it.
 - **API keys absent**: `ANTHROPIC_API_KEY`, `STRIPE_API_KEY` (test), `HIGGSFIELD_API_KEY`, `APIFY_TOKEN`, `COMPOSIO_API_KEY`, MinIO `S3_*`. Until set, the respective surfaces are mocked.
 - **Codex audit pinned the wrong commit**: the Special Assignment Audit reviewed `f5af762` (PRE-FIX) and flagged "API regression unverified — migrate hangs." That blocker is **resolved at HEAD** (`472c597`/`e9fba90`): `verify:api` → 21/21 from a clean DB. ChatGPT/Codex should re-audit HEAD `ca17ce3`, not `f5af762`.
 - **Cloud sandbox infra is ephemeral** — Postgres/Redis get OOM-recycled between/within sessions; `verify-api.sh` and ad-hoc guards restart them. Not a code bug.
@@ -81,14 +81,14 @@ From Codex's V7 gap ledger (`docs/alter14/59_GAP_LEDGER.md`) — **G01 and G03 a
 - **Do NOT** revert: `verify-api.sh`, conditional-Redis in `medusa-config.ts`, `ensure-publishable-key.ts`, `setup-embeddings.ts`, the `order-placed.ts` `unit_price` fix, the per-package `lint` scripts. These fix the clean-checkout/operational path.
 - **Do NOT** treat mocked agent/Shepherd/imagery output as bugs — they are guardrail-intentional until keys exist.
 - **Use the V7 gap ledger (G01–G16) as the roadmap.** G01 (hybrid search) and G03 (agent workflow state machine) are DONE; don't re-spec them. Don't re-review already-adopted seed repos (Medusa/Spree/etc.).
-- **Re-audit HEAD `ca17ce3`**, not `f5af762`. Reproduce with: `pnpm install --frozen-lockfile` → `DATABASE_URL=postgres://alterxiv:alterxiv@localhost:5432/alterxiv_verify pnpm verify:api`.
+- **Re-audit HEAD `ca17ce3`**, not `f5af762`. Reproduce with: `pnpm install --frozen-lockfile` → `DATABASE_URL=postgres://lumera:lumera@localhost:5432/lumera_verify pnpm verify:api`.
 - **Highest-value strategic asks for ChatGPT:** (a) license decisions for the `adopt-with-license-review` V7 candidates; (b) sequencing G06/G08/G09/G10/G13/G16; (c) the launch-green checklist ordering (deploy target, observability, perf budget); (d) prompt design for the next Codex research wave; (e) risk review of the escalation-gate + money paths.
 
 ## Exact build/test status (HEAD ca17ce3)
 - `pnpm build` → 4/4 packages green.
 - `pnpm test` → **52 unit tests** (6 files: shared events, analyst bi ×24, intelligence learning-loop, tools registry, operator workflow, storefront catalog).
 - `pnpm lint` → **4 real `tsc --noEmit` tasks** (was a no-op before).
-- `pnpm verify:api` → **21/21 API regressions from a fresh empty DB** (proven against `alterxiv_verify`); `scripts/api-regression.ts` itself is 22 checks against a warm DB.
+- `pnpm verify:api` → **21/21 API regressions from a fresh empty DB** (proven against `lumera_verify`); `scripts/api-regression.ts` itself is 22 checks against a warm DB.
 - `git diff --check` clean; tree clean.
 
 ## Constraints / guardrails (must hold)

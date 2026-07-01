@@ -1,7 +1,7 @@
 /**
  * Lumera — the marketplace brand (consumer-facing).
- * "The Broadcast" is the storefront experience inside Lumera. Internal codenames
- * (@alterxiv packages and some legacy module names) are internal implementation details.
+ * "The Broadcast" is the storefront experience inside Lumera. Some legacy module codenames
+ * remain internal implementation details; the package scope is now @lumera/* to match the brand.
  * Keep this thin: one name, one experience label, one line. Not a vocabulary system.
  */
 export const BRAND = 'Lumera';

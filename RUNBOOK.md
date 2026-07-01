@@ -12,7 +12,7 @@ gates — don't conflate them.
 - Node 20+, pnpm 9, PostgreSQL 16 with the `pgvector` extension, (optional) Redis 7.
 - `docker compose up -d` brings up Postgres+pgvector and Redis locally (see `docker-compose.yml`).
 - Copy `.env.example` → `.env`. The bootstrap **auto-creates a publishable key** if one is absent;
-  it prints `PUBLISHABLE_KEY=...` and writes it to `/tmp/alterxiv-pk`.
+  it prints `PUBLISHABLE_KEY=...` and writes it to `/tmp/lumera-pk`.
 
 ## The one command
 ```bash
@@ -34,7 +34,7 @@ pnpm verify:api
 
 Target a throwaway DB to prove the clean path:
 ```bash
-DATABASE_URL=postgres://alterxiv:alterxiv@localhost:5432/alterxiv_verify pnpm verify:api
+DATABASE_URL=postgres://lumera:lumera@localhost:5432/lumera_verify pnpm verify:api
 ```
 
 ## Readiness gates (keep these separate)

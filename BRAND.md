@@ -34,7 +34,7 @@ category — not faith- or apparel-specific (that register belongs to the **ALTE
 
 ## What is NOT renamed (engineering boundary — deliberate)
 Brand = the display layer. The load-bearing internals stay so the live deployment never breaks and no
-migration is needed: the `alter-xiv/` path, the `deploy/medusa-cloud` branch, `@alterxiv/*` packages, Medusa
+migration is needed: the `alter-xiv/` path, the `deploy/medusa-cloud` branch, `@lumera/*` packages, Medusa
 **module** names (`monetization`, `drops`, `signal`, …), DB tables/columns, and the data **keys**
 (`credits`, tier keys `disciple`/`patron`, the `congregation` job group, segment enums). Users never see
 these; renaming them would be cost with no brand value. The single display source for the storefront is

@@ -235,7 +235,7 @@ async function run() {
     assert(cartId, 'no cart id');
 
     res = await post(`/store/carts/${cartId}`, {
-      email: 'buyer@alterxiv.test',
+      email: 'buyer@lumera.test',
       shipping_address: { first_name: 'Altar', last_name: 'Buyer', address_1: '1 Broadcast Way', city: 'New York', country_code: 'us', province: 'NY', postal_code: '10001' },
     });
     assert(res.ok, `set email/address failed: ${res.status}`);
@@ -283,7 +283,7 @@ async function run() {
     const bad = await fetch(`${API}/store/rma`, { method: 'POST', headers, body: JSON.stringify({}) });
     assert(bad.status === 400, `empty return should 400, got ${bad.status}`);
     const res = await fetch(`${API}/store/rma`, {
-      method: 'POST', headers, body: JSON.stringify({ email: 'returns-reg@alterxiv.test', reason: 'regression' }),
+      method: 'POST', headers, body: JSON.stringify({ email: 'returns-reg@lumera.test', reason: 'regression' }),
     });
     const rawBody = await res.clone().text();
     assert(res.status === 202, `return intake HTTP ${res.status} — body: ${rawBody.slice(0, 200)}`);

@@ -49,13 +49,13 @@ jobs:
       postgres:
         image: pgvector/pgvector:pg16
         env:
-          POSTGRES_USER: alterxiv
-          POSTGRES_PASSWORD: alterxiv
-          POSTGRES_DB: alterxiv_verify
+          POSTGRES_USER: lumera
+          POSTGRES_PASSWORD: lumera
+          POSTGRES_DB: lumera_verify
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U alterxiv"
+          --health-cmd "pg_isready -U lumera"
           --health-interval 5s
           --health-timeout 5s
           --health-retries 12
@@ -69,7 +69,7 @@ jobs:
           --health-timeout 5s
           --health-retries 12
     env:
-      DATABASE_URL: postgres://alterxiv:alterxiv@localhost:5432/alterxiv_verify
+      DATABASE_URL: postgres://lumera:lumera@localhost:5432/lumera_verify
       REDIS_URL: redis://localhost:6379
       # Boot without the admin static bundle so the operational pipeline runs headless.
       MEDUSA_ADMIN_DISABLED: "true"

@@ -3,7 +3,7 @@
 **Bar:** the best overall website of 2026. **Constraint:** a company of one — it runs itself.
 
 > **Naming decision (2026-06-01):** the platform/marketplace is branded **Lumera**. Internal codename
-> *Alter XIV* is **unchanged** (`alter-xiv/` path, `@alterxiv/*` packages, module/DB/branch names — all
+> *Alter XIV* is **unchanged** (`alter-xiv/` path, `@lumera/*` packages, module/DB/branch names — all
 > stay; this is the display layer only). Lumera is a **general everything-marketplace** (all categories).
 > Map: **The Broadcast** = the storefront experience · **ALTER** = a house label among many · **Galaxy** =
 > parent ecosystem · **Orbit** = creator program. User-facing strings (page titles, PWA manifest, OG/meta,

@@ -38,6 +38,6 @@ export default async function ensurePublishableKey({ container }: { container: a
   }
 
   // Emit for capture (and persist for convenience).
-  require('fs').writeFileSync('/tmp/alterxiv-pk', token);
+  require('fs').writeFileSync('/tmp/lumera-pk', token);
   console.log(`PUBLISHABLE_KEY=${token}`);
 }

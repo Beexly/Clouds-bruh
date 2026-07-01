@@ -23,7 +23,7 @@ async function main() {
   if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL) {
     throw new Error('[setup-embeddings] DATABASE_URL must be set in production (refusing localhost fallback).');
   }
-  const pool = new Pool({ connectionString: process.env.DATABASE_URL || 'postgres://alterxiv:alterxiv@localhost:5432/alterxiv' });
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL || 'postgres://lumera:lumera@localhost:5432/lumera' });
   try {
     await pool.query('CREATE EXTENSION IF NOT EXISTS vector');
     await pool.query(`
