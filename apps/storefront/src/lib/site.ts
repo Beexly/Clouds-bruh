@@ -6,10 +6,21 @@
  */
 export const CANONICAL_SITE = 'https://lumeralabel.com';
 
-/** Resolve the site origin from an env value: trims trailing slashes, falls back to canonical. Pure. */
-export function resolveSite(raw?: string | null): string {
+/**
+ * Resolve the site origin. Priority: explicit NEXT_PUBLIC_SITE_URL → the current Vercel deployment
+ * host (so a zero-config demo deploy gets correct OG/canonical/sitemap URLs automatically) → the
+ * canonical brand domain. Pure; trims slashes. The optional 2nd arg keeps the 1-arg signature that
+ * site.test.ts relies on.
+ */
+export function resolveSite(raw?: string | null, vercelHost?: string | null): string {
   const v = (raw ?? '').trim();
-  return (v || CANONICAL_SITE).replace(/\/+$/, '');
+  if (v) return v.replace(/\/+$/, '');
+  const host = (vercelHost ?? '').trim();
+  if (host) return `https://${host.replace(/^https?:\/\//, '').replace(/\/+$/, '')}`;
+  return CANONICAL_SITE;
 }
 
-export const SITE = resolveSite(process.env.NEXT_PUBLIC_SITE_URL);
+export const SITE = resolveSite(
+  process.env.NEXT_PUBLIC_SITE_URL,
+  process.env.NEXT_PUBLIC_VERCEL_URL || process.env.VERCEL_URL,
+);

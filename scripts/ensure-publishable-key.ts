@@ -1,3 +1,6 @@
+import { writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { Modules } from '@medusajs/framework/utils';
 import { createApiKeysWorkflow, linkSalesChannelsToApiKeyWorkflow } from '@medusajs/medusa/core-flows';
 
@@ -37,7 +40,12 @@ export default async function ensurePublishableKey({ container }: { container: a
     console.log(`[ensure-pk] linked ${channels.length} sales channel(s)`);
   }
 
-  // Emit for capture (and persist for convenience).
-  require('fs').writeFileSync('/tmp/lumera-pk', token);
+  // Emit for capture (stdout is the source of truth). Also persist to a temp file owner-only for
+  // convenience — never a world-readable fixed path.
+  try {
+    writeFileSync(join(tmpdir(), 'lumera-pk'), token, { mode: 0o600 });
+  } catch {
+    // best-effort convenience write; stdout capture below is authoritative
+  }
   console.log(`PUBLISHABLE_KEY=${token}`);
 }
