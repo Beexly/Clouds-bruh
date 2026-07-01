@@ -3,6 +3,7 @@ dist/
 .next/
 .medusa/
 .turbo/
+node-compile-cache/
 *.log
 *.rdb
 *.tsbuildinfo
