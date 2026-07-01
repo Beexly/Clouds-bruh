@@ -32,3 +32,9 @@ export function priceStr(p: any): string {
   const c = priceCents(p);
   return c != null ? `$${(c / 100).toFixed(2)}` : 'Price on request';
 }
+
+/** Currency code for a product's first variant price (lower-cased; defaults to 'usd'). */
+export function priceCurrency(p: any): string {
+  const v = p?.variants?.[0];
+  return String(v?.calculated_price?.currency_code ?? v?.prices?.[0]?.currency_code ?? 'usd').toLowerCase();
+}

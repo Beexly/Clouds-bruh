@@ -8,10 +8,10 @@ import { PageSignal } from '../../../components/PageSignal';
 import { ProductRail } from '../../../components/ProductRail';
 import { ProductImage } from '../../../components/ProductImage';
 import { ReviewForm } from '../../../components/ReviewForm';
-import { getRegionId, PRODUCT_FIELDS, priceCents, priceStr } from '../../../lib/catalog';
+import { getRegionId, PRODUCT_FIELDS, priceCents, priceCurrency, priceStr } from '../../../lib/catalog';
 import { breadcrumbList, jsonLdScript } from '../../../lib/jsonld';
 import { SITE } from '../../../lib/site';
-import { priceBand, type ProductTruth } from '@alterxiv/shared';
+import { priceBand, productAesthetic, type ProductTruth } from '@alterxiv/shared';
 
 interface PdpReview {
   id: string;
@@ -204,7 +204,11 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbs) }} />
       <PageSignal
         type="product_view"
-        context={{ chapter, price_band: price != null ? priceBand(price / 100) : undefined }}
+        context={{
+          chapter,
+          price_band: price != null ? priceBand(price / 100, priceCurrency(product)) : undefined,
+          aesthetic: productAesthetic(chapter, (product.metadata?.aesthetic as string | undefined) ?? null),
+        }}
         entityId={product.id}
       />
 

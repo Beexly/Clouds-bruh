@@ -2,7 +2,7 @@
 import { signal } from '../lib/signal';
 import { WishlistButton } from './WishlistButton';
 import { ProductImage } from './ProductImage';
-import { priceBand, type Product } from '@alterxiv/shared';
+import { priceBand, productAesthetic, type Product } from '@alterxiv/shared';
 
 /** The conversion primitives, mined from the Amazon/Walmart/Shein datasets, made tasteful. */
 export function ProductCard({ p }: { p: Product }) {
@@ -12,7 +12,8 @@ export function ProductCard({ p }: { p: Product }) {
        onClick={() => signal('product_view', p.id, undefined, {
          chapter: p.chapter,
          category: p.category_tree?.[0],
-         price_band: p.price?.final != null ? priceBand(p.price.final) : undefined,
+         price_band: p.price?.final != null ? priceBand(p.price.final, p.price.currency) : undefined,
+         aesthetic: productAesthetic(p.chapter),
        })}
        className="group block">
       <div className="relative aspect-[3/4] overflow-hidden bg-neutral-950">
