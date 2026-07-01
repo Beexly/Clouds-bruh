@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import { ProductRail } from '../../../components/ProductRail';
 import { PageSignal } from '../../../components/PageSignal';
 import { getRegionId, PRODUCT_FIELDS } from '../../../lib/catalog';
+import { DEMO, demoProductsByChapter } from '../../../lib/demo';
 import { breadcrumbList, jsonLdScript } from '../../../lib/jsonld';
 import { SITE } from '../../../lib/site';
 
@@ -21,6 +22,7 @@ const CHAPTER_LINE: Record<Chapter, string> = {
 };
 
 async function fetchChapterProducts(chapter: string) {
+  if (DEMO) return demoProductsByChapter(chapter);
   try {
     const region = await getRegionId();
     const res = await fetch(

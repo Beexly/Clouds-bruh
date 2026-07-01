@@ -9,6 +9,7 @@ import { ProductRail } from '../../../components/ProductRail';
 import { ProductImage } from '../../../components/ProductImage';
 import { ReviewForm } from '../../../components/ReviewForm';
 import { getRegionId, PRODUCT_FIELDS, priceCents, priceCurrency, priceStr } from '../../../lib/catalog';
+import { DEMO, demoProductByHandle, demoAllProducts } from '../../../lib/demo';
 import { breadcrumbList, jsonLdScript } from '../../../lib/jsonld';
 import { SITE } from '../../../lib/site';
 import { priceBand, productAesthetic, type ProductTruth } from '@lumera/shared';
@@ -31,6 +32,7 @@ const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
 const headers = { 'x-publishable-api-key': PK };
 
 async function fetchProduct(handle: string) {
+  if (DEMO) return demoProductByHandle(handle);
   try {
     const region = await getRegionId();
     const res = await fetch(
@@ -46,6 +48,7 @@ async function fetchProduct(handle: string) {
 }
 
 async function fetchRail(visitorId: string, strategy: string, excludeId: string) {
+  if (DEMO) return demoAllProducts().filter((p: any) => p.id !== excludeId).slice(0, 4);
   try {
     const region = await getRegionId();
     const res = await fetch(
@@ -69,6 +72,7 @@ async function fetchRail(visitorId: string, strategy: string, excludeId: string)
 }
 
 async function fetchDemand(productId: string) {
+  if (DEMO) return null;
   try {
     const res = await fetch(`${API}/store/pricing?product_id=${productId}`, { cache: 'no-store', headers });
     if (!res.ok) return null;
@@ -79,6 +83,7 @@ async function fetchDemand(productId: string) {
 }
 
 async function fetchTruth(handle: string): Promise<ProductTruth | null> {
+  if (DEMO) return null;
   try {
     const res = await fetch(`${API}/store/product-truth/${encodeURIComponent(handle)}`, { cache: 'no-store', headers });
     if (!res.ok) return null;
@@ -91,6 +96,7 @@ async function fetchTruth(handle: string): Promise<ProductTruth | null> {
 
 async function fetchReviews(productId: string): Promise<{ reviews: PdpReview[]; stats: PdpReviewStats }> {
   const empty = { reviews: [] as PdpReview[], stats: { count: 0, average: 0 } };
+  if (DEMO) return empty;
   try {
     const res = await fetch(`${API}/store/reviews?product_id=${encodeURIComponent(productId)}`, {
       cache: 'no-store',

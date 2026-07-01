@@ -7,11 +7,13 @@ import { Hero } from '../components/Hero';
 import { TuneBroadcast } from '../components/TuneBroadcast';
 import { DropBoardSkeleton, RailSkeleton } from '../components/Skeletons';
 import { getRegionId, PRODUCT_FIELDS } from '../lib/catalog';
+import { DEMO, demoBroadcast, demoProductsByIds } from '../lib/demo';
 
 const API = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000';
 const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
 
 async function fetchBroadcast(visitorId: string) {
+  if (DEMO) return demoBroadcast();
   try {
     const res = await fetch(`${API}/store/broadcast?visitor_id=${encodeURIComponent(visitorId)}`, {
       cache: 'no-store',
@@ -30,6 +32,7 @@ function defaultBroadcast() {
 
 async function fetchProductsByIds(ids: string[]) {
   if (!ids.length) return [];
+  if (DEMO) return demoProductsByIds(ids);
   try {
     const region = await getRegionId();
     const params = ids.map((id) => `id[]=${id}`).join('&');

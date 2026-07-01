@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { PageSignal } from '../../components/PageSignal';
 import { ProductImage } from '../../components/ProductImage';
 import { getRegionId, PRODUCT_FIELDS, priceStr } from '../../lib/catalog';
+import { DEMO, demoSearch, demoProductsByIds } from '../../lib/demo';
 
 /**
  * /search — the storefront face of the hybrid (keyword + pgvector) search API (/store/search).
@@ -20,6 +21,15 @@ const headers = { 'x-publishable-api-key': PK };
 interface SearchHit { id: string; reason?: string }
 
 async function runSearch(q: string): Promise<{ results: SearchHit[]; facets: Record<string, number> }> {
+  if (DEMO) {
+    const hits = demoSearch(q);
+    const facets: Record<string, number> = {};
+    for (const h of hits) {
+      const c = (h.metadata?.chapter as string) ?? 'other';
+      facets[c] = (facets[c] ?? 0) + 1;
+    }
+    return { results: hits.map((h: any) => ({ id: h.id, reason: h.reason })), facets };
+  }
   try {
     const res = await fetch(`${API}/store/search?q=${encodeURIComponent(q)}&limit=24`, { cache: 'no-store', headers });
     if (!res.ok) return { results: [], facets: {} };
@@ -32,6 +42,7 @@ async function runSearch(q: string): Promise<{ results: SearchHit[]; facets: Rec
 
 async function productsByIds(ids: string[]): Promise<any[]> {
   if (!ids.length) return [];
+  if (DEMO) return demoProductsByIds(ids);
   try {
     const region = await getRegionId();
     const params = ids.map((id) => `id[]=${encodeURIComponent(id)}`).join('&');
