@@ -15,12 +15,12 @@ WORKDIR /repo
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY packages/shared/package.json packages/shared/
 COPY apps/intelligence/package.json apps/intelligence/
-RUN pnpm install --frozen-lockfile --filter @alterxiv/shared... --filter intelligence...
+RUN pnpm install --frozen-lockfile --filter @lumera/shared... --filter intelligence...
 
 # Source + build (shared is a workspace dependency and must be built first).
 COPY packages/shared packages/shared
 COPY apps/intelligence apps/intelligence
-RUN pnpm --filter @alterxiv/shared build && pnpm --filter intelligence build
+RUN pnpm --filter @lumera/shared build && pnpm --filter intelligence build
 
 ENV NODE_ENV=production
 # Override CMD with `pnpm --filter intelligence start:operator` to run the OPERATOR one-shot instead.

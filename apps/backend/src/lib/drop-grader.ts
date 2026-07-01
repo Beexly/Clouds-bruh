@@ -10,7 +10,7 @@
  */
 
 import { pool, ensureAgentRunTable } from './lumera-db';
-import { type LiveDrop, type DropProposal } from '@alterxiv/shared';
+import { type LiveDrop, type DropProposal } from '@lumera/shared';
 
 /** Read live drops (fixture-safe → []). created_at gives days_live; matches the grade_drops tool. */
 export async function readLiveDrops(): Promise<LiveDrop[]> {

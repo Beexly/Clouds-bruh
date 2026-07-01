@@ -9,7 +9,7 @@ import {
   approveEscalation,
   rejectEscalation,
 } from './actions';
-import { CONSTELLATION } from '@alterxiv/shared';
+import { CONSTELLATION } from '@lumera/shared';
 
 const API = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000';
 const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';

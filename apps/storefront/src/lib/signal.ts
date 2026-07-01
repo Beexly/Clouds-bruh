@@ -1,5 +1,5 @@
 'use client';
-import type { EventType } from '@alterxiv/shared';
+import type { EventType } from '@lumera/shared';
 
 const BASE = process.env.NEXT_PUBLIC_MEDUSA_URL || 'http://localhost:9000';
 const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';

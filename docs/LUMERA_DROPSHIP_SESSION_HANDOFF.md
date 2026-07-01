@@ -7,7 +7,7 @@ Branch: `claude/affectionate-clarke-KJ8O1`. Everything is committed + pushed.
 
 1. **Consolidation** — merged the Codex dropship lane (PR #6) onto the rebranded Lumera mainline
    (3-way merge; kept Brand Guidelines v2 + the real, data-wired PDP "Product Truth" panel).
-2. **AliExpress / Alibaba / Shein radar sourcing** — `@alterxiv/shared/sourcing`: shared Oxylabs +
+2. **AliExpress / Alibaba / Shein radar sourcing** — `@lumera/shared/sourcing`: shared Oxylabs +
    Apify transport and a normalizer adapting the common OSS scraper field shapes into scored
    `ProductCandidate`s. `supplier_radar` agent tool; backend `curation/run` layers live discovery
    over the fixture seed; `pnpm radar` preview + `/lumera-radar`. Discovery-only by design (must

@@ -65,13 +65,13 @@ else
 fi
 
 # ── 1b. Build the shared workspace package ───────────────────────────────────
-# The backend's modules/config import @alterxiv/shared from its built dist (main:
+# The backend's modules/config import @lumera/shared from its built dist (main:
 # dist/index.js). Medusa's loader resolves it from node_modules and does NOT transpile
 # workspace deps, so without this build every migrate/seed/boot crashes at config load.
-say "Building @alterxiv/shared"
-( cd "$ROOT" && pnpm --filter @alterxiv/shared build ) >/tmp/alterxiv-verify-shared.log 2>&1 \
-  && ok "@alterxiv/shared built" \
-  || { tail -50 /tmp/alterxiv-verify-shared.log; die "@alterxiv/shared build failed — see log above"; }
+say "Building @lumera/shared"
+( cd "$ROOT" && pnpm --filter @lumera/shared build ) >/tmp/alterxiv-verify-shared.log 2>&1 \
+  && ok "@lumera/shared built" \
+  || { tail -50 /tmp/alterxiv-verify-shared.log; die "@lumera/shared build failed — see log above"; }
 
 cd "$ROOT/apps/backend"
 

@@ -2,7 +2,7 @@
 import { useEffect, useRef } from 'react';
 import { signal } from '../lib/signal';
 import { useBehavior } from '../lib/useBehavior';
-import type { EventType } from '@alterxiv/shared';
+import type { EventType } from '@lumera/shared';
 
 /**
  * Fires the page's primary signal once, and (when trackBehavior) emits dwell +

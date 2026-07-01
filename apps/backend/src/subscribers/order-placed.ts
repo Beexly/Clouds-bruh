@@ -1,6 +1,6 @@
 import type { SubscriberArgs, SubscriberConfig } from '@medusajs/framework';
 import { Modules } from '@medusajs/framework/utils';
-import type { SignalEvent } from '@alterxiv/shared';
+import type { SignalEvent } from '@lumera/shared';
 import { persistVendorOrderDrafts } from '../lib/lumera-order-routing';
 import { captureException } from '../lib/observability';
 

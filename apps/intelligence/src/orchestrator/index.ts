@@ -4,7 +4,7 @@ import { AGENTS } from '../agents';
 import { runAgent } from './run-agent';
 import { runIntrospection } from '../introspection';
 import { learnFrom } from '../learning/loop';
-import type { SignalEvent } from '@alterxiv/shared';
+import type { SignalEvent } from '@lumera/shared';
 
 const redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');
 const redisReader = new Redis(process.env.REDIS_URL || 'redis://localhost:6379');

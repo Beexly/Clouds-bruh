@@ -1,4 +1,4 @@
-import type { ChannelAdapter, ChannelConnection, ChannelId } from '@alterxiv/shared';
+import type { ChannelAdapter, ChannelConnection, ChannelId } from '@lumera/shared';
 import {
   AmazonChannelAdapter,
   EtsyChannelAdapter,

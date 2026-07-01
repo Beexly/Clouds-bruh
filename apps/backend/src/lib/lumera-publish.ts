@@ -1,5 +1,5 @@
-import type { ProductCandidate } from '@alterxiv/shared';
-import { candidateToProductTruth } from '@alterxiv/shared';
+import type { ProductCandidate } from '@lumera/shared';
+import { candidateToProductTruth } from '@lumera/shared';
 import { captureException } from './observability';
 
 export interface PublishResult {

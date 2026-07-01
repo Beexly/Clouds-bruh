@@ -11,7 +11,7 @@ import { ReviewForm } from '../../../components/ReviewForm';
 import { getRegionId, PRODUCT_FIELDS, priceCents, priceCurrency, priceStr } from '../../../lib/catalog';
 import { breadcrumbList, jsonLdScript } from '../../../lib/jsonld';
 import { SITE } from '../../../lib/site';
-import { priceBand, productAesthetic, type ProductTruth } from '@alterxiv/shared';
+import { priceBand, productAesthetic, type ProductTruth } from '@lumera/shared';
 
 interface PdpReview {
   id: string;

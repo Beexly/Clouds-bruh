@@ -1,7 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  transpilePackages: ['@alterxiv/shared'],
+  transpilePackages: ['@lumera/shared'],
   reactStrictMode: true,
   // Silence the multi-lockfile workspace-root inference warning (monorepo).
   outputFileTracingRoot: require('path').join(__dirname, '../../'),

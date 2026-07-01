@@ -2,7 +2,7 @@
 
 **Purpose.** A grounded "what to borrow, why, and what key turns it on" map across the
 open-source commerce / dropship / scraping ecosystem, written against Lumera's *actual* code
-(the `lumera` Medusa module, the `VendorConnector` clients, and the new `@alterxiv/shared/sourcing`
+(the `lumera` Medusa module, the `VendorConnector` clients, and the new `@lumera/shared/sourcing`
 radar). Goal: **flip the keys and start shipping.**
 
 Legend: **ADOPTED** = wired in this repo · **BORROW** = pattern adopted/adaptable · **VALIDATE** =

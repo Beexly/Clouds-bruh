@@ -2,7 +2,7 @@
 import { signal } from '../lib/signal';
 import { WishlistButton } from './WishlistButton';
 import { ProductImage } from './ProductImage';
-import { priceBand, productAesthetic, type Product } from '@alterxiv/shared';
+import { priceBand, productAesthetic, type Product } from '@lumera/shared';
 
 /** The conversion primitives, mined from the Amazon/Walmart/Shein datasets, made tasteful. */
 export function ProductCard({ p }: { p: Product }) {

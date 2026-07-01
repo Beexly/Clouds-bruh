@@ -1,5 +1,5 @@
 import type { Tool } from './index';
-import { radarDiscover, type RadarSource } from '@alterxiv/shared';
+import { radarDiscover, type RadarSource } from '@lumera/shared';
 
 /**
  * supplier_radar — discover scorable product candidates from a marketplace radar source

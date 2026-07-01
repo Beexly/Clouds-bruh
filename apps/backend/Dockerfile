@@ -14,14 +14,14 @@ WORKDIR /repo
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY packages/shared/package.json packages/shared/
 COPY apps/backend/package.json apps/backend/
-RUN pnpm install --frozen-lockfile --filter @alterxiv/shared... --filter backend...
+RUN pnpm install --frozen-lockfile --filter @lumera/shared... --filter backend...
 
 COPY packages/shared packages/shared
 COPY apps/backend apps/backend
 # Admin UI is built by default; pass --build-arg MEDUSA_ADMIN_DISABLED=true to skip it (API-only image).
 ARG MEDUSA_ADMIN_DISABLED=false
 ENV MEDUSA_ADMIN_DISABLED=$MEDUSA_ADMIN_DISABLED
-RUN pnpm --filter @alterxiv/shared build && pnpm --filter backend build
+RUN pnpm --filter @lumera/shared build && pnpm --filter backend build
 # When admin is enabled, fail fast if its bundle is incomplete (e.g. restricted egress during
 # `medusa build`) rather than crash-looping on `medusa start` at runtime — the bundle lands at
 # .medusa/server/public/admin/index.html (verified). See MEDUSA_CLOUD_IMPORT_READINESS.md.

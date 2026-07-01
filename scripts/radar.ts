@@ -7,7 +7,7 @@
  * Gated + honest: prints an empty result with guidance when OXYLABS/APIFY creds are absent,
  * so it never fabricates discovery data.
  */
-import { radarDiscover, radarConfigured, type RadarSource } from '@alterxiv/shared';
+import { radarDiscover, radarConfigured, type RadarSource } from '@lumera/shared';
 
 function arg(flag: string): string | undefined {
   const i = process.argv.indexOf(flag);

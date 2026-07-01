@@ -1,7 +1,7 @@
 import { Pool } from 'pg';
 import { Ledger } from './memory/ledger';
 import { allVendorClients } from './vendors';
-import type { Audit, VendorConnection } from '@alterxiv/shared';
+import type { Audit, VendorConnection } from '@lumera/shared';
 
 let _pool: Pool | null = null;
 function pool(): Pool {

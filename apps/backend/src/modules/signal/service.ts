@@ -1,6 +1,6 @@
 import { MedusaService } from '@medusajs/framework/utils';
 import { SignalEvent } from './models/event';
-import type { SignalEvent as TEvent } from '@alterxiv/shared';
+import type { SignalEvent as TEvent } from '@lumera/shared';
 import Redis from 'ioredis';
 
 let _redis: Redis | null = null;

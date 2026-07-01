@@ -3,7 +3,7 @@ import { runAgent } from '../orchestrator/run-agent';
 import { Ledger } from '../memory/ledger';
 import { runIntrospection } from '../introspection';
 import { classifyRun, type WorkflowState } from './workflow';
-import type { AgentRun } from '@alterxiv/shared';
+import type { AgentRun } from '@lumera/shared';
 
 /**
  * OPERATOR — the manager agent (crewAI hierarchical pattern).

@@ -3,7 +3,7 @@ import {
   type ChannelId,
   type ChannelListingResult,
   type ProductCandidate,
-} from '@alterxiv/shared';
+} from '@lumera/shared';
 import { allChannelAdapters, channelAdapter } from './index';
 
 export interface ChannelSyncResult {

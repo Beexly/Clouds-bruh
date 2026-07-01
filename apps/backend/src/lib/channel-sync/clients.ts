@@ -8,7 +8,7 @@ import type {
   ChannelListingResult,
   ChannelMode,
   ChannelWebhookResult,
-} from '@alterxiv/shared';
+} from '@lumera/shared';
 
 type Json = Record<string, any>;
 

@@ -1,10 +1,10 @@
 import type { Tool } from './index';
-import { apifyConfigured, runApifyActor } from '@alterxiv/shared';
+import { apifyConfigured, runApifyActor } from '@lumera/shared';
 
 /**
  * Apify — thousands of ready-made Actors (scrapers/crawlers) for AliExpress, Alibaba, Amazon,
  * Shein, TikTok, etc. Second source for the data radar (alongside Oxylabs). Uses the shared
- * transport in `@alterxiv/shared/sourcing`. Degrades to an empty dataset when APIFY_TOKEN is
+ * transport in `@lumera/shared/sourcing`. Degrades to an empty dataset when APIFY_TOKEN is
  * absent so the loop/tests run. Production-preferred: register mcp.apify.com (see ../mcp.config.ts).
  */
 export const apify: Tool = {

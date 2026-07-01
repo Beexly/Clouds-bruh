@@ -1,7 +1,7 @@
 import { MedusaService } from '@medusajs/framework/utils';
 import { VisitorProfile } from './models/visitor-profile';
-import type { SignalEvent, Segment } from '@alterxiv/shared';
-import { REWARD_WEIGHTS } from '@alterxiv/shared';
+import type { SignalEvent, Segment } from '@lumera/shared';
+import { REWARD_WEIGHTS } from '@lumera/shared';
 
 const DECAY = 0.95;
 const HIGH_INTENT_EVENTS = new Set(['add_to_cart', 'checkout_step', 'purchase', 'wishlist_add']);

@@ -1,4 +1,4 @@
-import { fixtureCandidates, type VendorConnection, type VendorId } from '@alterxiv/shared';
+import { fixtureCandidates, type VendorConnection, type VendorId } from '@lumera/shared';
 import { allVendorClients, vendorClient } from './clients';
 export { allVendorClients, vendorClient } from './clients';
 

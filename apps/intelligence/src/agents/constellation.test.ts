@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { AGENTS } from './index';
-import { CONSTELLATION, CONSTELLATION_BY_KEY } from '@alterxiv/shared';
+import { CONSTELLATION, CONSTELLATION_BY_KEY } from '@lumera/shared';
 
 /**
  * The Founder's Cockpit renders the workforce from the shared CONSTELLATION manifest. If that drifts

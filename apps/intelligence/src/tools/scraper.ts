@@ -1,9 +1,9 @@
 import type { Tool } from './index';
-import { oxylabsConfigured, oxylabsQuery } from '@alterxiv/shared';
+import { oxylabsConfigured, oxylabsQuery } from '@lumera/shared';
 
 /**
  * Sourcing radar — Oxylabs E-Commerce / Web Scraper API (realtime), via the shared transport in
- * `@alterxiv/shared/sourcing` (one implementation for both the backend and the agent runtime).
+ * `@lumera/shared/sourcing` (one implementation for both the backend and the agent runtime).
  *
  * Compliant-by-default: discovery routes through Oxylabs' managed scraping (rotating proxies +
  * structured parsers) rather than a hand-rolled browser against marketplace ToS. Degrades to an

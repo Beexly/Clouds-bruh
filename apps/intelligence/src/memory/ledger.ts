@@ -1,5 +1,5 @@
 import { Pool } from 'pg';
-import type { AgentRun, Audit } from '@alterxiv/shared';
+import type { AgentRun, Audit } from '@lumera/shared';
 
 let _pool: Pool | null = null;
 

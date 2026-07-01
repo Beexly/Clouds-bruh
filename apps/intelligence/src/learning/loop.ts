@@ -1,8 +1,8 @@
 import { Pool } from 'pg';
 import Redis from 'ioredis';
 import { Ledger } from '../memory/ledger';
-import type { SignalEvent } from '@alterxiv/shared';
-import { REWARD_WEIGHTS } from '@alterxiv/shared';
+import type { SignalEvent } from '@lumera/shared';
+import { REWARD_WEIGHTS } from '@lumera/shared';
 
 let _pool: Pool | null = null;
 function pool(): Pool {

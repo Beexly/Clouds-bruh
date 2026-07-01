@@ -13,7 +13,7 @@ import {
   type RadarSource,
   type VendorConnection,
   type VendorId,
-} from '@alterxiv/shared';
+} from '@lumera/shared';
 
 let _pool: pg.Pool | null = null;
 

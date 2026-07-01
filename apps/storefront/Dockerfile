@@ -13,13 +13,13 @@ WORKDIR /repo
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY packages/shared/package.json packages/shared/
 COPY apps/storefront/package.json apps/storefront/
-RUN pnpm install --frozen-lockfile --filter @alterxiv/shared... --filter storefront...
+RUN pnpm install --frozen-lockfile --filter @lumera/shared... --filter storefront...
 
 COPY packages/shared packages/shared
 COPY apps/storefront apps/storefront
 ARG NEXT_PUBLIC_MEDUSA_URL
 ARG NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
-RUN pnpm --filter @alterxiv/shared build && pnpm --filter storefront build
+RUN pnpm --filter @lumera/shared build && pnpm --filter storefront build
 
 ENV NODE_ENV=production
 EXPOSE 3000

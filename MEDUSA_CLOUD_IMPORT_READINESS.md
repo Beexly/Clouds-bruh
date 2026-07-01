@@ -103,7 +103,7 @@ Medusa Cloud looks for it (it reported *"No lockfiles found"* while the project 
 │  ├─ storefront     ← Next.js 15 "The Broadcast"  (deploy separately, e.g. Vercel)
 │  └─ intelligence   ← Node/TS autonomous-agent runtime (separate worker, optional at launch)
 ├─ packages/
-│  ├─ shared         ← @alterxiv/shared (types + SIGNAL taxonomy; workspace dep of all apps)
+│  ├─ shared         ← @lumera/shared (types + SIGNAL taxonomy; workspace dep of all apps)
 │  └─ data           ← sample CSVs .gitignored; committed fixtures in packages/data/fixtures/
 ├─ scripts/          ← seed + verify-api.sh + setup-embeddings.ts + ensure-publishable-key.ts
 ├─ package.json      ← root scripts (turbo), packageManager pnpm@9.0.0
@@ -119,8 +119,8 @@ Medusa Cloud looks for it (it reported *"No lockfiles found"* while the project 
 - **Lockfile at the repo root — ✅ FIXED.** Medusa Cloud scans the **repo root** for the lockfile; with the
   project promoted to the root, `pnpm-lock.yaml` is now there and the import proceeds. Verified from the new
   root: `pnpm install --frozen-lockfile` and `pnpm lint` (4/4) both pass (§16).
-- **Workspace-protocol dependency.** `apps/backend` depends on `@alterxiv/shared` via `"workspace:*"`, so the
-  install must run at the **workspace root (= repo root)** so pnpm links `@alterxiv/shared`; Medusa Cloud then
+- **Workspace-protocol dependency.** `apps/backend` depends on `@lumera/shared` via `"workspace:*"`, so the
+  install must run at the **workspace root (= repo root)** so pnpm links `@lumera/shared`; Medusa Cloud then
   builds the `apps/backend` sub-path. Set **Base/Root directory = `apps/backend`**. With the flattened layout
   this is the standard "lockfile at root, app in a subdir" monorepo shape. **[verify in console]**
 - **`.npmrc`:** `shamefully-hoist=true` (Medusa admin's Vite bundler needs a flat `node_modules`) and
@@ -361,7 +361,7 @@ safety posture:
 | `pnpm test` | ✅ **PASS** — all unit tests green (exit 0). |
 | `pnpm build` | ✅ backend + shared + intelligence green; storefront green **once Google-Fonts egress is reachable**. In this sandbox the egress proxy's self-signed cert blocks `next/font/google` by default (environment limitation, not a code defect — confirmed green with the cert tolerated). |
 | `DATABASE_URL=…/alterxiv_verify pnpm verify:api` | ◑ **Data pipeline GREEN; final HTTP sweep not run in-sandbox.** After the §13.1/§13.2 fixes the full clean-DB chain passed: **migrations ✓ → seed via committed fixtures (10 products + 2 drops) ✓ → commerce/region/shipping ✓ → prices ✓ → inventory ✓ → pgvector embeddings (10) ✓ → monetization tiers ✓ → publishable key ✓ → backend build ✓**. The 21 API regressions did **not** execute here: `medusa start` (from the source dir) couldn't serve the production admin build under the sandbox's restricted egress (`Could not find index.html …`). That is a `medusa start` admin-serving quirk, **not** an app/code defect and **not** how Medusa Cloud runs the app — its managed runtime serves admin itself, and the handoff records these regressions as 21/21 in a normal environment. |
-| **Repo-root restructure** (`deploy/medusa-cloud`) | ✅ **PASS** — after promoting the project to the repo root so `pnpm-lock.yaml` sits where Medusa Cloud looks, `pnpm install --frozen-lockfile` (*"Lockfile is up to date"*) and `pnpm lint` (4/4, FULL TURBO) both pass from the new root — the workspace + `@alterxiv/shared` still resolve. |
+| **Repo-root restructure** (`deploy/medusa-cloud`) | ✅ **PASS** — after promoting the project to the repo root so `pnpm-lock.yaml` sits where Medusa Cloud looks, `pnpm install --frozen-lockfile` (*"Lockfile is up to date"*) and `pnpm lint` (4/4, FULL TURBO) both pass from the new root — the workspace + `@lumera/shared` still resolve. |
 
 > **Two minor in-sandbox notes (not blockers):** (1) `scripts/verify-api.sh:91` decides "build present
 > (reusing)" from the *existence of `.medusa/server`* alone, so it can reuse an admin build left

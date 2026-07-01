@@ -1,4 +1,4 @@
-import { selectFulfillmentVendor, type VendorId } from '@alterxiv/shared';
+import { selectFulfillmentVendor, type VendorId } from '@lumera/shared';
 import { ensureLumeraTables, pool, connectedVendorIds } from './lumera-db';
 
 type OrderItemLike = {

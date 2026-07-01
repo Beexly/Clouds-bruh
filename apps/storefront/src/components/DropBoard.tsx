@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { signal } from '../lib/signal';
 import { Countdown } from './Countdown';
-import type { Drop } from '@alterxiv/shared';
+import type { Drop } from '@lumera/shared';
 
 /** The departure board — the heart of The Broadcast. Live drops, countdowns, scarcity. */
 export function DropBoard({ drops }: { drops: Drop[] }) {

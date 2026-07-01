@@ -1,7 +1,7 @@
 import type { MedusaRequest, MedusaResponse } from '@medusajs/framework/http';
 import { SIGNAL_MODULE } from '../../../modules/signal';
 import { PERSONALIZATION_MODULE } from '../../../modules/personalization';
-import { EVENT_TYPES, CHAPTERS, PRICE_BANDS, type SignalEvent } from '@alterxiv/shared';
+import { EVENT_TYPES, CHAPTERS, PRICE_BANDS, type SignalEvent } from '@lumera/shared';
 
 const EVENT_TYPE_SET = new Set<string>(EVENT_TYPES as readonly string[]);
 const CHAPTER_SET = new Set<string>(CHAPTERS as readonly string[]);

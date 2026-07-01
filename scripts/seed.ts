@@ -10,7 +10,7 @@ import { join } from 'node:path';
 import { parse } from 'csv-parse/sync';
 import type { ExecArgs } from '@medusajs/framework/types';
 import { Modules } from '@medusajs/framework/utils';
-import type { Chapter } from '@alterxiv/shared';
+import type { Chapter } from '@lumera/shared';
 import { seedMembershipTiers } from './seed-monetization';
 
 const DATA = join(__dirname, '../packages/data');

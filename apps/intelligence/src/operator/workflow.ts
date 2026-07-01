@@ -1,4 +1,4 @@
-import type { AgentRun } from '@alterxiv/shared';
+import type { AgentRun } from '@lumera/shared';
 
 /**
  * G03 — durable agent-workflow grammar (Temporal/LangGraph pattern, no dependency).

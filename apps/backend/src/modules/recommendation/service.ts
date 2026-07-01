@@ -1,6 +1,6 @@
 import { MedusaService } from '@medusajs/framework/utils';
 import { Recommendation } from './models/recommendation';
-import type { RecStrategy } from '@alterxiv/shared';
+import type { RecStrategy } from '@lumera/shared';
 import pg from 'pg';
 import Redis from 'ioredis';
 import { graphRecForVisitor } from './strategies/graph-rec';

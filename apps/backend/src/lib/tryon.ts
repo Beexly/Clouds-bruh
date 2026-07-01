@@ -7,7 +7,7 @@
  * Field mapping (person_image/garment_image → result image_url) follows the common convention;
  * adjust per your provider's contract. No inference runs without TRYON/IDM_VTON/KOLORS credentials.
  */
-import { retry, isTransient, TimeoutError } from '@alterxiv/shared';
+import { retry, isTransient, TimeoutError } from '@lumera/shared';
 
 export type TryOnProvider = 'idm-vton' | 'kolors' | 'generic';
 

@@ -1,6 +1,6 @@
 import type { Tool } from './index';
 import { Pool } from 'pg';
-import { planDropActions, type LiveDrop } from '@alterxiv/shared';
+import { planDropActions, type LiveDrop } from '@lumera/shared';
 
 let _pool: Pool | null = null;
 function pool(): Pool {

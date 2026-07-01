@@ -1,5 +1,5 @@
 import type { MedusaContainer } from '@medusajs/framework';
-import { planDropActions } from '@alterxiv/shared';
+import { planDropActions } from '@lumera/shared';
 import { readLiveDrops, openProposalDropIds, buildProposalRun, insertProposalRun } from '../lib/drop-grader';
 
 /**

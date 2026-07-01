@@ -2,7 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { AGENTS, type AgentDef } from '../agents';
 import { toolsFor } from '../tools';
 import { Ledger } from '../memory/ledger';
-import type { AgentRun, PendingAction } from '@alterxiv/shared';
+import type { AgentRun, PendingAction } from '@lumera/shared';
 
 /** Pure gate check: is this tool-use a privileged action this agent must escalate? */
 export function isGated(def: AgentDef, toolName: string, input?: any): boolean {

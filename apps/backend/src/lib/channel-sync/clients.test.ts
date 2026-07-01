@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { candidateToChannelListing, fixtureCandidates } from '@alterxiv/shared';
+import { candidateToChannelListing, fixtureCandidates } from '@lumera/shared';
 import {
   AmazonChannelAdapter,
   EtsyChannelAdapter,

@@ -9,7 +9,7 @@ import {
   type VendorConnector,
   type VendorId,
   type VendorMode,
-} from '@alterxiv/shared';
+} from '@lumera/shared';
 
 const VENDOR_HTTP_TIMEOUT_MS = Number(process.env.VENDOR_HTTP_TIMEOUT_MS) || 15_000;
 const VENDOR_HTTP_ATTEMPTS = Number(process.env.VENDOR_HTTP_ATTEMPTS) || 3;

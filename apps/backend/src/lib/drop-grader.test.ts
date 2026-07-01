@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { buildProposalRun } from './drop-grader';
-import { planDropActions, type DropProposal } from '@alterxiv/shared';
+import { planDropActions, type DropProposal } from '@lumera/shared';
 
 const scale: DropProposal = {
   drop_id: 'd1', name: 'Eclipse Hoodie', grade: 'scale', sell_through: 0.8,

@@ -11,7 +11,7 @@ const { query, ensureAgentRunTable } = vi.hoisted(() => ({ query: vi.fn(), ensur
 vi.mock('./lumera-db', () => ({ pool: () => ({ query }), ensureAgentRunTable }));
 
 import { insertProposalRun, buildProposalRun } from './drop-grader';
-import type { DropProposal } from '@alterxiv/shared';
+import type { DropProposal } from '@lumera/shared';
 
 const proposal: DropProposal = {
   drop_id: 'd1', name: 'Eclipse Hoodie', grade: 'scale', sell_through: 0.8,

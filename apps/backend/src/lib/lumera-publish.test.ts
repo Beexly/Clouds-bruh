@@ -1,5 +1,5 @@
 import { describe, expect, it, afterEach, vi } from 'vitest';
-import { fixtureCandidates } from '@alterxiv/shared';
+import { fixtureCandidates } from '@lumera/shared';
 import { buildProductPayload, findExistingLumeraProduct, publishCandidateToMedusa } from './lumera-publish';
 
 const envKeys = [

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { inferBlock, learnFrom, claimReward } from './loop';
-import type { SignalEvent } from '@alterxiv/shared';
-import { REWARD_WEIGHTS } from '@alterxiv/shared';
+import type { SignalEvent } from '@lumera/shared';
+import { REWARD_WEIGHTS } from '@lumera/shared';
 
 describe('claimReward (at-most-once dedup)', () => {
   beforeEach(() => {

@@ -1,5 +1,5 @@
 import type { Tool } from './index';
-import { rankVendorOptions, type VendorOption } from '@alterxiv/shared';
+import { rankVendorOptions, type VendorOption } from '@lumera/shared';
 
 /**
  * vendor_select — decision support for the Quartermaster: rank candidate fulfilment vendors for a

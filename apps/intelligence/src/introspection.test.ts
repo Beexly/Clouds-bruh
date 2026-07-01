@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { vendorHealthAudits } from './introspection';
-import type { VendorConnection } from '@alterxiv/shared';
+import type { VendorConnection } from '@lumera/shared';
 
 const conn = (over: Partial<VendorConnection> & { id: VendorConnection['id'] }): VendorConnection => ({
   label: String(over.id),
