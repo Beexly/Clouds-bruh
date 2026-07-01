@@ -1,11 +1,14 @@
 import type { MedusaRequest, MedusaResponse } from '@medusajs/framework/http';
 import { SIGNAL_MODULE } from '../../../modules/signal';
 import { PERSONALIZATION_MODULE } from '../../../modules/personalization';
-import { EVENT_TYPES, type SignalEvent } from '@alterxiv/shared';
+import { EVENT_TYPES, CHAPTERS, PRICE_BANDS, type SignalEvent } from '@alterxiv/shared';
 
 const EVENT_TYPE_SET = new Set<string>(EVENT_TYPES as readonly string[]);
+const CHAPTER_SET = new Set<string>(CHAPTERS as readonly string[]);
+const PRICE_BAND_SET = new Set<string>(PRICE_BANDS as readonly string[]);
 const MAX_FIELD = 256; // cap individual id/value strings
 const MAX_CONTEXT_KEYS = 16; // cap context breadth
+const MAX_BUCKET_KEY = 64; // affinity bucket keys (category/aesthetic) stay short + bounded
 const MAX_BODY_BYTES = 16_384; // reject oversized payloads
 
 /**
@@ -28,6 +31,15 @@ export function validateSignal(raw: unknown): { event: SignalEvent } | { error: 
   const context: Record<string, unknown> = {};
   for (const k of Object.keys(ctxRaw).slice(0, MAX_CONTEXT_KEYS)) {
     const v = ctxRaw[k];
+    // Enforce the typed enums at the trust boundary: a malformed chapter/price_band is DROPPED (not
+    // rejected — one bad field shouldn't discard a whole event) so it can never create a junk affinity
+    // bucket downstream in MIND. Free-string bucket keys (category/aesthetic) are lower-cased + bounded.
+    if (k === 'chapter') { if (typeof v === 'string' && CHAPTER_SET.has(v)) context[k] = v; continue; }
+    if (k === 'price_band') { if (typeof v === 'string' && PRICE_BAND_SET.has(v)) context[k] = v; continue; }
+    if (k === 'category' || k === 'aesthetic') {
+      if (typeof v === 'string' && v.trim()) context[k] = v.trim().toLowerCase().slice(0, MAX_BUCKET_KEY);
+      continue;
+    }
     context[k] = typeof v === 'string' ? v.slice(0, MAX_FIELD) : v;
   }
   const event: SignalEvent = {

@@ -51,6 +51,27 @@ describe('validateSignal', () => {
     if ('event' in r) expect((r.event.entity_id ?? '').length).toBeLessThanOrEqual(256);
   });
 
+  it('drops an invalid chapter but keeps the rest of the event (no junk affinity bucket)', () => {
+    const r = validateSignal({ ...valid, context: { chapter: 'garbage', category: 'Outerwear' } });
+    expect('event' in r).toBe(true);
+    if ('event' in r) {
+      expect(r.event.context).not.toHaveProperty('chapter'); // invalid enum dropped
+      expect(r.event.context.category).toBe('outerwear');    // free key lower-cased + kept
+    }
+  });
+
+  it('drops an invalid price_band but keeps a valid one', () => {
+    const bad = validateSignal({ ...valid, context: { price_band: 'ultra' } });
+    const good = validateSignal({ ...valid, context: { price_band: 'luxury' } });
+    if ('event' in bad) expect(bad.event.context).not.toHaveProperty('price_band');
+    if ('event' in good) expect(good.event.context.price_band).toBe('luxury');
+  });
+
+  it('bounds category/aesthetic bucket keys (no giant affinity keys)', () => {
+    const r = validateSignal({ ...valid, context: { aesthetic: 'X'.repeat(500) } });
+    if ('event' in r) expect(String(r.event.context.aesthetic).length).toBeLessThanOrEqual(64);
+  });
+
   it('drops a non-object context to an empty object (never throws)', () => {
     const r = validateSignal({ ...valid, context: 'not-an-object' });
     expect('event' in r).toBe(true);
