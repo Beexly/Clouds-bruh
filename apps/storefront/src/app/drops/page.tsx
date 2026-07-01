@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { DropBoard } from '../../components/DropBoard';
 import { PageSignal } from '../../components/PageSignal';
+import { DEMO, demoDrops } from '../../lib/demo';
 
 const API = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000';
 const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
@@ -11,6 +12,7 @@ export const metadata: Metadata = {
 };
 
 async function fetchDrops() {
+  if (DEMO) return demoDrops();
   try {
     const res = await fetch(`${API}/store/drops`, {
       cache: 'no-store',

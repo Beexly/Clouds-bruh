@@ -5,12 +5,14 @@ import { ProductRail } from '../../../components/ProductRail';
 import { PageSignal } from '../../../components/PageSignal';
 import { Countdown } from '../../../components/Countdown';
 import { getRegionId, PRODUCT_FIELDS } from '../../../lib/catalog';
+import { DEMO, demoDropById, demoProductsByIds } from '../../../lib/demo';
 
 const API = process.env.MEDUSA_BACKEND_URL || 'http://localhost:9000';
 const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
 const headers = { 'x-publishable-api-key': PK };
 
 async function fetchDrop(id: string) {
+  if (DEMO) return demoDropById(id);
   try {
     const res = await fetch(`${API}/store/drops`, { cache: 'no-store', headers });
     if (!res.ok) return null;
@@ -23,6 +25,7 @@ async function fetchDrop(id: string) {
 
 async function fetchProducts(ids: string[]) {
   if (!ids?.length) return [];
+  if (DEMO) return demoProductsByIds(ids);
   try {
     const region = await getRegionId();
     const params = ids.map((id) => `id[]=${id}`).join('&');

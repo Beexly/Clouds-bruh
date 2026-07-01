@@ -83,12 +83,38 @@ export function demoBroadcast() {
     visitor_id: 'demo',
     block_order: ['live_drops', 'trending_in_chapter', 'complete_the_set', 'worn_together'],
     blocks: {
-      live_drops: [],
+      live_drops: demoDrops(),
       trending_in_chapter: ['demo_armor_jacket', 'demo_rel_shoe', 'demo_signal_charger', 'demo_altar_incense'],
       complete_the_set: ['demo_armor_vest', 'demo_still_wrap', 'demo_rel_short', 'demo_signal_cable'],
       worn_together: ['demo_still_journal', 'demo_altar_tray', 'demo_armor_jacket', 'demo_signal_charger'],
     },
   };
+}
+
+/** Demo drops for the departure board (dates are relative to render time so countdowns stay sensible). */
+export function demoDrops() {
+  const now = Date.now();
+  const day = 86_400_000;
+  return [
+    {
+      id: 'demo_drop_armor', name: 'Armor — Season Zero', chapter: 'armor', status: 'live',
+      units_total: 200, units_remaining: 24, product_ids: ['demo_armor_jacket', 'demo_armor_vest'],
+      starts_at: new Date(now - 2 * day).toISOString(), ends_at: new Date(now + 6 * day).toISOString(),
+    },
+    {
+      id: 'demo_drop_altar', name: 'Altar — Sacred Objects', chapter: 'altar', status: 'live',
+      units_total: 80, units_remaining: 9, product_ids: ['demo_altar_incense', 'demo_altar_tray'],
+      starts_at: new Date(now - 1 * day).toISOString(), ends_at: new Date(now + 2 * day).toISOString(),
+    },
+    {
+      id: 'demo_drop_relentless', name: 'Relentless — The Grind', chapter: 'relentless', status: 'scheduled',
+      units_total: 150, units_remaining: 150, product_ids: ['demo_rel_shoe', 'demo_rel_short'],
+      starts_at: new Date(now + 4 * day).toISOString(), ends_at: new Date(now + 11 * day).toISOString(),
+    },
+  ];
+}
+export function demoDropById(id: string) {
+  return demoDrops().find((d) => d.id === id) ?? null;
 }
 
 /** Simple demo search over title/chapter/description. */
