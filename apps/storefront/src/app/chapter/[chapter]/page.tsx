@@ -61,7 +61,7 @@ export default async function ChapterPage({ params }: { params: Promise<{ chapte
     <main className="min-h-screen bg-void bg-sacred-grain">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbs) }} />
       <PageSignal type="chapter_enter" context={{ chapter }} />
-      <section className="px-6 py-24 text-center">
+      <section className="px-6 py-16 text-center">
         <p className="mb-3 text-micro uppercase text-neutral-600">Chapter</p>
         <h1 className="font-serif text-5xl font-light capitalize tracking-[0.1em] text-foil md:text-7xl">
           {chapter}
