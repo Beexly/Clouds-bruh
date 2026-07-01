@@ -1,5 +1,6 @@
 'use client';
 import type { EventType } from '@lumera/shared';
+import { DEMO } from './demo';
 
 const BASE = process.env.NEXT_PUBLIC_MEDUSA_URL || 'http://localhost:9000';
 const PK = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || '';
@@ -36,6 +37,9 @@ export function sessionId(): string {
 /** Fire a SIGNAL event. Call on every meaningful interaction — this is how the system learns. */
 export function signal(type: EventType, entity_id?: string, value?: string | number, context: any = {}) {
   if (typeof window === 'undefined') return;
+  // Demo mode has no backend to receive events — skip the (guaranteed-failing) request so a shared
+  // preview stays quiet in the network tab. The learning loop only runs against a real backend.
+  if (DEMO) return;
   const body = JSON.stringify({
     id: crypto.randomUUID(),
     visitor_id: visitorId(),
