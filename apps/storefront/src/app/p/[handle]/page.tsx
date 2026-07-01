@@ -8,6 +8,7 @@ import { PageSignal } from '../../../components/PageSignal';
 import { ProductRail } from '../../../components/ProductRail';
 import { ProductImage } from '../../../components/ProductImage';
 import { ReviewForm } from '../../../components/ReviewForm';
+import { TryOnButton } from '../../../components/TryOnButton';
 import { getRegionId, PRODUCT_FIELDS, priceCents, priceCurrency, priceStr } from '../../../lib/catalog';
 import { DEMO, demoProductByHandle, demoAllProducts } from '../../../lib/demo';
 import { breadcrumbList, jsonLdScript } from '../../../lib/jsonld';
@@ -289,6 +290,8 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
                 }}
               />
             </div>
+            {/* AR try-on — renders only when the backend has a provider configured (hidden in demo). */}
+            <TryOnButton garmentImageUrl={mainImg || undefined} />
 
             <div className="mt-8 border-t border-white/[0.06] pt-6">
               <p className="text-micro uppercase text-neutral-600">Product Truth</p>
