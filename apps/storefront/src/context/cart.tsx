@@ -2,6 +2,26 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import { createCart, getCart, addToCart, removeFromCart, getRegions } from '../lib/api';
 import { signal } from '../lib/signal';
+import { DEMO, demoLineItem } from '../lib/demo';
+
+// Demo mode keeps a fully client-side cart (no backend) so "Add to Cart" actually works in the
+// zero-config Vercel preview: items add/remove, the header count updates, the cart page renders them.
+const DEMO_CART_KEY = 'lumera_demo_cart';
+function loadDemoCart(): any {
+  try {
+    const raw = typeof localStorage !== 'undefined' ? localStorage.getItem(DEMO_CART_KEY) : null;
+    return raw ? JSON.parse(raw) : { id: 'demo_cart', items: [] };
+  } catch {
+    return { id: 'demo_cart', items: [] };
+  }
+}
+function saveDemoCart(c: any) {
+  try {
+    localStorage.setItem(DEMO_CART_KEY, JSON.stringify(c));
+  } catch {
+    /* ignore quota/private-mode errors */
+  }
+}
 
 interface CartCtx {
   cart: any;
@@ -19,6 +39,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<any>(null);
 
   const getOrCreateCart = useCallback(async () => {
+    if (DEMO) {
+      const c = loadDemoCart();
+      setCart(c);
+      return c;
+    }
     let cartId = localStorage.getItem('axiv_cart');
     if (cartId) {
       try {
@@ -38,6 +63,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => { getOrCreateCart().catch(() => {}); }, [getOrCreateCart]);
 
   const add = useCallback(async (variantId: string, productId: string, chapter?: string) => {
+    if (DEMO) {
+      const c = cart ?? loadDemoCart();
+      const items = [...(c.items ?? [])];
+      const existing = items.find((li: any) => li.product_id === productId);
+      if (existing) existing.quantity += 1;
+      else {
+        const li = demoLineItem(productId);
+        if (li) items.push(li);
+      }
+      const updated = { ...c, items };
+      saveDemoCart(updated);
+      setCart(updated);
+      signal('add_to_cart', productId, undefined, { chapter });
+      return;
+    }
     const c = cart ?? await getOrCreateCart();
     const { cart: updated } = await addToCart(c.id, variantId);
     setCart(updated);
@@ -45,6 +85,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [cart, getOrCreateCart]);
 
   const remove = useCallback(async (lineItemId: string) => {
+    if (DEMO) {
+      const c = cart ?? loadDemoCart();
+      const updated = { ...c, items: (c.items ?? []).filter((li: any) => li.id !== lineItemId) };
+      saveDemoCart(updated);
+      setCart(updated);
+      signal('remove_from_cart', lineItemId);
+      return;
+    }
     if (!cart) return;
     const { cart: updated } = await removeFromCart(cart.id, lineItemId);
     setCart(updated);

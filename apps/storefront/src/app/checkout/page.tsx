@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useCart } from '../../context/cart';
+import { DEMO } from '../../lib/demo';
 import { signal } from '../../lib/signal';
 import { PageSignal } from '../../components/PageSignal';
 import { PayPalButtons } from '../../components/payment/PayPalButtons';
@@ -143,6 +144,26 @@ export default function CheckoutPage() {
     }
     finally { setBusy(false); }
   };
+
+  // Demo mode has no backend/payment rails — show an honest notice instead of a broken payment form.
+  if (DEMO) {
+    return (
+      <main className="min-h-screen bg-void bg-sacred-grain px-6 py-24">
+        <div className="mx-auto max-w-md text-center">
+          <p className="text-micro uppercase tracking-sacred text-neutral-600">Preview</p>
+          <h1 className="mt-3 font-serif text-3xl font-light text-neutral-100">Checkout is off in the preview</h1>
+          <p className="mt-4 text-sm leading-relaxed text-neutral-400">
+            This is a live preview of the Lumera storefront. Browsing, drops, search, and the cart all
+            work — but taking payment needs the full store connected (backend + Stripe). See
+            <span className="text-altar-goldlight"> docs/GO_LIVE.md</span> to switch it on.
+          </p>
+          <a href="/" className="mt-8 inline-block border border-neutral-700 px-6 py-3 text-micro uppercase tracking-wide text-neutral-300 transition hover:border-neutral-500 hover:text-neutral-100">
+            Back to the Broadcast
+          </a>
+        </div>
+      </main>
+    );
+  }
 
   if (!items.length && step !== 'complete') {
     return (

@@ -91,6 +91,22 @@ export function demoBroadcast() {
   };
 }
 
+/** A cart line item for a demo product (matches the fields the cart page + header read). */
+export function demoLineItem(productId: string, quantity = 1) {
+  const p = DEMO_PRODUCTS.find((x) => x.id === productId);
+  if (!p) return null;
+  return {
+    id: `li_${productId}`,
+    product_id: productId,
+    variant_id: `${p.id}_v`,
+    title: p.title,
+    variant_title: 'Standard',
+    thumbnail: `/demo/${p.handle}.webp`,
+    quantity,
+    unit_price: p.price, // cents
+  };
+}
+
 /** Demo drops for the departure board (dates are relative to render time so countdowns stay sensible). */
 export function demoDrops() {
   const now = Date.now();
