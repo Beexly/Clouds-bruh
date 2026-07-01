@@ -1,12 +1,18 @@
 import {
   attachReview,
   fixtureCandidates,
+  retry,
+  isTransient,
+  TimeoutError,
   type ProductCandidate,
   type VendorConnection,
   type VendorConnector,
   type VendorId,
   type VendorMode,
 } from '@alterxiv/shared';
+
+const VENDOR_HTTP_TIMEOUT_MS = Number(process.env.VENDOR_HTTP_TIMEOUT_MS) || 15_000;
+const VENDOR_HTTP_ATTEMPTS = Number(process.env.VENDOR_HTTP_ATTEMPTS) || 3;
 
 type Json = Record<string, any>;
 
@@ -615,23 +621,58 @@ function slug(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 90);
 }
 
-async function requestJson(url: string, init: RequestInit = {}, attempt = 0): Promise<unknown> {
-  const res = await fetch(url, init);
-  const text = await res.text();
-  let body: unknown = {};
-  try {
-    body = text ? JSON.parse(text) : {};
-  } catch {
-    body = { raw: text };
-  }
-  if (!res.ok) {
-    const retryAfter = res.headers.get('retry-after');
-    if ((res.status === 429 || res.status >= 500) && attempt < 2) {
-      const waitMs = retryAfter ? Number(retryAfter) * 1000 : 350 * (attempt + 1);
-      await new Promise((resolve) => setTimeout(resolve, Number.isFinite(waitMs) ? waitMs : 350));
-      return requestJson(url, init, attempt + 1);
-    }
-    throw new Error(`Vendor request failed ${res.status}${retryAfter ? ` retry-after=${retryAfter}` : ''}: ${JSON.stringify(body).slice(0, 240)}`);
-  }
-  return body;
+/**
+ * A single vendor HTTP call: hard per-attempt timeout (aborts the fetch), then exponential backoff
+ * with full jitter across attempts. Only transient failures retry — HTTP 429/408/5xx and network/
+ * timeout errors — so 4xx client errors fail fast. Backs the live dropship lane, so it must never
+ * hang a worker indefinitely or hammer a rate-limited vendor in lock-step.
+ */
+async function requestJson(url: string, init: RequestInit = {}): Promise<unknown> {
+  return retry(
+    async () => {
+      const ac = new AbortController();
+      let timedOut = false;
+      const timer = setTimeout(() => {
+        timedOut = true;
+        ac.abort();
+      }, VENDOR_HTTP_TIMEOUT_MS);
+      let res: Response;
+      try {
+        res = await fetch(url, { ...init, signal: init.signal ?? ac.signal });
+      } catch (err) {
+        if (timedOut) throw new TimeoutError(`vendor request timed out after ${VENDOR_HTTP_TIMEOUT_MS}ms: ${url}`);
+        throw err; // network error (ECONNRESET / fetch failed) — retryable via isTransient
+      } finally {
+        clearTimeout(timer);
+      }
+      const text = await res.text();
+      let body: unknown = {};
+      try {
+        body = text ? JSON.parse(text) : {};
+      } catch {
+        body = { raw: text };
+      }
+      if (!res.ok) {
+        const retryAfter = res.headers.get('retry-after');
+        const error = new Error(
+          `Vendor request failed ${res.status}${retryAfter ? ` retry-after=${retryAfter}` : ''}: ${JSON.stringify(body).slice(0, 240)}`,
+        ) as Error & { status?: number };
+        error.status = res.status;
+        throw error;
+      }
+      return body;
+    },
+    {
+      attempts: VENDOR_HTTP_ATTEMPTS,
+      baseMs: 350,
+      maxMs: 8_000,
+      // HTTP errors decide by status (no false positives from response bodies); non-HTTP
+      // (timeout/network) decide by isTransient.
+      retryable: (err) => {
+        const status = (err as { status?: number })?.status;
+        if (typeof status === 'number') return status === 429 || status === 408 || status >= 500;
+        return isTransient(err);
+      },
+    },
+  );
 }

@@ -7,3 +7,4 @@ export * from './vendor-routing';
 export * from './channels';
 export * from './constellation';
 export * from './drop-grading';
+export * from './resilience';
